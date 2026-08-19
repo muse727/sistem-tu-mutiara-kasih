@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class PosBundle extends Model
 {
-    protected $fillable = ['name', 'description', 'price', 'is_active'];
+    protected $fillable = ['name', 'description', 'is_active'];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'price'     => 'integer',
     ];
 
     /**

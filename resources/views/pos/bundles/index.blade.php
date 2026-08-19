@@ -90,8 +90,8 @@
 
                         <div class="flex items-center justify-between mb-4">
                             <div>
-                                <p class="text-xs text-slate-400 font-medium">Harga Jual</p>
-                                <p class="text-xl font-black text-[#0284c7]">Rp {{ number_format($bundle->price, 0, ',', '.') }}</p>
+                                <p class="text-xs text-slate-400 font-medium">Total Harga</p>
+                                <p class="text-xl font-black text-[#0284c7]">Rp {{ number_format($bundle->total_item_price, 0, ',', '.') }}</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-xs text-slate-400 font-medium">Item</p>
@@ -178,12 +178,11 @@ const bundleProductsData = @json($productsJson);
                     <textarea name="description" rows="2" placeholder="Deskripsi singkat paket"
                               class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition resize-none"></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Harga Jual <span class="text-red-500">*</span></label>
-                    <input type="number" name="price" placeholder="0" min="0"
-                           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                </div>
-                <div class="flex items-end pb-1">
+                <div class="md:col-span-2 flex items-center justify-between bg-sky-50 border border-sky-200 rounded-xl px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide">Total Harga Paket (otomatis)</p>
+                        <p class="text-lg font-black text-sky-700" id="createTotalDisplay">Rp 0</p>
+                    </div>
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" name="is_active" value="1" checked
                                class="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500">
@@ -200,14 +199,15 @@ const bundleProductsData = @json($productsJson);
                 </div>
                 <div id="createItemsContainer" class="space-y-3">
                     <div class="create-item-row flex items-center gap-2 bg-slate-50 rounded-lg p-3">
-                        <select name="products[]"
+                        <select name="products[]" onchange="recalcCreateTotal()"
                                 class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
                             <option value="">-- Pilih Barang --</option>
                             @foreach($products as $p)
-                            <option value="{{ $p->id }}">{{ $p->name }} (Stok: {{ $p->stock }})</option>
+                            <option value="{{ $p->id }}" data-price="{{ $p->price }}">{{ $p->name }} (Stok: {{ $p->stock }})</option>
                             @endforeach
                         </select>
                         <input type="number" name="quantities[]" value="1" min="1" placeholder="Qty"
+                               oninput="recalcCreateTotal()"
                                class="w-20 border border-slate-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
                         <button type="button" onclick="removeCreateRow(this)" class="text-slate-400 hover:text-red-500 transition-colors p-1" disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,12 +264,11 @@ const bundleProductsData = @json($productsJson);
                     <textarea name="description" id="editDescription" rows="2"
                               class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition resize-none"></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Harga Jual <span class="text-red-500">*</span></label>
-                    <input type="number" name="price" id="editPrice" min="0"
-                           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                </div>
-                <div class="flex items-end pb-1">
+                <div class="md:col-span-2 flex items-center justify-between bg-sky-50 border border-sky-200 rounded-xl px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide">Total Harga Paket (otomatis)</p>
+                        <p class="text-lg font-black text-sky-700" id="editTotalDisplay">Rp 0</p>
+                    </div>
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" name="is_active" id="editIsActive" value="1"
                                class="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500">
@@ -331,21 +330,24 @@ function buildProductOptions(selectedId) {
     let html = '<option value="">-- Pilih Barang --</option>';
     bundleProductsData.forEach(p => {
         const sel = p.id == selectedId ? ' selected' : '';
-        html += `<option value="${p.id}"${sel}>${p.name} (Stok: ${p.stock})</option>`;
+        html += `<option value="${p.id}" data-price="${p.price}"${sel}>${p.name} (Stok: ${p.stock})</option>`;
     });
     return html;
 }
 
 // ── Item row HTML ──
 function itemRowHTML(productId, qty, prefix) {
+    const recalcFn = prefix === 'create' ? 'recalcCreateTotal()' : 'recalcEditTotal()';
+    const removeFn = prefix === 'create' ? 'removeCreateRow(this)' : 'removeRow(this)';
     return `
     <div class="${prefix}-item-row flex items-center gap-2 bg-slate-50 rounded-lg p-3">
-        <select name="products[]" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
+        <select name="products[]" onchange="${recalcFn}" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
             ${buildProductOptions(productId)}
         </select>
         <input type="number" name="quantities[]" value="${qty || 1}" min="1" placeholder="Qty"
+               oninput="${recalcFn}"
                class="w-20 border border-slate-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-        <button type="button" onclick="removeRow(this)" class="text-slate-400 hover:text-red-500 transition-colors p-1">
+        <button type="button" onclick="${removeFn}" class="text-slate-400 hover:text-red-500 transition-colors p-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -362,7 +364,11 @@ function removeCreateRow(btn) {
     const container = document.getElementById('createItemsContainer');
     if (container.querySelectorAll('.create-item-row').length > 1) {
         btn.closest('.create-item-row').remove();
+        // disable tombol hapus kalau tinggal 1 row
+        const rows = container.querySelectorAll('.create-item-row');
+        if (rows.length === 1) rows[0].querySelector('button').disabled = true;
         updateCreateItemCount();
+        recalcCreateTotal();
     }
 }
 function updateCreateItemCount() {
@@ -382,14 +388,39 @@ function updateItemCount(container) {
 function addCreateRow() {
     const container = document.getElementById('createItemsContainer');
     container.insertAdjacentHTML('beforeend', itemRowHTML(null, 1, 'create'));
-    // fix: first row remove button should be enabled when >1 rows
+    // enable semua tombol hapus saat >1 row, disable hanya kalau tinggal 1
     const rows = container.querySelectorAll('.create-item-row');
-    rows.forEach(r => r.querySelector('button').disabled = rows.length === 1);
+    rows.forEach(r => r.querySelector('button').disabled = false);
+    if (rows.length === 1) rows[0].querySelector('button').disabled = true;
     updateCreateItemCount();
+    recalcCreateTotal();
 }
 function addEditRow() {
     document.getElementById('editItemsContainer').insertAdjacentHTML('beforeend', itemRowHTML(null, 1, 'edit'));
     updateEditItemCount();
+    recalcEditTotal();
+}
+
+// ── Live total kalkulasi ──
+function calcTotal(containerId) {
+    let total = 0;
+    document.querySelectorAll(`#${containerId} [class*="item-row"]`).forEach(row => {
+        const select = row.querySelector('select');
+        const qtyInput = row.querySelector('input[type="number"]');
+        const selectedOpt = select?.options[select.selectedIndex];
+        const price = parseFloat(selectedOpt?.dataset?.price || 0);
+        const qty   = parseInt(qtyInput?.value || 1);
+        if (price > 0) total += price * qty;
+    });
+    return total;
+}
+function recalcCreateTotal() {
+    const total = calcTotal('createItemsContainer');
+    document.getElementById('createTotalDisplay').textContent = 'Rp ' + total.toLocaleString('id-ID');
+}
+function recalcEditTotal() {
+    const total = calcTotal('editItemsContainer');
+    document.getElementById('editTotalDisplay').textContent = 'Rp ' + total.toLocaleString('id-ID');
 }
 
 // ── Create ──
@@ -434,9 +465,8 @@ async function fetchAndEditBundle(id) {
         const b = data.bundle;
         document.getElementById('editName').value        = b.name || '';
         document.getElementById('editDescription').value = b.description || '';
-        document.getElementById('editPrice').value       = b.price || 0;
         document.getElementById('editIsActive').checked  = !!b.is_active;
-        // Build item rows
+        // Build item rows — pakai pos_item_id (bukan product_id)
         const container = document.getElementById('editItemsContainer');
         container.innerHTML = '';
         const items = data.items || [];
@@ -444,10 +474,11 @@ async function fetchAndEditBundle(id) {
             container.insertAdjacentHTML('beforeend', itemRowHTML(null, 1, 'edit'));
         } else {
             items.forEach(item => {
-                container.insertAdjacentHTML('beforeend', itemRowHTML(item.product_id, item.quantity, 'edit'));
+                container.insertAdjacentHTML('beforeend', itemRowHTML(item.pos_item_id, item.quantity, 'edit'));
             });
         }
         updateEditItemCount();
+        recalcEditTotal();
         document.getElementById('formEdit').dataset.id = id;
         document.getElementById('editErrors').classList.add('hidden');
         openModal('modalEdit');

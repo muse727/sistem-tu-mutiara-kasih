@@ -41,9 +41,9 @@ class PosBundleController extends Controller
     {
         $request->validate([
             'name'         => 'required|string|max:255',
-            'price'        => 'required|numeric|min:0',
-            'products'     => 'required|array',
-            'products.*'   => 'nullable|exists:pos_items,id',
+            'description'  => 'nullable|string|max:500',
+            'products'     => 'required|array|min:1',
+            'products.*'   => 'required|exists:pos_items,id',
             'quantities'   => 'required|array',
             'quantities.*' => 'required|integer|min:1',
         ]);
@@ -51,9 +51,9 @@ class PosBundleController extends Controller
         try {
             DB::transaction(function () use ($request) {
                 $bundle = PosBundle::create([
-                    'name'      => $request->name,
-                    'price'     => $request->price,
-                    'is_active' => true,
+                    'name'        => $request->name,
+                    'description' => $request->description,
+                    'is_active'   => $request->boolean('is_active', true),
                 ]);
 
                 foreach ($request->products as $index => $productId) {
@@ -87,8 +87,13 @@ class PosBundleController extends Controller
 
         if (request()->wantsJson()) {
             return response()->json([
-                'bundle'   => $bundle,
+                'bundle'   => $bundle->append('total_item_price'),
                 'products' => $products,
+                // Expose items langsung di root agar fetchAndEditBundle bisa baca
+                'items'    => $bundle->items->map(fn($i) => [
+                    'pos_item_id' => $i->pos_item_id,
+                    'quantity'    => $i->quantity,
+                ]),
             ]);
         }
 
@@ -101,9 +106,9 @@ class PosBundleController extends Controller
 
         $request->validate([
             'name'         => 'required|string|max:255',
-            'price'        => 'required|numeric|min:0',
-            'products'     => 'required|array',
-            'products.*'   => 'nullable|exists:pos_items,id',
+            'description'  => 'nullable|string|max:500',
+            'products'     => 'required|array|min:1',
+            'products.*'   => 'required|exists:pos_items,id',
             'quantities'   => 'required|array',
             'quantities.*' => 'required|integer|min:1',
         ]);
@@ -111,8 +116,9 @@ class PosBundleController extends Controller
         try {
             DB::transaction(function () use ($request, $bundle) {
                 $bundle->update([
-                    'name'  => $request->name,
-                    'price' => $request->price,
+                    'name'        => $request->name,
+                    'description' => $request->description,
+                    'is_active'   => $request->boolean('is_active', false),
                 ]);
 
                 $bundle->items()->delete();
@@ -146,6 +152,22 @@ class PosBundleController extends Controller
         try {
             $bundle = PosBundle::findOrFail($id);
             $nama   = $bundle->name;
+
+            // Cek apakah bundle sudah pernah dipakai di tagihan siswa
+            // Kalau ada bill_items yang referensikan bundle ini, tolak hapus
+            // agar riwayat tagihan siswa tidak rusak.
+            $usedInBills = BillItem::where('pos_bundle_id', $bundle->id)->exists();
+            if ($usedInBills) {
+                $count = BillItem::where('pos_bundle_id', $bundle->id)->count();
+                $msg   = "Paket '{$nama}' tidak dapat dihapus karena sudah digunakan di {$count} tagihan siswa. Nonaktifkan paket jika tidak ingin dipakai lagi.";
+
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+                return back()->with('error', $msg);
+            }
+
+            // Aman dihapus — belum ada tagihan yang pakai bundle ini
             $bundle->items()->delete();
             $bundle->delete();
 
