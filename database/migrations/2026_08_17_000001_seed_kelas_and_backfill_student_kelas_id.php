@@ -30,31 +30,9 @@ use Illuminate\Support\Facades\Schema;
  */
 return new class extends Migration
 {
-    // ------------------------------------------------------------------
-    // Kelas seed data derived from distinct students.class_name values.
-    //
-    // tingkat and jurusan are inferred from the class name:
-    //   "X - Umum"  → tingkat 10, jurusan Umum  (SMA/SMK/MA style)
-    //   "XII-RPL"   → tingkat 12, jurusan RPL
-    //
-    // Add more rows here if new class_name values appear in the future.
-    // ------------------------------------------------------------------
-    private array $kelasSeed = [
-        [
-            'nama_kelas' => 'X - Umum',
-            'tingkat'    => 10,
-            'jurusan'    => 'Umum',
-            'wali_kelas' => null,
-            'is_aktif'   => true,
-        ],
-        [
-            'nama_kelas' => 'XII-RPL',
-            'tingkat'    => 12,
-            'jurusan'    => 'RPL',
-            'wali_kelas' => null,
-            'is_aktif'   => true,
-        ],
-    ];
+    // Kelas seed data dikosongkan — DB fresh, tidak ada data siswa lama
+    // yang perlu di-backfill. Admin input kelas manual via UI.
+    private array $kelasSeed = [];
 
     public function up(): void
     {

@@ -116,7 +116,7 @@
                             <button @click="setPaymentMode('online')" 
                                     :class="paymentMode === 'online' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
                                     class="flex-1 py-2 text-sm font-bold rounded-md transition duration-200 flex items-center justify-center gap-2">
-                                📱 QRIS / Hutang
+                                📱 Masukan Ke Tagihan Siswa
                             </button>
                         </div>
 
@@ -192,7 +192,7 @@
                 search: '',
                 studentSearch: '',
                 cart: [],
-                payAmount: '',
+                payAmount: 0,
                 paymentMode: 'cash',
                 
                 // Student Logic
@@ -229,8 +229,8 @@
                     if (mode === 'online') {
                         this.payAmount = 0;
                         setTimeout(() => document.querySelector('input[x-model="studentSearch"]')?.focus(), 100);
-                    } else {
-                        this.payAmount = '';
+                        } else {
+                        this.payAmount = 0;
                         this.selectedStudent = null;
                         this.studentSearch = '';
                     }
@@ -263,7 +263,7 @@
                 removeItem(index) { this.cart.splice(index, 1); },
                 
                 resetCart() { 
-                    if(this.cart.length > 0 && confirm('Hapus semua?')) { this.cart = []; this.payAmount = ''; } 
+                    if(this.cart.length > 0 && confirm('Hapus semua?')) { this.cart = []; this.payAmount = 0; } 
                 },
                 
                 formatRupiah(n) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n); },
@@ -272,9 +272,10 @@
                     // Validasi Dasar
                     if (this.cart.length === 0) return Swal.fire('Keranjang Kosong', '', 'warning');
                     
-                    // Validasi Cash
-                    if (this.paymentMode === 'cash' && this.payAmount < this.totalAmount) {
-                        return Swal.fire('Uang Kurang', `Kurang Rp ${(this.totalAmount - this.payAmount).toLocaleString('id-ID')}`, 'error');
+                    // Validasi Cash — cast ke Number agar tidak string comparison
+                    const payNum = parseFloat(this.payAmount) || 0;
+                    if (this.paymentMode === 'cash' && payNum < this.totalAmount) {
+                        return Swal.fire('Uang Kurang', `Kurang Rp ${(this.totalAmount - payNum).toLocaleString('id-ID')}`, 'error');
                     }
 
                     // Validasi Hutang (WAJIB PILIH SISWA)
@@ -289,9 +290,9 @@
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                             body: JSON.stringify({ 
-                                cart: this.cart, 
-                                total_amount: this.totalAmount, 
-                                payment_amount: this.paymentMode === 'cash' ? this.payAmount : 0,
+                                cart: this.cart,
+                                total_amount: this.totalAmount,
+                                payment_amount: this.paymentMode === 'cash' ? (parseFloat(this.payAmount) || 0) : 0,
                                 student_id: this.selectedStudent ? this.selectedStudent.id : null // Kirim ID Siswa
                             })
                         });

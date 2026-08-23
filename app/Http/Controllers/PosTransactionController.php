@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillItem;
 use App\Models\PosItem;
-use App\Models\PosOrder;     // Model Transaksi Header
-use App\Models\PosOrderItem; // Model Detail Item
-use App\Models\Student;      // <--- MODEL SISWA (PENTING)
+use App\Models\PosOrder;
+use App\Models\PosOrderItem;
+use App\Models\Student;
+use App\Models\StudentBill;
+use App\Services\FinancialAuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -45,88 +48,119 @@ class PosTransactionController extends Controller
     {
         // Validasi Input dari Frontend
         $request->validate([
-            'cart' => 'required|array',
-            'cart.*.id' => 'required|exists:pos_items,id',
-            'cart.*.qty' => 'required|integer|min:1',
-            'payment_amount' => 'required|numeric',
-            'total_amount' => 'required|numeric',
-            'student_id' => 'nullable|exists:students,id', // <--- Validasi ID Siswa
+            'cart'             => 'required|array|min:1',
+            'cart.*.id'        => 'required|exists:pos_items,id',
+            'cart.*.qty'       => 'required|integer|min:1',
+            'payment_amount'   => 'required|numeric|min:0',
+            'student_id'       => 'nullable|exists:students,id',
         ]);
 
         try {
-            // Mulai Database Transaction (Safety First!)
             DB::beginTransaction();
 
-            // A. Tentukan Status & Hitung Angka
-            // Jika uang yg dimasukkan >= total, maka LUNAS (Cash).
-            $isCash = $request->payment_amount >= $request->total_amount;
-            
-            // --- LOGIC PENTING: VALIDASI HUTANG ---
-            // Kalau bukan Cash (berarti Hutang/QRIS), WAJIB pilih siswa.
-            // Gak boleh ngutang tanpa identitas.
-            if (!$isCash && empty($request->student_id)) {
-                throw new \Exception("Untuk pembayaran Hutang/QRIS, WAJIB memilih nama siswa!");
+            // A. Rekalkulasi total_amount di SERVER dari harga DB.
+            // Tidak percaya nilai total_amount dari frontend — bisa dimanipulasi.
+            $serverTotal = 0;
+            foreach ($request->cart as $cartItem) {
+                $item = PosItem::find($cartItem['id']);
+                if ($item) {
+                    $serverTotal += $item->price * $cartItem['qty'];
+                }
             }
 
-            $statusPayment = $isCash ? 'PAID' : 'UNPAID';
-            
-            // Jika Lunas, barang langsung status COMPLETED (bawa pulang).
-            // Jika Pending, barang status PENDING (ambil nanti setelah bayar/scan).
+            if ($serverTotal <= 0) {
+                throw new \Exception('Total transaksi tidak valid.');
+            }
+
+            // A. Tentukan Status & Hitung Angka
+            // Jika uang yg dimasukkan >= total server, maka LUNAS (Cash).
+            $isCash = (float) $request->payment_amount >= $serverTotal;
+
+            // --- LOGIC PENTING: VALIDASI HUTANG ---
+            // Kalau bukan Cash (berarti Hutang/QRIS), WAJIB pilih siswa.
+            if (!$isCash && empty($request->student_id)) {
+                throw new \Exception('Untuk pembayaran Hutang/QRIS, WAJIB memilih nama siswa!');
+            }
+
+            $statusPayment    = $isCash ? 'PAID' : 'UNPAID';
             $statusRedemption = $isCash ? 'COMPLETED' : 'PENDING';
+            $changeAmount     = $isCash ? ((float) $request->payment_amount - $serverTotal) : 0;
 
-            // Hitung kembalian
-            $changeAmount = $isCash ? ($request->payment_amount - $request->total_amount) : 0;
-
-            // B. Simpan Header Transaksi (PosOrder)
+            // B. Simpan Header Transaksi (PosOrder) — pakai $serverTotal bukan request->total_amount
             $order = PosOrder::create([
-                'user_id' => Auth::id(), // Kasir
-                'student_id' => $request->student_id, // <--- Simpan ID Siswa (Null kalau Cash Anonim)
-                'transaction_code' => 'TRX-' . time() . Str::upper(Str::random(3)),
-                'total_amount' => $request->total_amount,
-                'payment_amount' => $request->payment_amount, 
-                'change_amount' => $changeAmount,
-                'payment_status' => $statusPayment,
+                'user_id'           => Auth::id(),
+                'student_id'        => $request->student_id,
+                'transaction_code'  => 'TRX-' . time() . Str::upper(Str::random(3)),
+                'total_amount'      => $serverTotal,
+                'payment_amount'    => (float) $request->payment_amount,
+                'change_amount'     => $changeAmount,
+                'payment_status'    => $statusPayment,
                 'redemption_status' => $statusRedemption,
-                'qr_token' => Str::uuid(),
+                'qr_token'          => Str::uuid(),
             ]);
 
             // C. Simpan Detail Item & Kurangi Stok
+            $orderItems = []; // simpan untuk BillItem nanti
             foreach ($request->cart as $cartItem) {
-                // Lock baris database (PENTING: Mencegah race condition/stok minus)
                 $itemDB = PosItem::lockForUpdate()->find($cartItem['id']);
 
-                // Cek stok lagi di backend
                 if ($itemDB->stock < $cartItem['qty']) {
                     throw new \Exception("Stok barang '{$itemDB->name}' tidak cukup! Sisa: {$itemDB->stock}");
                 }
 
-                // Kurangi Stok Master
                 $itemDB->decrement('stock', $cartItem['qty']);
 
-                // Simpan ke tabel detail
                 PosOrderItem::create([
-                    'pos_order_id' => $order->id,
-                    'pos_item_id' => $itemDB->id,
-                    'quantity' => $cartItem['qty'],
-                    'price_at_transaction' => $itemDB->price, // Harga dikunci saat transaksi
+                    'pos_order_id'         => $order->id,
+                    'pos_item_id'          => $itemDB->id,
+                    'quantity'             => $cartItem['qty'],
+                    'price_at_transaction' => $itemDB->price,
                 ]);
+
+                $orderItems[] = ['item' => $itemDB, 'quantity' => $cartItem['qty']];
             }
 
-            // Commit Transaksi
+            // D. Opsi C: buat StudentBill type KANTIN untuk hutang siswa.
+            // Hanya untuk transaksi UNPAID dengan student_id.
+            // student_bills jadi satu-satunya sumber kebenaran piutang siswa.
+            if (! $isCash && $request->student_id) {
+                $bill = StudentBill::create([
+                    'pos_order_id' => $order->id,
+                    'student_id'   => $request->student_id,
+                    'name'         => 'Kantin/Koperasi ' . now()->format('d/m/Y'),
+                    'type'         => 'KANTIN',
+                    'amount'       => $serverTotal,
+                    'status'       => 'UNPAID',
+                    'created_by'   => Auth::id(),
+                ]);
+
+                foreach ($orderItems as $oi) {
+                    BillItem::create([
+                        'student_bill_id' => $bill->id,
+                        'item_name'       => $oi['item']->name,
+                        'quantity'        => $oi['quantity'],
+                        'price'           => $oi['item']->price,
+                        'subtotal'        => $oi['item']->price * $oi['quantity'],
+                    ]);
+                }
+
+                FinancialAuditLogger::billCreated($bill);
+            }
+
             DB::commit();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Transaksi Berhasil!',
-                'change' => number_format($changeAmount, 0, ',', '.'),
-                'trx_id' => $order->id,
-                'transaction_code' => $order->transaction_code
+                'success'          => true,
+                'message'          => 'Transaksi Berhasil!',
+                'change'           => number_format($changeAmount, 0, ',', '.'),
+                'trx_id'           => $order->id,
+                'transaction_code' => $order->transaction_code,
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Gagal: ' . $e->getMessage()
             ], 400);
         }
@@ -137,9 +171,9 @@ class PosTransactionController extends Controller
      */
     public function printStruk($id)
     {
-        // Ambil data transaksi beserta item, user (kasir), DAN student (siswa)
         $transaction = PosOrder::with(['items.item', 'user', 'student'])->findOrFail($id);
+        $school      = DB::table('school_settings')->pluck('value', 'key');
 
-        return view('pos.transaction.print', compact('transaction'));
+        return view('pos.transaction.print', compact('transaction', 'school'));
     }
 }

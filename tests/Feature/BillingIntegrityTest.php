@@ -42,13 +42,11 @@ function activeStudent(): Student
 function validBillPayload(int $studentId, array $overrides = []): array
 {
     return array_merge([
-        'target_type'  => 'student',
-        'student_id'   => $studentId,
-        'type'         => 'LAINNYA',
-        'name'         => 'Uang Gedung',
-        'item_names'   => ['Uang Gedung'],
-        'item_prices'  => ['500000'],
-        'item_qtys'    => ['1'],
+        'target_type'    => 'student',
+        'student_id'     => $studentId,
+        'type'           => 'LAINNYA',
+        'name'           => 'Uang Gedung',
+        'regular_amount' => '500000',
     ], $overrides);
 }
 
@@ -91,54 +89,50 @@ test('cannot create SPP bill with negative amount', function () {
     expect(StudentBill::where('student_id', $student->id)->count())->toBe(0);
 });
 
-// ── 3. Zero item price rejected ───────────────────────────────────────────────
-test('cannot create non-SPP bill with zero item price', function () {
+// ── 3. Zero regular amount rejected ─────────────────────────────────────────
+test('cannot create non-SPP bill with zero amount', function () {
     $tu      = tuUser();
     $student = activeStudent();
 
     $this->actingAs($tu)
-         ->post('/bills', validBillPayload($student->id, ['item_prices' => ['0']]))
-         ->assertSessionHasErrors('item_prices.0');
+         ->post('/bills', validBillPayload($student->id, ['regular_amount' => '0']))
+         ->assertSessionHasErrors('regular_amount');
 
     expect(StudentBill::where('student_id', $student->id)->count())->toBe(0);
 });
 
-// ── 4. Negative item price rejected ───────────────────────────────────────────
-test('cannot create non-SPP bill with negative item price', function () {
+// ── 4. Negative regular amount rejected ──────────────────────────────────────
+test('cannot create non-SPP bill with negative amount', function () {
     $tu      = tuUser();
     $student = activeStudent();
 
     $this->actingAs($tu)
-         ->post('/bills', validBillPayload($student->id, ['item_prices' => ['-100']]))
-         ->assertSessionHasErrors('item_prices.0');
+         ->post('/bills', validBillPayload($student->id, ['regular_amount' => '-100']))
+         ->assertSessionHasErrors('regular_amount');
 
     expect(StudentBill::where('student_id', $student->id)->count())->toBe(0);
 });
 
-// ── 5. Zero item quantity rejected ────────────────────────────────────────────
-test('cannot create non-SPP bill with zero item quantity', function () {
+// ── 5. Missing regular amount rejected ───────────────────────────────────────
+test('cannot create non-SPP bill with missing amount', function () {
     $tu      = tuUser();
     $student = activeStudent();
 
     $this->actingAs($tu)
-         ->post('/bills', validBillPayload($student->id, ['item_qtys' => ['0']]))
-         ->assertSessionHasErrors('item_qtys.0');
+         ->post('/bills', validBillPayload($student->id, ['regular_amount' => '']))
+         ->assertSessionHasErrors('regular_amount');
 
     expect(StudentBill::where('student_id', $student->id)->count())->toBe(0);
 });
 
-// ── 6. Empty item array rejected ──────────────────────────────────────────────
-test('cannot create non-SPP bill with empty item arrays', function () {
+// ── 6. Missing name rejected ──────────────────────────────────────────────────
+test('cannot create non-SPP bill with missing name', function () {
     $tu      = tuUser();
     $student = activeStudent();
 
     $this->actingAs($tu)
-         ->post('/bills', validBillPayload($student->id, [
-             'item_names'  => [],
-             'item_prices' => [],
-             'item_qtys'   => [],
-         ]))
-         ->assertSessionHasErrors(['item_names', 'item_prices', 'item_qtys']);
+         ->post('/bills', validBillPayload($student->id, ['name' => '']))
+         ->assertSessionHasErrors('name');
 
     expect(StudentBill::where('student_id', $student->id)->count())->toBe(0);
 });

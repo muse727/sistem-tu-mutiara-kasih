@@ -101,7 +101,7 @@
             <div class="text-center">
                 <p class="text-xs font-bold text-gray-400 uppercase mb-16">Petugas Tata Usaha</p>
                 <div class="border-b border-gray-300 w-48 mx-auto"></div>
-                <p class="font-bold text-gray-800 mt-2">{{ $bill->confirmer->name ?? 'Administrator TU' }}</p>
+                <p class="font-bold text-gray-800 mt-2">{{ optional($bill->confirmedBy)->name ?? 'Administrator TU' }}</p>
             </div>
         </div>
     </div>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\PosOrder;
 
 class StudentBill extends Model
 {
@@ -48,6 +49,7 @@ class StudentBill extends Model
         'type',
         'bill_month',
         'bill_year',
+        'pos_order_id', // Opsi C: link ke pos_orders tidak boleh diubah setelah PAID
     ];
 
     /**
@@ -81,6 +83,15 @@ class StudentBill extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    /**
+     * Link ke pos_orders — diisi untuk tagihan type=KANTIN.
+     * NULL untuk SPP, PAKET, LAINNYA.
+     */
+    public function posOrder()
+    {
+        return $this->belongsTo(PosOrder::class);
     }
 
     public function confirmedBy()

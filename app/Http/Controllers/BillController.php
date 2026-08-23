@@ -101,7 +101,7 @@ class BillController extends Controller
     {
         $request->validate([
             'target_type' => 'required|in:student,class,all',
-            'type'        => 'required|in:SPP,PAKET,DAFTAR_ULANG,LAINNYA',
+            'type'        => 'required|in:SPP,GEDUNG,DAFTAR_ULANG,KOMITE,KEGIATAN,SERAGAM,BUKU,UJIAN,WISATA,PERPISAHAN,LAINNYA',
         ]);
 
         $targetType = $request->target_type;
@@ -131,6 +131,20 @@ class BillController extends Controller
             return back()->with('error', 'Tidak ada siswa aktif yang sesuai target.')->withInput();
         }
 
+        // Validasi field tambahan sesuai tipe — dilakukan sekali sebelum loop
+        if ($isSpp) {
+            $request->validate([
+                'spp_month'  => 'required|integer|between:1,12',
+                'spp_year'   => 'required|digits:4',
+                'spp_amount' => 'required|numeric|min:1',
+            ]);
+        } else {
+            $request->validate([
+                'name'           => 'required|string|max:255',
+                'regular_amount' => 'required|numeric|min:1',
+            ]);
+        }
+
         $count   = 0;
         $skipped = 0;
 
@@ -141,12 +155,6 @@ class BillController extends Controller
             foreach ($students as $student) {
                 if ($isSpp) {
                     // ── SPP flow ─────────────────────────────────────────────
-                    $request->validate([
-                        'spp_month'  => 'required|integer|between:1,12',
-                        'spp_year'   => 'required|digits:4',
-                        'spp_amount' => 'required|numeric|min:1',
-                    ]);
-
                     $month  = (int) $request->spp_month;
                     $year   = (int) $request->spp_year;
                     $amount = (float) $request->spp_amount;
@@ -187,34 +195,7 @@ class BillController extends Controller
 
                 } else {
                     // ── Regular bill flow ─────────────────────────────────────
-                    $request->validate([
-                        'name'          => 'required|string|max:255',
-                        'item_names'    => 'required|array|min:1',
-                        'item_names.*'  => 'nullable|string',
-                        'item_prices'   => 'required|array|min:1',
-                        'item_prices.*' => 'nullable|numeric|min:1',
-                        'item_qtys'     => 'required|array|min:1',
-                        'item_qtys.*'   => 'nullable|integer|min:1',
-                    ]);
-
-                    // Calculate total from items
-                    $total = 0;
-                    $items = [];
-                    foreach ($request->item_names as $i => $itemName) {
-                        if (empty($itemName) && empty($request->item_prices[$i])) continue;
-                        $qty      = (int)   ($request->item_qtys[$i]   ?? 1);
-                        $price    = (float) ($request->item_prices[$i]  ?? 0);
-                        $subtotal = $qty * $price;
-                        $total   += $subtotal;
-                        $items[]  = [
-                            'item_name'     => $itemName,
-                            'quantity'      => $qty,
-                            'price'         => $price,
-                            'subtotal'      => $subtotal,
-                            'pos_bundle_id' => $request->item_bundle_ids[$i] ?? null,
-                        ];
-                    }
-
+                    $total       = (float) $request->regular_amount;
                     $finalAmount = max(0, $total - $discountAmount);
 
                     $bill = StudentBill::create([
@@ -229,11 +210,15 @@ class BillController extends Controller
                         'created_by'      => Auth::id(),
                     ]);
 
-                    foreach ($items as $item) {
-                        BillItem::create(array_merge($item, [
-                            'student_bill_id' => $bill->id,
-                        ]));
-                    }
+                    // Buat satu BillItem sebagai record rincian
+                    BillItem::create([
+                        'student_bill_id' => $bill->id,
+                        'item_name'       => $request->name,
+                        'quantity'        => 1,
+                        'price'           => $total,
+                        'subtotal'        => $total,
+                        'pos_bundle_id'   => null,
+                    ]);
 
                     FinancialAuditLogger::billCreated($bill);
                 }
@@ -290,6 +275,31 @@ class BillController extends Controller
         }
 
         $name = $bill->name;
+
+        // Opsi A/C: Kembalikan stok kalau tagihan PAKET atau KANTIN UNPAID dihapus.
+        // Stok dipotong saat generate/checkout — harus dikembalikan saat tagihan di-cancel.
+        if (in_array($bill->type, ['PAKET', 'KANTIN'])) {
+            $bill->load('items');
+            foreach ($bill->items as $item) {
+                if ($item->pos_bundle_id) {
+                    // PAKET: kembalikan stok via komposisi bundle
+                    $bundleItems = \App\Models\PosBundleItem::where('pos_bundle_id', $item->pos_bundle_id)->get();
+                    foreach ($bundleItems as $bundleItem) {
+                        $posItem = \App\Models\PosItem::find($bundleItem->pos_item_id);
+                        if ($posItem) {
+                            $posItem->increment('stock', $bundleItem->quantity);
+                        }
+                    }
+                } elseif ($item->pos_item_id) {
+                    // KANTIN: kembalikan stok via pos_item_id (lebih reliable dari nama)
+                    $posItem = \App\Models\PosItem::find($item->pos_item_id);
+                    if ($posItem) {
+                        $posItem->increment('stock', $item->quantity);
+                    }
+                }
+            }
+        }
+
         $bill->items()->delete();
         $bill->delete();
 
@@ -360,7 +370,7 @@ class BillController extends Controller
                     $bill->amount,
                     $bill->status,
                     $bill->created_at->format('d/m/Y'),
-                    $bill->payment_date ? Carbon::parse($bill->payment_date)->format('d/m/Y') : '-',
+                    $bill->paid_at ? $bill->paid_at->format('d/m/Y') : '-',
                 ]);
             }
 

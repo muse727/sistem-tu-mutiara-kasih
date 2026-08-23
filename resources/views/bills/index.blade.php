@@ -167,8 +167,19 @@
                                 </div>
                                 <select name="type" class="w-full pl-10 rounded-xl border-slate-300 text-sm focus:ring-[#0284c7] text-slate-600 bg-white shadow-sm py-3">
                                     <option value="">Semua Tipe</option>
+                                    @php
+                                        $typeLabels = [
+                                            'SPP'          => 'SPP Bulanan',
+                                            'PAKET'        => 'Paket Bundling',
+                                            'KANTIN'       => 'Kantin/Koperasi',
+                                            'DAFTAR_ULANG' => 'Daftar Ulang',
+                                            'LAINNYA'      => 'Lainnya',
+                                        ];
+                                    @endphp
                                     @foreach($types as $t)
-                                        <option value="{{ $t }}" {{ request('type') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                                        <option value="{{ $t }}" {{ request('type') == $t ? 'selected' : '' }}>
+                                            {{ $typeLabels[$t] ?? $t }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>

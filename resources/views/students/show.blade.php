@@ -67,9 +67,11 @@
                             <p class="text-xs text-purple-600 font-bold uppercase mb-1">Hutang Kantin/Koperasi</p>
                             <p class="text-xl font-bold text-purple-700">Rp {{ number_format($debtPos, 0, ',', '.') }}</p>
                         </div>
-
                         @php
-                            $totalBillUnpaid = $student->bills->where('status', 'UNPAID')->sum('amount');
+                            // Opsi C: exclude KANTIN dari tunggakan sekolah — sudah masuk $debtPos
+                            $totalBillUnpaid = $student->bills->whereIn('status', ['UNPAID'])
+                                ->whereNotIn('type', ['KANTIN'])
+                                ->sum('amount');
                         @endphp
                         <div class="p-3 bg-orange-50 rounded-xl border border-orange-100">
                             <p class="text-xs text-orange-600 font-bold uppercase mb-1">Tunggakan Sekolah (SPP dll)</p>
@@ -79,6 +81,7 @@
                         <div class="pt-2 border-t border-gray-100">
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-bold text-gray-600">Total Kewajiban</span>
+                                {{-- Opsi C: total_debt sudah include KANTIN via student_bills --}}
                                 <span class="text-lg font-bold text-red-600">Rp {{ number_format($debtPos + $totalBillUnpaid, 0, ',', '.') }}</span>
                             </div>
                         </div>

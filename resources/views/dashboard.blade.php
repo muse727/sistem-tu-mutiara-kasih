@@ -5,7 +5,9 @@
         </h2>
     </x-slot>
 
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.min.js"
+        integrity="sha384-5EG9CeSqSzymwY307XCL4zMqifjcpwh/uGHYg1CPiyMNHVvfCcx8VZi2JzW2035O"
+        crossorigin="anonymous"></script>
 
     {{-- BUG FIX: div wrapper sebelumnya langsung ditutup (</div>) sebelum konten --}}
     <div class="bg-gray-50/50 space-y-8">

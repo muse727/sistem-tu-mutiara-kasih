@@ -512,17 +512,17 @@ class Phase12RegistrasiSiswaTest extends TestCase
             'name'       => 'SPP Bulanan',
             'price'      => 250000,
             'category'   => 'SPP',
+            'stock'      => 10,
             'is_active'  => true,
         ]);
         $bundle = PosBundle::create([
             'name'      => 'Paket Awal Masuk',
-            'price'     => 250000,
             'is_active' => true,
         ]);
         PosBundleItem::create([
             'pos_bundle_id' => $bundle->id,
             'pos_item_id'   => $item->id,
-            'qty'           => 1,
+            'quantity'      => 1,
         ]);
 
         $response = $this->actingAs($tu)->post(

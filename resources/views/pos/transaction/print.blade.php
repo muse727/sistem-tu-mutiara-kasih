@@ -164,10 +164,12 @@
     <div class="ticket">
         
         <div class="header">
-            <h1>KOPERASI SEKOLAH</h1>
-            <p>SMK Unggulan Jakarta</p>
-            <p>Jl. Pendidikan No. 123, Jakarta</p>
-        </div>
+        <h1>{{ strtoupper($school['school_name'] ?? 'KOPERASI SEKOLAH') }}</h1>
+        <p>{{ $school['school_address'] ?? '' }}</p>
+        @if(!empty($school['school_phone']))
+            <p>Telp: {{ $school['school_phone'] }}</p>
+        @endif
+    </div>
 
         <div class="divider"></div>
 
@@ -242,7 +244,7 @@
         <div class="footer">
             <p>Terima Kasih atas Kunjungan Anda</p>
             <p>Barang yang dibeli tidak dapat ditukar</p>
-            <p style="margin-top: 5px;">-- Layanan Sistem TU --</p>
+            <p style="margin-top: 5px;">-- {{ $school['school_name'] ?? 'Layanan Sistem TU' }} --</p>
         </div>
 
     </div>

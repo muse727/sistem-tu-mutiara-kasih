@@ -1,5 +1,4 @@
 <x-app-layout>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <div class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen pb-12">
 

@@ -24,8 +24,16 @@ class PosBundleController extends Controller
         // saat $bundles adalah Paginator (bukan Collection).
         $totalBundles  = PosBundle::count();
         $activeBundles = PosBundle::where('is_active', true)->count();
+        // Fix #10: pakai agregat DB langsung, tidak load semua bundle ke memori
         $avgItems      = $totalBundles > 0
-            ? round(PosBundle::withCount('items')->get()->avg('items_count'), 1)
+            ? round(DB::table('pos_bundle_items')
+                ->selectRaw('AVG(cnt) as avg')
+                ->fromSub(
+                    DB::table('pos_bundle_items')
+                        ->selectRaw('pos_bundle_id, COUNT(*) as cnt')
+                        ->groupBy('pos_bundle_id'),
+                    'sub'
+                )->value('avg'), 1)
             : 0;
 
         return view('pos.bundles.index', compact('bundles', 'products', 'totalBundles', 'activeBundles', 'avgItems'));
@@ -254,6 +262,46 @@ class PosBundleController extends Controller
                     $errors[] = "Student ID {$studentId} tidak valid atau status bukan active/calon_siswa.";
                     $skipped++;
                     continue;
+                }
+
+                // Cek duplikat: siswa sudah punya tagihan UNPAID untuk bundle ini?
+                // Cegah double billing kalau admin klik dua kali atau salah pilih ulang.
+                $alreadyExists = StudentBill::where('student_id', $student->id)
+                    ->where('type', 'PAKET')
+                    ->where('status', 'UNPAID')
+                    ->whereHas('items', fn($q) => $q->where('pos_bundle_id', $bundle->id))
+                    ->exists();
+
+                if ($alreadyExists) {
+                    $errors[] = "{$student->name} sudah memiliki tagihan UNPAID untuk paket '{$bundle->name}', dilewati.";
+                    $skipped++;
+                    continue;
+                }
+
+                // Opsi A: Validasi & potong stok saat generate tagihan.
+                // deductBundleStock() di BillingPaymentService di-skip untuk tagihan PAKET
+                // agar tidak double-potong saat siswa bayar.
+                foreach ($bundle->items as $bundleItem) {
+                    $product  = $bundleItem->product;
+                    $required = $bundleItem->quantity;
+
+                    if (! $product) {
+                        throw new \RuntimeException(
+                            "Item bundle '{$bundle->name}' merujuk ke barang yang sudah dihapus."
+                        );
+                    }
+
+                    if ($product->stock < $required) {
+                        throw new \RuntimeException(
+                            "Stok {$product->name} tidak mencukupi untuk siswa {$student->name}. "
+                            . "Tersedia: {$product->stock}, dibutuhkan: {$required}."
+                        );
+                    }
+                }
+
+                // Stok valid — potong sekarang
+                foreach ($bundle->items as $bundleItem) {
+                    $bundleItem->product->decrement('stock', $bundleItem->quantity);
                 }
 
                 // Create the aggregate bill

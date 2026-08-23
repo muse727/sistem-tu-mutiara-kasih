@@ -1,5 +1,4 @@
 <x-app-layout>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <div class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen py-12">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,45 +47,21 @@
                                         </div>
                                     </div>
                                     
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Harga Jual Paket</label>
-                                        <div class="relative">
-                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <span class="text-slate-500 font-bold">Rp</span>
-                                            </div>
-                                            <input type="number" name="price" required placeholder="0" 
-                                                   class="w-full pl-12 rounded-xl border-slate-300 shadow-sm focus:ring-[#0284c7] focus:border-[#0284c7] font-bold text-emerald-600 text-lg py-3.5 bg-white">
-                                        </div>
-                                        <p class="text-xs text-slate-400 mt-2">Harga total yang akan ditagihkan per paket</p>
-                                    </div>
+
                                 </div>
                             </div>
                             
                             <div class="bg-gradient-to-br from-white to-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
                                 <h3 class="text-sm font-bold text-slate-600 mb-4 flex items-center gap-2">
                                     <svg class="w-5 h-5 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M12 7h.01M15 7h.01"></path>
                                     </svg>
-                                    Estimasi Profit
+                                    Total Harga Paket
                                 </h3>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-slate-500">Total Harga Beli:</span>
-                                        <span class="font-bold text-slate-800" id="totalCost">Rp 0</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-slate-500">Harga Jual Paket:</span>
-                                        <span class="font-bold text-emerald-600" id="sellingPrice">Rp 0</span>
-                                    </div>
-                                    <div class="pt-3 border-t border-slate-200">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-sm text-slate-500">Estimasi Profit:</span>
-                                            <span class="font-bold text-lg" id="profitEstimation">Rp 0</span>
-                                        </div>
-                                        <div class="mt-2">
-                                            <span class="text-xs text-slate-400" id="profitPercentage">0% margin</span>
-                                        </div>
-                                    </div>
+                                <div class="bg-sky-50 border border-sky-200 rounded-xl px-4 py-4 text-center">
+                                    <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide mb-1">Total (otomatis dari komposisi)</p>
+                                    <p class="text-2xl font-black text-sky-700" id="autoTotal">Rp 0</p>
+                                    <p class="text-xs text-slate-400 mt-2">Dihitung dari harga jual satuan × qty</p>
                                 </div>
                             </div>
                         </div>
@@ -125,8 +100,7 @@
                                                         <select name="products[]" required class="product-select w-full pl-10 rounded-lg border-slate-300 shadow-sm focus:ring-[#0284c7] focus:border-[#0284c7] text-sm py-2.5 bg-white">
                                                             <option value="">-- Pilih Barang --</option>
                                                             @foreach($products as $p)
-                                                                <option value="{{ $p->id }}" data-price="{{ $p->buy_price ?? 0 }}" data-stock="{{ $p->stock }}" data-name="{{ $p->name }}">
-                                                                    {{ $p->name }} (Stok: {{ $p->stock }}, Harga: Rp {{ number_format($p->buy_price ?? 0, 0, ',', '.') }})
+                                                                <option value="{{ $p->id }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock }}" data-name="{{ $p->name }}">{{ $p->name }} (Stok: {{ $p->stock }}, Harga: Rp {{ number_format($p->price, 0, ',', '.') }})
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -184,55 +158,26 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let rowCounter = 1;
-            
-            // Fungsi untuk menghitung total biaya dan profit
+
+            // Hitung total dari harga jual satuan × qty (bukan buy_price)
             function calculateCostAndProfit() {
-                let totalCost = 0;
+                let total = 0;
                 const rows = document.querySelectorAll('.row-item');
-                
-                rows.forEach((row, index) => {
+
+                rows.forEach(row => {
                     const select = row.querySelector('.product-select');
                     const quantityInput = row.querySelector('.quantity-input');
                     const selectedOption = select.options[select.selectedIndex];
                     
                     if (selectedOption && selectedOption.value) {
-                        const buyPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+                        const price    = parseFloat(selectedOption.getAttribute('data-price')) || 0;
                         const quantity = parseInt(quantityInput.value) || 1;
-                        totalCost += (buyPrice * quantity);
+                        total += price * quantity;
                     }
                 });
-                
-                // Update item count
+
                 document.getElementById('itemCount').textContent = `${rows.length} Item${rows.length > 1 ? 's' : ''}`;
-                
-                // Update total cost display
-                document.getElementById('totalCost').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalCost);
-                
-                // Get selling price
-                const sellingPriceInput = document.querySelector('input[name="price"]');
-                const sellingPrice = parseFloat(sellingPriceInput.value) || 0;
-                
-                // Update selling price display
-                document.getElementById('sellingPrice').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(sellingPrice);
-                
-                // Calculate profit
-                const profit = sellingPrice - totalCost;
-                const profitElement = document.getElementById('profitEstimation');
-                const percentageElement = document.getElementById('profitPercentage');
-                
-                if (profit >= 0) {
-                    profitElement.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(profit);
-                    profitElement.className = 'font-bold text-lg text-emerald-600';
-                    
-                    const percentage = totalCost > 0 ? ((profit / totalCost) * 100).toFixed(1) : 0;
-                    percentageElement.textContent = `${percentage}% margin`;
-                    percentageElement.className = 'text-xs text-emerald-500';
-                } else {
-                    profitElement.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.abs(profit));
-                    profitElement.className = 'font-bold text-lg text-rose-600';
-                    percentageElement.textContent = 'Rugi';
-                    percentageElement.className = 'text-xs text-rose-500';
-                }
+                document.getElementById('autoTotal').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
             }
             
             // Fungsi untuk membuat baris baru
@@ -315,9 +260,6 @@
             // Event listener untuk tombol tambah baris
             document.getElementById('add-row').addEventListener('click', createNewRow);
             
-            // Event listener untuk harga jual
-            document.querySelector('input[name="price"]').addEventListener('input', calculateCostAndProfit);
-            
             // Setup event listeners untuk baris pertama
             document.querySelectorAll('.row-item').forEach(row => {
                 updateRowEventListeners(row);
@@ -325,7 +267,6 @@
             
             // Setup form validation
             document.getElementById('bundleForm').addEventListener('submit', function(e) {
-                const price = parseFloat(document.querySelector('input[name="price"]').value) || 0;
                 const rows = document.querySelectorAll('.row-item');
                 let hasEmptyProduct = false;
                 
@@ -345,14 +286,6 @@
                         icon: 'error',
                         title: 'Data Belum Lengkap',
                         text: 'Semua barang harus dipilih!',
-                        confirmButtonColor: '#0284c7'
-                    });
-                } else if (price <= 0) {
-                    e.preventDefault();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Harga Tidak Valid',
-                        text: 'Harga jual paket harus lebih dari 0!',
                         confirmButtonColor: '#0284c7'
                     });
                 }

@@ -173,6 +173,18 @@
                                         —
                                     @endif
                                 </p>
+                                @php
+                                    $typeLabel = match($bill->type) {
+                                        'SPP'          => ['label' => 'SPP', 'class' => 'bg-blue-100 text-blue-600'],
+                                        'PAKET'        => ['label' => 'Paket', 'class' => 'bg-purple-100 text-purple-600'],
+                                        'KANTIN'       => ['label' => 'Kantin', 'class' => 'bg-orange-100 text-orange-600'],
+                                        'DAFTAR_ULANG' => ['label' => 'Daftar Ulang', 'class' => 'bg-green-100 text-green-600'],
+                                        default        => ['label' => $bill->type, 'class' => 'bg-gray-100 text-gray-500'],
+                                    };
+                                @endphp
+                                <span class="inline-block mt-1 {{ $typeLabel['class'] }} text-xs px-1.5 py-0.5 rounded font-medium">
+                                    {{ $typeLabel['label'] }}
+                                </span>
                             </div>
                             {{-- Right: amount + badge --}}
                             <div class="text-right shrink-0">

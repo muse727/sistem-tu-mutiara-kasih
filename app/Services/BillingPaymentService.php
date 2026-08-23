@@ -145,6 +145,12 @@ class BillingPaymentService
      */
     private function deductBundleStock(StudentBill $bill): void
     {
+        // Opsi A/C: Untuk tagihan PAKET dan KANTIN, stok sudah dipotong
+        // saat generate bills / checkout kasir. Skip agar tidak double-potong.
+        if (in_array($bill->type, ['PAKET', 'KANTIN'])) {
+            return;
+        }
+
         if ($bill->relationLoaded('items') === false) {
             $bill->load('items.product');
         }

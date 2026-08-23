@@ -109,9 +109,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // NAIK KELAS MASSAL — admin + tu only
     Route::prefix('naik-kelas')->name('naik-kelas.')->middleware('role:admin,tu')->group(function () {
-        Route::get('/', [NaikKelasController::class, 'index'])->name('index');
-        Route::post('/preview', [NaikKelasController::class, 'preview'])->name('preview');
-        Route::post('/eksekusi', [NaikKelasController::class, 'eksekusi'])->name('eksekusi');
+    Route::get('/', [NaikKelasController::class, 'index'])->name('index');
+    Route::post('/eksekusi', [NaikKelasController::class, 'eksekusi'])->name('eksekusi');
     });
 
     // MASTER KELAS — admin + tu only
