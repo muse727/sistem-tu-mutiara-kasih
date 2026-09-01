@@ -409,7 +409,7 @@
                     <td class="text-center">{{ $i + 1 }}</td>
                     <td>{{ $order->transaction_code }}</td>
                     <td style="font-size:10px;color:#64748b;">
-                        {{ $order->orderItems->map(fn($it) => ($it->item->name ?? '?') . ' x' . $it->qty)->join(', ') }}
+                        {{ $order->items->map(fn($it) => ($it->item->name ?? '?') . ' x' . $it->qty)->join(', ') }}
                     </td>
                     <td class="text-right">Rp {{ number_format($order->payment_amount, 0, ',', '.') }}</td>
                     <td>{{ optional($order->user)->name ?? '-' }}</td>

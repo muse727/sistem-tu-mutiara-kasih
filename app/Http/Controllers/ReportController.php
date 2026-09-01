@@ -64,7 +64,7 @@ class ReportController extends Controller
             ->values();
 
         // ─── Transaksi POS ────────────────────────────────────────────────────
-        $posTransactions = PosOrder::with(['orderItems.item'])
+        $posTransactions = PosOrder::with(['items.item'])
             ->whereMonth('created_at', $bulan)
             ->whereYear('created_at', $tahun)
             ->where('payment_status', 'PAID')
