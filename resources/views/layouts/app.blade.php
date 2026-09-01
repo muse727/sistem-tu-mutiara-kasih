@@ -300,6 +300,22 @@
             </a>
             @endif
 
+            {{-- Chat Siswa --}}
+            @if(in_array(Auth::user()->role, ['admin','tu']))
+            <a href="{{ route('chat.inbox') }}"
+               x-data="{ unread: 0 }"
+               x-init="setInterval(() => fetch('{{ route('chat.unread') }}').then(r=>r.json()).then(d=>unread=d.unread), 10000); fetch('{{ route('chat.unread') }}').then(r=>r.json()).then(d=>unread=d.unread)"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('chat.*') ? 'sidebar-active shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+                <span class="flex-1">Chat Siswa</span>
+                <span x-show="unread > 0" x-text="unread > 99 ? '99+' : unread"
+                      class="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center"></span>
+            </a>
+            @endif
+
             {{-- Tagihan Sekolah --}}
             @if(in_array(Auth::user()->role, ['admin','tu','staf','kepala_sekolah']))
             <div x-data="{ open: {{ request()->routeIs('bills.*') ? 'true' : 'false' }} }">
