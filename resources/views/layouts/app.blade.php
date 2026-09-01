@@ -604,6 +604,8 @@
         @if(session('info'))
             _swalToast.fire({ icon: 'info', title: '{{ addslashes(session('info')) }}' });
         @endif
+    </script>
+
     @if(in_array(Auth::user()->role, ['admin','tu']))
     {{-- ═══════════════════════════════════════════
          FLOATING CHAT WIDGET — TU Panel
