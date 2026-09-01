@@ -6,6 +6,30 @@
             Kembali ke Daftar Siswa
         </a>
 
+        {{-- Warning banner: siswa non-aktif dengan tunggakan --}}
+        @php
+            $nonAktifStatuses = ['keluar', 'pindah_keluar', 'graduated', 'alumni'];
+            $isNonAktif = in_array($student->status, $nonAktifStatuses);
+            $totalTunggakan = $student->bills()->where('status', 'UNPAID')->sum('amount');
+        @endphp
+        @if($isNonAktif && $totalTunggakan > 0)
+        <div class="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
+            <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-red-700 text-sm">⚠️ Siswa ini memiliki tunggakan yang belum diselesaikan</p>
+                <p class="text-red-600 text-sm mt-0.5">
+                    Status siswa sudah <strong>{{ $student->status_label }}</strong>, namun masih terdapat tunggakan sebesar
+                    <strong>Rp {{ number_format($totalTunggakan, 0, ',', '.') }}</strong>.
+                </p>
+                <p class="text-red-500 text-xs mt-1">Harap selesaikan pembayaran sebelum menerbitkan surat keterangan pindah atau dokumen kelulusan.</p>
+            </div>
+        </div>
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <div class="space-y-6">
