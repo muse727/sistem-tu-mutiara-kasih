@@ -1,5 +1,4 @@
 <x-app-layout>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <div class="bg-slate-50 min-h-screen pb-12">
         <div class="bg-white border-b border-gray-200 px-6 py-8 shadow-sm"></div>
@@ -93,7 +92,14 @@
                         <option value="SPP">📅 SPP Bulanan (Rutin)</option>
                         <option value="GEDUNG">🏢 Uang Gedung</option>
                         <option value="DAFTAR_ULANG">📚 Daftar Ulang</option>
-                        <option value="LAINNYA">⚡ Lainnya (Denda/Barang)</option>
+                        <option value="KOMITE">🏫 Uang Komite / BP3</option>
+                        <option value="KEGIATAN">🎯 Uang Kegiatan (OSIS/Ekskul)</option>
+                        <option value="SERAGAM">👔 Uang Seragam</option>
+                        <option value="BUKU">📖 Uang Buku / LKS</option>
+                        <option value="UJIAN">✏️ Uang Ujian (UTS/UAS/UN)</option>
+                        <option value="WISATA">🚌 Uang Wisata / Study Tour</option>
+                        <option value="PERPISAHAN">🎓 Uang Perpisahan</option>
+                        <option value="LAINNYA">⚡ Lainnya (isi deskripsi di judul tagihan)</option>
                     </select>
                     <p class="text-xs text-gray-500 mt-2 ml-1">*Pilih "SPP Bulanan" untuk mengaktifkan pengaturan tanggal & bulan.</p>
                 </div>
@@ -144,86 +150,27 @@
                     <div class="flex items-start gap-3 bg-white/50 p-4 rounded-lg border border-blue-100">
                         <svg class="w-5 h-5 text-[#0284c7] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <p class="text-sm text-blue-800">
-                            <b>Sistem Otomatis:</b> Judul tagihan akan digenerate menjadi (contoh) <b>"SPP Agustus 2026"</b>. Tanggal jatuh tempo otomatis diset ke <b>tanggal 10</b> bulan tersebut untuk keperluan notifikasi.
+                            <b>Sistem Otomatis:</b> Judul tagihan akan digenerate menjadi (contoh) <b>"SPP Agustus 2026"</b>. Tanggal jatuh tempo otomatis diset ke <b>tanggal 10</b> bulan tersebut sebagai informasi batas bayar.
                         </p>
                     </div>
                 </div>
 
                 <div id="form-regular" class="hidden">
-                    <div class="mb-8">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Judul Tagihan</label>
-                        <input type="text" name="name" placeholder="Contoh: Pembelian Seragam Lengkap" class="w-full rounded-lg border-gray-300 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
-                    </div>
-
-                    <div class="mb-6">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="p-1.5 bg-gray-100 rounded-lg text-gray-600">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                            </div>
-                            <h3 class="font-bold text-gray-800">Rincian Item (Invoice Detail)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Judul Tagihan <span class="text-red-500">*</span></label>
+                            <input type="text" name="name" placeholder="Contoh: Uang Gedung 2026/2027" class="w-full rounded-lg border-gray-300 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                            <p class="text-[10px] text-gray-400 mt-1">Judul ini akan muncul di kwitansi siswa.</p>
                         </div>
-                        
-                        <div class="overflow-hidden border border-gray-200 rounded-xl shadow-sm">
-                            <table class="w-full text-sm text-left">
-                                <thead class="bg-gray-100 text-gray-700 font-bold uppercase text-xs">
-                                    <tr>
-                                        <th class="px-4 py-3 w-1/4">Tipe Item</th>
-                                        <th class="px-4 py-3 w-1/3">Nama Item / Paket</th>
-                                        <th class="px-4 py-3 w-20 text-center">Qty</th>
-                                        <th class="px-4 py-3 w-1/4 text-right">Harga (Rp)</th>
-                                        <th class="px-4 py-3 w-10"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="items-container">
-                                    <tr class="item-row border-b border-gray-100 bg-white hover:bg-gray-50 transition">
-                                        <td class="px-4 py-3 align-top">
-                                            <select class="type-selector w-full text-sm rounded-lg border-gray-300 focus:border-[#0284c7] py-2">
-                                                <option value="manual">Input Manual</option>
-                                                <option value="bundle">📦 Paket POS</option>
-                                            </select>
-                                        </td>
-                                        <td class="px-4 py-3 align-top">
-                                            <input type="text" name="item_names[]" placeholder="Nama Item / Keterangan" class="input-name w-full text-sm rounded-lg border-gray-300 py-2 focus:ring-[#0284c7] focus:border-[#0284c7]">
-                                            <input type="hidden" name="item_bundle_ids[]" class="input-bundle-id">
-                                            
-                                            <select class="select-bundle w-full text-sm rounded-lg border-gray-300 py-2 hidden focus:ring-[#0284c7] focus:border-[#0284c7]">
-                                                <option value="">-- Pilih Paket --</option>
-                                                @foreach($bundles as $b)
-                                                    <option value="{{ $b->id }}" data-price="{{ $b->price }}" data-name="{{ $b->name }}">
-                                                        {{ $b->name }} (Rp {{ number_format($b->price, 0,',','.') }})
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td class="px-4 py-3 align-top">
-                                            <input type="number" name="item_qtys[]" value="1" min="1" class="w-full text-center text-sm rounded-lg border-gray-300 py-2 focus:ring-[#0284c7] focus:border-[#0284c7]">
-                                        </td>
-                                        <td class="px-4 py-3 align-top">
-                                            <input type="number" name="item_prices[]" placeholder="0" class="input-price w-full text-right text-sm rounded-lg border-gray-300 py-2 font-bold text-gray-700 focus:ring-[#0284c7] focus:border-[#0284c7]">
-                                        </td>
-                                        <td class="px-4 py-3 align-top text-center">
-                                            <button type="button" class="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition remove-row">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tfoot class="bg-gray-50">
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-3">
-                                            <button type="button" id="add-row" class="text-[#0284c7] font-bold text-sm flex items-center gap-2 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                                Tambah Baris Item
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="px-4 py-4 text-right font-bold text-gray-500 uppercase text-xs tracking-wider">Estimasi Total Per Siswa:</td>
-                                        <td class="px-4 py-4 text-right font-extrabold text-2xl text-[#0284c7]" id="grand-total">Rp 0</td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nominal (Rp) <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 font-bold sm:text-sm">Rp</span>
+                                </div>
+                                <input type="number" name="regular_amount" placeholder="0" min="1" class="w-full rounded-lg border-gray-300 focus:border-[#0284c7] focus:ring-[#0284c7] pl-10 font-bold text-gray-800 shadow-sm text-lg">
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1">*Nominal sama untuk semua siswa yang dipilih.</p>
                         </div>
                     </div>
                 </div>

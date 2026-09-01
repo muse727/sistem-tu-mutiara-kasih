@@ -123,9 +123,9 @@ class Student extends Authenticatable
 
     public function getTotalDebtAttribute()
     {
-        $billDebt = $this->bills()->where('status', 'UNPAID')->sum('amount');
-        $posDebt  = $this->posOrders()->where('payment_status', 'UNPAID')->sum('total_amount');
-        return $billDebt + $posDebt;
+        // Opsi C: KANTIN sudah masuk student_bills (type=KANTIN).
+        // Tidak perlu hitung posOrders lagi — akan double-count.
+        return $this->bills()->where('status', 'UNPAID')->sum('amount');
     }
 
     public function getFormattedTotalDebtAttribute()

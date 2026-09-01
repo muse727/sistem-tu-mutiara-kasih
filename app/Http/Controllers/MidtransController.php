@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PosOrder;
+use App\Services\BillingPaymentService;
 use Illuminate\Support\Facades\Log;
 
 class MidtransController extends Controller
 {
+    public function __construct(private BillingPaymentService $billingService) {}
+
     public function callback(Request $request)
     {
         $serverKey = config('services.midtrans.server_key');
@@ -32,6 +35,15 @@ class MidtransController extends Controller
             ]);
         } elseif (str_contains($orderId, 'TRX-')) {
             $this->handlePosPayment($orderId, $transactionStatus);
+        } elseif (str_contains($orderId, 'BILL-')) {
+            if (in_array($transactionStatus, ['capture', 'settlement'])) {
+                $this->billingService->handleMidtransSuccess($orderId);
+            } elseif (in_array($transactionStatus, ['expire', 'cancel', 'deny'])) {
+                Log::info('MidtransController: BILL payment expired/cancelled', [
+                    'order_id' => $orderId,
+                    'status'   => $transactionStatus,
+                ]);
+            }
         }
 
         return response()->json(['message' => 'Callback received']);

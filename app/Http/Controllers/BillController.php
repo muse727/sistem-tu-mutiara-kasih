@@ -10,7 +10,7 @@ use App\Models\PosBundle;
 use App\Models\PosItem;
 use App\Services\FinancialAuditLogger;
 use App\Services\BillingPaymentService;
-use App\Models\AuditLog;
+use App\Exports\BillsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -63,14 +63,22 @@ class BillController extends Controller
             ]);
         }
 
+        // FITUR 3: Filter per individu siswa
+        if ($request->student_id) {
+            $query->where('student_id', $request->student_id);
+        }
+
         $totalTagihan    = (clone $query)->sum('amount');
         $totalSudahBayar = (clone $query)->where('status', 'PAID')->sum('amount');
         $totalTunggakan  = (clone $query)->where('status', 'UNPAID')->sum('amount');
 
         $bills = $query->paginate(20)->withQueryString();
 
+        // FITUR 3: Daftar siswa untuk dropdown filter
+        $studentList = Student::with('kelas')->orderBy('name')->get();
+
         return view('bills.index', compact(
-            'bills', 'kelasList', 'types',
+            'bills', 'kelasList', 'studentList', 'types',
             'totalTagihan', 'totalSudahBayar', 'totalTunggakan'
         ));
     }
@@ -101,7 +109,7 @@ class BillController extends Controller
     {
         $request->validate([
             'target_type' => 'required|in:student,class,all',
-            'type'        => 'required|in:SPP,PAKET,DAFTAR_ULANG,LAINNYA',
+            'type'        => 'required|in:SPP,GEDUNG,DAFTAR_ULANG,KOMITE,KEGIATAN,SERAGAM,BUKU,UJIAN,WISATA,PERPISAHAN,LAINNYA',
         ]);
 
         $targetType = $request->target_type;
@@ -131,6 +139,20 @@ class BillController extends Controller
             return back()->with('error', 'Tidak ada siswa aktif yang sesuai target.')->withInput();
         }
 
+        // Validasi field tambahan sesuai tipe — dilakukan sekali sebelum loop
+        if ($isSpp) {
+            $request->validate([
+                'spp_month'  => 'required|integer|between:1,12',
+                'spp_year'   => 'required|digits:4',
+                'spp_amount' => 'required|numeric|min:1',
+            ]);
+        } else {
+            $request->validate([
+                'name'           => 'required|string|max:255',
+                'regular_amount' => 'required|numeric|min:1',
+            ]);
+        }
+
         $count   = 0;
         $skipped = 0;
 
@@ -141,12 +163,6 @@ class BillController extends Controller
             foreach ($students as $student) {
                 if ($isSpp) {
                     // ── SPP flow ─────────────────────────────────────────────
-                    $request->validate([
-                        'spp_month'  => 'required|integer|between:1,12',
-                        'spp_year'   => 'required|digits:4',
-                        'spp_amount' => 'required|numeric|min:1',
-                    ]);
-
                     $month  = (int) $request->spp_month;
                     $year   = (int) $request->spp_year;
                     $amount = (float) $request->spp_amount;
@@ -187,34 +203,7 @@ class BillController extends Controller
 
                 } else {
                     // ── Regular bill flow ─────────────────────────────────────
-                    $request->validate([
-                        'name'          => 'required|string|max:255',
-                        'item_names'    => 'required|array|min:1',
-                        'item_names.*'  => 'nullable|string',
-                        'item_prices'   => 'required|array|min:1',
-                        'item_prices.*' => 'nullable|numeric|min:1',
-                        'item_qtys'     => 'required|array|min:1',
-                        'item_qtys.*'   => 'nullable|integer|min:1',
-                    ]);
-
-                    // Calculate total from items
-                    $total = 0;
-                    $items = [];
-                    foreach ($request->item_names as $i => $itemName) {
-                        if (empty($itemName) && empty($request->item_prices[$i])) continue;
-                        $qty      = (int)   ($request->item_qtys[$i]   ?? 1);
-                        $price    = (float) ($request->item_prices[$i]  ?? 0);
-                        $subtotal = $qty * $price;
-                        $total   += $subtotal;
-                        $items[]  = [
-                            'item_name'     => $itemName,
-                            'quantity'      => $qty,
-                            'price'         => $price,
-                            'subtotal'      => $subtotal,
-                            'pos_bundle_id' => $request->item_bundle_ids[$i] ?? null,
-                        ];
-                    }
-
+                    $total       = (float) $request->regular_amount;
                     $finalAmount = max(0, $total - $discountAmount);
 
                     $bill = StudentBill::create([
@@ -229,11 +218,15 @@ class BillController extends Controller
                         'created_by'      => Auth::id(),
                     ]);
 
-                    foreach ($items as $item) {
-                        BillItem::create(array_merge($item, [
-                            'student_bill_id' => $bill->id,
-                        ]));
-                    }
+                    // Buat satu BillItem sebagai record rincian
+                    BillItem::create([
+                        'student_bill_id' => $bill->id,
+                        'item_name'       => $request->name,
+                        'quantity'        => 1,
+                        'price'           => $total,
+                        'subtotal'        => $total,
+                        'pos_bundle_id'   => null,
+                    ]);
 
                     FinancialAuditLogger::billCreated($bill);
                 }
@@ -290,6 +283,31 @@ class BillController extends Controller
         }
 
         $name = $bill->name;
+
+        // Opsi A/C: Kembalikan stok kalau tagihan PAKET atau KANTIN UNPAID dihapus.
+        // Stok dipotong saat generate/checkout — harus dikembalikan saat tagihan di-cancel.
+        if (in_array($bill->type, ['PAKET', 'KANTIN'])) {
+            $bill->load('items');
+            foreach ($bill->items as $item) {
+                if ($item->pos_bundle_id) {
+                    // PAKET: kembalikan stok via komposisi bundle
+                    $bundleItems = \App\Models\PosBundleItem::where('pos_bundle_id', $item->pos_bundle_id)->get();
+                    foreach ($bundleItems as $bundleItem) {
+                        $posItem = \App\Models\PosItem::find($bundleItem->pos_item_id);
+                        if ($posItem) {
+                            $posItem->increment('stock', $bundleItem->quantity);
+                        }
+                    }
+                } elseif ($item->pos_item_id) {
+                    // KANTIN: kembalikan stok via pos_item_id (lebih reliable dari nama)
+                    $posItem = \App\Models\PosItem::find($item->pos_item_id);
+                    if ($posItem) {
+                        $posItem->increment('stock', $item->quantity);
+                    }
+                }
+            }
+        }
+
         $bill->items()->delete();
         $bill->delete();
 
@@ -308,7 +326,12 @@ class BillController extends Controller
     public function print($id)
     {
         $bill   = StudentBill::with(['student.kelas', 'items'])->findOrFail($id);
-        $school = DB::table('school_settings')->pluck('value', 'key');
+        // H-02: Use Setting model (same source as PaymentSiswaController) for consistency
+        $school = [
+            'school_name'    => \App\Models\Setting::where('key', 'school_name')->value('value') ?? 'Sekolah',
+            'school_address' => \App\Models\Setting::where('key', 'school_address')->value('value') ?? '',
+            'school_phone'   => \App\Models\Setting::where('key', 'school_phone')->value('value') ?? '',
+        ];
 
         return view('bills.print', compact('bill', 'school'));
     }
@@ -326,6 +349,10 @@ class BillController extends Controller
         } elseif ($request->class_name) {
             // Phase 9.3: class_name dropped — ignore legacy export param
         }
+        // FITUR 3: filter per individu siswa
+        if ($request->student_id) {
+            $query->where('student_id', $request->student_id);
+        }
         if ($request->status)     $query->where('status', $request->status);
         if ($request->type)       $query->where('type', $request->type);
         if ($request->start_date && $request->end_date) {
@@ -335,7 +362,8 @@ class BillController extends Controller
             ]);
         }
 
-        $bills = $query->get();
+        // M-01: cap export at 5000 rows to prevent memory exhaustion
+        $bills = $query->limit(5000)->get();
 
         $headers = [
             'Content-Type'        => 'text/csv',
@@ -360,7 +388,7 @@ class BillController extends Controller
                     $bill->amount,
                     $bill->status,
                     $bill->created_at->format('d/m/Y'),
-                    $bill->payment_date ? Carbon::parse($bill->payment_date)->format('d/m/Y') : '-',
+                    $bill->paid_at ? $bill->paid_at->format('d/m/Y') : '-',
                 ]);
             }
 
@@ -368,6 +396,62 @@ class BillController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    // =========================================================================
+    // 8. EXPORT XLSX — Excel Export dengan template informatif
+    // =========================================================================
+    public function exportXlsx(Request $request)
+    {
+        $query = StudentBill::with(['student.kelas', 'confirmedBy'])->latest();
+
+        // Filters — sama dengan CSV export
+        if ($request->kelas_id) {
+            $query->whereHas('student', fn($q) => $q->where('kelas_id', $request->kelas_id));
+        }
+        // FITUR 3: filter per individu siswa
+        if ($request->student_id) {
+            $query->where('student_id', $request->student_id);
+        }
+        if ($request->status)     $query->where('status', $request->status);
+        if ($request->type)       $query->where('type', $request->type);
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date   . ' 23:59:59',
+            ]);
+        }
+
+        // M-01: cap export at 5000 rows to prevent memory exhaustion
+        $bills  = $query->limit(5000)->get();
+        // H-02: Use Setting model for consistency with the rest of the app
+        $school = [
+            'school_name'    => \App\Models\Setting::where('key', 'school_name')->value('value') ?? 'Sekolah',
+            'school_address' => \App\Models\Setting::where('key', 'school_address')->value('value') ?? '',
+            'school_phone'   => \App\Models\Setting::where('key', 'school_phone')->value('value') ?? '',
+        ];
+
+        // Kelas label untuk filter info
+        $kelasLabel = null;
+        if ($request->kelas_id) {
+            $kelasLabel = Kelas::find($request->kelas_id)?->nama_kelas;
+        }
+
+        $filters = [
+            'start_date'  => $request->start_date,
+            'end_date'    => $request->end_date,
+            'kelas_id'    => $request->kelas_id,
+            'kelas_label' => $kelasLabel,
+            'status'      => $request->status,
+            'type'        => $request->type,
+        ];
+
+        $filename = 'rekap-tagihan-' . now()->format('Ymd-His') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new BillsExport($bills, $filters, $school),
+            $filename
+        );
     }
 
     // =========================================================================
@@ -383,17 +467,17 @@ class BillController extends Controller
         } elseif ($nilai < 20) {
             $temp = $this->terbilang($nilai - 10) . " Belas";
         } elseif ($nilai < 100) {
-            $temp = $this->terbilang($nilai / 10) . " Puluh" . $this->terbilang($nilai % 10);
+            $temp = $this->terbilang(intdiv($nilai, 10)) . " Puluh" . $this->terbilang($nilai % 10);
         } elseif ($nilai < 200) {
             $temp = " Seratus" . $this->terbilang($nilai - 100);
         } elseif ($nilai < 1000) {
-            $temp = $this->terbilang($nilai / 100) . " Ratus" . $this->terbilang($nilai % 100);
+            $temp = $this->terbilang(intdiv($nilai, 100)) . " Ratus" . $this->terbilang($nilai % 100);
         } elseif ($nilai < 2000) {
             $temp = " Seribu" . $this->terbilang($nilai - 1000);
         } elseif ($nilai < 1000000) {
-            $temp = $this->terbilang($nilai / 1000) . " Ribu" . $this->terbilang($nilai % 1000);
+            $temp = $this->terbilang(intdiv($nilai, 1000)) . " Ribu" . $this->terbilang($nilai % 1000);
         } elseif ($nilai < 1000000000) {
-            $temp = $this->terbilang($nilai / 1000000) . " Juta" . $this->terbilang($nilai % 1000000);
+            $temp = $this->terbilang(intdiv($nilai, 1000000)) . " Juta" . $this->terbilang($nilai % 1000000);
         }
         return $temp;
     }

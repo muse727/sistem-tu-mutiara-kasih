@@ -3,15 +3,13 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\PosItem;
-use App\Models\Student;
 use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Admin user
+        // 1. Admin
         User::firstOrCreate(
             ['email' => 'admin@sekolah.com'],
             [
@@ -22,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 2. TU (Tata Usaha) user
+        // 2. Tata Usaha
         User::firstOrCreate(
             ['email' => 'tu@sekolah.com'],
             [
@@ -33,7 +31,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 3. Staf user
+        // 3. Staf
         User::firstOrCreate(
             ['email' => 'staf@sekolah.com'],
             [
@@ -44,7 +42,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 4. Kepala Sekolah user
+        // 4. Kepala Sekolah
         User::firstOrCreate(
             ['email' => 'kepsek@sekolah.com'],
             [
@@ -54,20 +52,5 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-
-        // 2. Demo student — class_name removed (Phase 9.3)
-        Student::firstOrCreate(
-            ['nis' => '1001'],
-            ['name' => 'Kelvino']
-        );
-
-        // 3. Demo POS item
-        PosItem::firstOrCreate(
-            ['name' => 'Dasi Sekolah'],
-            ['category' => 'Atribut', 'price' => 15000, 'stock' => 5]
-        );
-
-        // Note: SppBill seeder removed in Phase 6B-4.
-        // Historical SPP data preserved in student_bills (type='SPP', spp_legacy_id set).
     }
 }

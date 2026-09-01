@@ -24,7 +24,14 @@
                         <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
                         <div class="relative flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold text-sm shadow-lg shadow-emerald-200/50 transition-all transform group-hover:-translate-y-0.5">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Export Data
+                            Export CSV
+                        </div>
+                    </a>
+                    <a href="{{ route('bills.export.xlsx', request()->all()) }}" class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-400 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative flex items-center gap-3 bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 text-white px-6 py-3 rounded-xl font-semibold text-sm shadow-lg shadow-orange-200/50 transition-all transform group-hover:-translate-y-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Export XLSX
                         </div>
                     </a>
                     <a href="{{ route('bills.create') }}" class="relative group">
@@ -159,6 +166,24 @@
                             </div>
                         </div>
 
+                        {{-- FITUR 3: Filter per siswa --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-2">Siswa (Opsional)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
+                                <select name="student_id" class="w-full pl-10 rounded-xl border-slate-300 text-sm focus:ring-[#0284c7] text-slate-600 bg-white shadow-sm py-3">
+                                    <option value="">Semua Siswa</option>
+                                    @foreach($studentList as $student)
+                                        <option value="{{ $student->id }}" {{ request('student_id') == $student->id ? 'selected' : '' }}>
+                                            {{ $student->name }}{{ $student->kelas ? ' — ' . $student->kelas->nama_kelas : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-semibold text-slate-600 mb-2">Jenis Tagihan</label>
                             <div class="relative">
@@ -167,8 +192,19 @@
                                 </div>
                                 <select name="type" class="w-full pl-10 rounded-xl border-slate-300 text-sm focus:ring-[#0284c7] text-slate-600 bg-white shadow-sm py-3">
                                     <option value="">Semua Tipe</option>
+                                    @php
+                                        $typeLabels = [
+                                            'SPP'          => 'SPP Bulanan',
+                                            'PAKET'        => 'Paket Bundling',
+                                            'KANTIN'       => 'Kantin/Koperasi',
+                                            'DAFTAR_ULANG' => 'Daftar Ulang',
+                                            'LAINNYA'      => 'Lainnya',
+                                        ];
+                                    @endphp
                                     @foreach($types as $t)
-                                        <option value="{{ $t }}" {{ request('type') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                                        <option value="{{ $t }}" {{ request('type') == $t ? 'selected' : '' }}>
+                                            {{ $typeLabels[$t] ?? $t }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>

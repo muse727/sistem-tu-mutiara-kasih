@@ -1,0 +1,13 @@
+{
+  "name": "Sistem TU Sekolah",
+  "short_name": "Sistem TU",
+  "description": "Sistem Tata Usaha & Keuangan Sekolah",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

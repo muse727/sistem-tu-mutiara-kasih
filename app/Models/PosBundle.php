@@ -22,15 +22,6 @@ class PosBundle extends Model
     }
 
     /**
-     * Alias: bundleItems() — agar eager load 'bundleItems.product'
-     * bisa dipakai secara konsisten di controller maupun view.
-     */
-    public function bundleItems()
-    {
-        return $this->hasMany(PosBundleItem::class);
-    }
-
-    /**
      * Hitung total harga dari semua item di paket ini.
      */
     public function getTotalItemPriceAttribute(): int

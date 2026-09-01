@@ -45,11 +45,9 @@ function validAuditBillPayload(int $studentId): array
     return [
         'target_type'  => 'student',
         'student_id'   => $studentId,
-        'type'         => 'LAINNYA',
-        'name'         => 'Uang Kegiatan',
-        'item_names'   => ['Uang Kegiatan'],
-        'item_prices'  => ['300000'],
-        'item_qtys'    => ['1'],
+        'type'           => 'LAINNYA',
+        'name'           => 'Uang Kegiatan',
+        'regular_amount' => '300000',
     ];
 }
 

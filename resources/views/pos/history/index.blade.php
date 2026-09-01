@@ -59,6 +59,19 @@
                                 </select>
                             </div>
 
+                            {{-- Sort: piutang terlama (#18) --}}
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+                                    </svg>
+                                </div>
+                                <select name="sort" class="pl-10 w-full rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                                    <option value="" {{ request('sort') == '' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="oldest_unpaid" {{ request('sort') == 'oldest_unpaid' ? 'selected' : '' }}>Piutang Terlama</option>
+                                </select>
+                            </div>
+
                             <button type="submit" 
                                     class="bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-900 hover:to-slate-800 text-white px-6 py-3.5 rounded-xl text-sm font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group">
                                 <svg class="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,11 +221,24 @@
                                 </td>
 
                                 <td class="px-8 py-5">
-                                    <div class="text-lg font-bold text-slate-800">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</div>
-                                    <div class="text-xs text-slate-400 mt-1">
-                                        {{ $trx->items_count }} item barang
-                                    </div>
-                                </td>
+                                <div class="text-lg font-bold text-slate-800">Rp {{ number_format($trx->total_amount, 0, ',', '.') }}</div>
+                                {{-- #17: tampilkan breakdown nama barang --}}
+                                @if($trx->items->count())
+                                <div class="mt-1 space-y-0.5">
+                                        @foreach($trx->items->take(3) as $orderItem)
+                                <div class="text-xs text-slate-500">
+                                    {{ optional($orderItem->item)->name ?? 'Barang dihapus' }}
+                                    <span class="text-slate-400">&times;{{ $orderItem->quantity }}</span>
+                                </div>
+                                @endforeach
+                                @if($trx->items->count() > 3)
+                                <div class="text-xs text-slate-400">+{{ $trx->items->count() - 3 }} item lainnya</div>
+                                @endif
+                            </div>
+                            @else
+                            <div class="text-xs text-slate-400 mt-1">{{ $trx->items_count }} item barang</div>
+                            @endif
+                        </td>
 
                                 <td class="px-8 py-5 text-center">
                                     @if($trx->payment_status == 'PAID')
@@ -243,7 +269,7 @@
                                         </a>
 
                                         @if($trx->payment_status == 'UNPAID')
-                                            <button onclick="confirmRepay('{{ $trx->id }}', '{{ optional($trx->student)->name ?? 'Siswa' }}', '{{ number_format($trx->total_amount, 0,',','.') }}')"
+                                            <button onclick="confirmRepay('{{ $trx->id }}', '{{ optional($trx->student)->name ?? 'Siswa' }}', '{{ number_format($trx->total_amount, 0,',','.') }}', {{ $trx->total_amount }})"
                                                     class="group bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -284,12 +310,17 @@
     </div>
 
     <script>
-        function confirmRepay(id, name, amount) {
+        function confirmRepay(id, name, amount, rawAmount) {
             Swal.fire({
                 title: 'Konfirmasi Pelunasan',
-                html: `Terima pembayaran dari <strong>${name}</strong> sebesar<br>
-                      <span class="text-2xl font-bold text-emerald-600">Rp ${amount}</span><br>
-                      <span class="text-xs text-slate-400">Transaksi akan dicatat sebagai lunas</span>`,
+                html: `
+                    <p class="text-slate-600 mb-1">Pelunasan untuk <strong>${name}</strong></p>
+                    <p class="text-slate-500 text-sm mb-4">Total hutang: <span class="font-bold text-slate-800">Rp ${amount}</span></p>
+                    <label class="block text-sm font-semibold text-slate-700 text-left mb-1">Uang Diterima (Rp)</label>
+                    <input type="number" id="repayAmount" value="${rawAmount}" min="0"
+                           class="swal2-input" placeholder="Nominal yang dibayarkan">
+                    <p class="text-xs text-slate-400 mt-2 text-left">Boleh lebih dari total hutang — kembalian dihitung otomatis.</p>
+                `,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#0284c7',
@@ -301,20 +332,33 @@
                 customClass: {
                     title: 'text-lg font-bold text-slate-800',
                     htmlContainer: 'text-slate-600'
+                },
+                preConfirm: () => {
+                    const val = parseFloat(document.getElementById('repayAmount').value) || 0;
+                    if (val <= 0) {
+                        Swal.showValidationMessage('Nominal harus lebih dari 0');
+                        return false;
+                    }
+                    return val;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Buat Form Post Dinamis
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = `/pos/history/${id}/repay`;
-                    
+
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
                     csrfToken.name = '_token';
                     csrfToken.value = '{{ csrf_token() }}';
-                    
+
+                    const paymentInput = document.createElement('input');
+                    paymentInput.type = 'hidden';
+                    paymentInput.name = 'payment_amount';
+                    paymentInput.value = result.value;
+
                     form.appendChild(csrfToken);
+                    form.appendChild(paymentInput);
                     document.body.appendChild(form);
                     form.submit();
                 }

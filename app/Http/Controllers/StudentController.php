@@ -127,10 +127,11 @@ class StudentController extends Controller
 
     public function show($id)
     {
-        $student = Student::with('kelas')->findOrFail($id);
-
+                $student         = Student::with('kelas')->findOrFail($id);
         $posTransactions = PosOrder::where('student_id', $id)->latest()->get();
-        $debtPos         = $posTransactions->where('payment_status', 'UNPAID')->sum('total_amount');
+        // Opsi C: debtPos sekarang dari student_bills type=KANTIN
+        // bukan dari pos_orders agar tidak double-count.
+        $debtPos         = $student->bills()->where('type', 'KANTIN')->where('status', 'UNPAID')->sum('amount');
 
         $statusLogs = StudentStatusLog::where('student_id', $id)
             ->with('diubahOleh')

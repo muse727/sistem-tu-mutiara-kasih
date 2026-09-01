@@ -108,6 +108,36 @@
                                     </div>
                                 </div>
 
+                                <!-- Jenjang Sekolah -->
+                                <div class="bg-gradient-to-r from-blue-50/50 to-white p-5 rounded-xl border border-blue-50">
+                                    <label class="block font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                                        <div class="p-2 bg-[#0284c7]/10 rounded-lg">
+                                            <svg class="w-4 h-4 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                            </svg>
+                                        </div>
+                                        Jenjang Sekolah
+                                    </label>
+                                    <div class="relative">
+                                        <select name="jenjang"
+                                                class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 bg-white transition-all duration-300 appearance-none">
+                                            <option value="">-- Pilih Jenjang --</option>
+                                            @foreach(['SD' => 'SD (Sekolah Dasar)', 'MI' => 'MI (Madrasah Ibtidaiyah)', 'SMP' => 'SMP (Sekolah Menengah Pertama)', 'MTs' => 'MTs (Madrasah Tsanawiyah)', 'SMA' => 'SMA (Sekolah Menengah Atas)', 'SMK' => 'SMK (Sekolah Menengah Kejuruan)', 'MA' => 'MA (Madrasah Aliyah)'] as $val => $label)
+                                                <option value="{{ $val }}" {{ ($settings['jenjang'] ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2">Jenjang menentukan format nomor tingkat kelas (angka, romawi, dll)</p>
+                                </div>
+
                                 <!-- School Address -->
                                 <div class="bg-gradient-to-r from-blue-50/50 to-white p-5 rounded-xl border border-blue-50">
                                     <label class="block font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">

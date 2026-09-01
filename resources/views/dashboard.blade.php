@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.min.js"></script>
 
     {{-- BUG FIX: div wrapper sebelumnya langsung ditutup (</div>) sebelum konten --}}
     <div class="bg-gray-50/50 space-y-8">
@@ -318,6 +318,129 @@
             };
             var pieChart = new ApexCharts(document.querySelector("#paymentMethodChart"), pieOptions);
             pieChart.render();
+        });
+    </script>
+
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    {{-- FITUR 2: GRAFIK BULANAN 12 BULAN + PERSENTASE LUNAS/BELUM --}}
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {{-- Bar Chart 12 Bulan (2/3 width) --}}
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">Pendapatan Bulanan {{ now()->year }}</h3>
+                    <p class="text-sm text-gray-500 mt-0.5">Total income tagihan + POS per bulan</p>
+                </div>
+                <span class="text-xs bg-sky-50 text-sky-600 font-semibold px-3 py-1 rounded-full">{{ now()->year }}</span>
+            </div>
+            <div id="monthlyBarChart" class="w-full h-72"></div>
+        </div>
+
+        {{-- Donut Chart Persentase Lunas (1/3 width) --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col">
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Status Pembayaran</h3>
+                <p class="text-sm text-gray-500 mt-0.5">Siswa lunas vs belum bulan ini</p>
+            </div>
+            <div id="paidDonutChart" class="w-full flex-1 flex items-center justify-center" style="min-height:200px"></div>
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <div class="bg-emerald-50 rounded-xl p-3 text-center">
+                    <div class="text-2xl font-bold text-emerald-600">{{ $paidCount }}</div>
+                    <div class="text-xs text-emerald-500 mt-0.5">Sudah Lunas</div>
+                </div>
+                <div class="bg-red-50 rounded-xl p-3 text-center">
+                    <div class="text-2xl font-bold text-red-500">{{ $unpaidCount }}</div>
+                    <div class="text-xs text-red-400 mt-0.5">Belum Bayar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ── Bar Chart 12 Bulan ──
+            var monthlyBarOptions = {
+                chart: { type: 'bar', height: 280, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+                series: [{
+                    name: 'Pendapatan',
+                    data: [
+                        @foreach($chartMonthly as $m)
+                            {{ $m['total'] }},
+                        @endforeach
+                    ]
+                }],
+                xaxis: {
+                    categories: [
+                        @foreach($chartMonthly as $m)
+                            '{{ $m['month'] }}',
+                        @endforeach
+                    ],
+                    labels: { style: { fontSize: '11px', colors: '#94a3b8' } },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function(v) {
+                            if (v >= 1000000) return 'Rp ' + (v/1000000).toFixed(1) + 'jt';
+                            if (v >= 1000) return 'Rp ' + (v/1000).toFixed(0) + 'rb';
+                            return 'Rp ' + v;
+                        },
+                        style: { fontSize: '11px', colors: '#94a3b8' }
+                    }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: { shade: 'light', type: 'vertical', shadeIntensity: 0.3, gradientToColors: ['#38bdf8'], inverseColors: false, opacityFrom: 1, opacityTo: 0.7 }
+                },
+                colors: ['#0ea5e9'],
+                plotOptions: { bar: { borderRadius: 6, columnWidth: '55%' } },
+                dataLabels: { enabled: false },
+                grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: false } } },
+                tooltip: {
+                    y: { formatter: function(v) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(v); } }
+                }
+            };
+            var monthlyBarChart = new ApexCharts(document.querySelector('#monthlyBarChart'), monthlyBarOptions);
+            monthlyBarChart.render();
+
+            // ── Donut Chart Lunas vs Belum ──
+            var paidVal   = {{ $paidCount }};
+            var unpaidVal = {{ $unpaidCount }};
+            // Hindari chart kosong
+            var donutSeries = (paidVal === 0 && unpaidVal === 0) ? [1, 1] : [paidVal, unpaidVal];
+            var paidDonutOptions = {
+                chart: { type: 'donut', height: 200, fontFamily: 'Inter, sans-serif' },
+                series: donutSeries,
+                labels: ['Lunas', 'Belum Bayar'],
+                colors: ['#10b981', '#f87171'],
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Lunas',
+                                    formatter: function() {
+                                        return '{{ $paidPercent }}%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: { enabled: false },
+                legend: { show: false },
+                tooltip: {
+                    y: { formatter: function(v) { return v + ' siswa'; } }
+                }
+            };
+            var paidDonutChart = new ApexCharts(document.querySelector('#paidDonutChart'), paidDonutOptions);
+            paidDonutChart.render();
         });
     </script>
 </x-app-layout>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" x-data="{ tab: 'unpaid' }">
+<html lang="id" x-data="{ tab: 'unpaid', ...chatWidget() }" x-init="chatInit()">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +16,13 @@
         [x-cloak] { display: none !important; }
         .bill-card { transition: box-shadow 0.15s ease, transform 0.15s ease; }
         .bill-card:active { transform: scale(0.98); }
+
+        /* Chat Widget */
+        #chat-fab { cursor: grab; user-select: none; }
+        #chat-fab:active { cursor: grabbing; }
+        .chat-bubble-in  { background:#f1f5f9; border-radius:4px 18px 18px 18px; }
+        .chat-bubble-out { background:#0ea5e9; color:#fff; border-radius:18px 4px 18px 18px; }
+        #chat-messages   { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-8">
@@ -173,6 +180,18 @@
                                         —
                                     @endif
                                 </p>
+                                @php
+                                    $typeLabel = match($bill->type) {
+                                        'SPP'          => ['label' => 'SPP', 'class' => 'bg-blue-100 text-blue-600'],
+                                        'PAKET'        => ['label' => 'Paket', 'class' => 'bg-purple-100 text-purple-600'],
+                                        'KANTIN'       => ['label' => 'Kantin', 'class' => 'bg-orange-100 text-orange-600'],
+                                        'DAFTAR_ULANG' => ['label' => 'Daftar Ulang', 'class' => 'bg-green-100 text-green-600'],
+                                        default        => ['label' => $bill->type, 'class' => 'bg-gray-100 text-gray-500'],
+                                    };
+                                @endphp
+                                <span class="inline-block mt-1 {{ $typeLabel['class'] }} text-xs px-1.5 py-0.5 rounded font-medium">
+                                    {{ $typeLabel['label'] }}
+                                </span>
                             </div>
                             {{-- Right: amount + badge --}}
                             <div class="text-right shrink-0">
@@ -365,6 +384,233 @@
                 alert('Error jaringan: ' + e.message);
                 onDone();
             }
+        }
+    </script>
+
+    {{-- ===== FLOATING CHAT WIDGET ===== --}}
+    <div id="chat-fab-wrapper" style="position:fixed; bottom:24px; right:24px; z-index:9999;">
+
+        {{-- Bubble tombol chat --}}
+        <div id="chat-fab"
+             @click="chatOpen = !chatOpen"
+             class="relative w-14 h-14 bg-sky-500 hover:bg-sky-600 rounded-full shadow-2xl flex items-center justify-center transition-colors select-none">
+            {{-- Ikon chat --}}
+            <svg x-show="!chatOpen" class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+            </svg>
+            {{-- Ikon close --}}
+            <svg x-show="chatOpen" x-cloak class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            {{-- Badge unread --}}
+            <span x-show="chatUnread > 0 && !chatOpen" x-cloak
+                  x-text="chatUnread"
+                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
+            </span>
+        </div>
+
+        {{-- Panel chat --}}
+        <div x-show="chatOpen" x-cloak
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+             class="absolute bottom-16 right-0 w-80 bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
+             style="height:420px;">
+
+            {{-- Header panel --}}
+            <div class="bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 flex items-center gap-2 shrink-0">
+                <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-white text-sm font-semibold leading-tight">Hubungi TU</p>
+                    <p class="text-sky-200 text-xs">Tata Usaha siap membantu</p>
+                </div>
+            </div>
+
+            {{-- Messages area --}}
+            <div id="chat-messages" class="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+                {{-- Loading state --}}
+                <template x-if="chatLoading">
+                    <div class="flex justify-center py-4">
+                        <div class="w-5 h-5 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                </template>
+
+                {{-- Empty state --}}
+                <template x-if="!chatLoading && chatMessages.length === 0">
+                    <div class="flex flex-col items-center justify-center h-full py-8 text-center">
+                        <svg class="w-10 h-10 text-gray-200 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+                        </svg>
+                        <p class="text-xs text-gray-400">Belum ada pesan.</p>
+                        <p class="text-xs text-gray-400">Mulai chat dengan TU di sini.</p>
+                    </div>
+                </template>
+
+                {{-- Pesan --}}
+                <template x-for="(msg, index) in chatMessages" :key="msg.id">
+                    <div>
+                        {{-- Pemisah tanggal --}}
+                        <template x-if="index === 0 || chatMessages[index-1].date !== msg.date">
+                            <div class="flex justify-center my-2">
+                                <span class="bg-gray-100 text-gray-400 text-xs px-2 py-0.5 rounded-full" x-text="msg.date"></span>
+                            </div>
+                        </template>
+
+                        {{-- Pesan dari siswa --}}
+                        <template x-if="msg.sender === 'student'">
+                            <div class="flex justify-end">
+                                <div class="max-w-[80%]">
+                                    <div class="chat-bubble-out px-3 py-2 text-xs" x-text="msg.message"></div>
+                                    <p class="text-xs text-gray-400 mt-0.5 text-right" x-text="msg.created_at"></p>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- Pesan dari TU --}}
+                        <template x-if="msg.sender === 'tu'">
+                            <div class="flex justify-start">
+                                <div class="max-w-[80%]">
+                                    <p class="text-xs text-gray-400 mb-0.5 ml-1">TU</p>
+                                    <div class="chat-bubble-in px-3 py-2 text-xs text-gray-800" x-text="msg.message"></div>
+                                    <p class="text-xs text-gray-400 mt-0.5 ml-1" x-text="msg.created_at"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            {{-- Input --}}
+            <div class="border-t border-gray-100 px-3 py-2 shrink-0">
+                <form @submit.prevent="chatSend" class="flex items-end gap-2">
+                    <textarea
+                        x-model="chatText"
+                        @keydown.enter.prevent="!$event.shiftKey && chatSend()"
+                        placeholder="Ketik pesan..."
+                        rows="1"
+                        class="flex-1 resize-none text-xs rounded-xl border border-gray-200 px-3 py-2 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-colors"
+                        :disabled="chatSending"
+                    ></textarea>
+                    <button
+                        type="submit"
+                        :disabled="!chatText.trim() || chatSending"
+                        class="w-8 h-8 bg-sky-500 hover:bg-sky-600 disabled:bg-gray-200 text-white rounded-xl flex items-center justify-center transition-colors shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.269 20.876L5.999 12zm0 0h7.5"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function chatWidget() {
+            return {
+                chatOpen: false,
+                chatLoading: false,
+                chatSending: false,
+                chatMessages: [],
+                chatText: '',
+                chatUnread: 0,
+                chatLastId: 0,
+                _chatPollInterval: null,
+                _chatUnreadInterval: null,
+            };
+        }
+
+        function chatInit() {
+            // Polling unread badge setiap 10 detik (saat chat tertutup)
+            this._chatUnreadInterval = setInterval(async () => {
+                if (this.chatOpen) return;
+                try {
+                    const r = await fetch('{{ route("siswa.chat.unread") }}');
+                    const d = await r.json();
+                    this.chatUnread = d.unread ?? 0;
+                } catch (e) {}
+            }, 10000);
+
+            // Watch: saat chat dibuka, load pesan & mulai polling
+            this.$watch('chatOpen', async (open) => {
+                if (open) {
+                    await this.chatLoad();
+                    this.chatUnread = 0;
+                    this._chatPollInterval = setInterval(() => this.chatPoll(), 4000);
+                } else {
+                    clearInterval(this._chatPollInterval);
+                }
+            });
+        }
+
+        async function chatLoad() {
+            this.chatLoading = true;
+            try {
+                const r = await fetch('{{ route("siswa.chat.messages") }}');
+                const d = await r.json();
+                this.chatMessages = d.messages ?? [];
+                if (this.chatMessages.length > 0) {
+                    this.chatLastId = this.chatMessages[this.chatMessages.length - 1].id;
+                }
+                this.chatScrollBottom();
+            } catch (e) {}
+            this.chatLoading = false;
+        }
+
+        async function chatPoll() {
+            try {
+                const r = await fetch(`{{ route("siswa.chat.messages") }}`);
+                const d = await r.json();
+                const msgs = d.messages ?? [];
+                const existingIds = new Set(this.chatMessages.map(m => m.id));
+                const fresh = msgs.filter(m => !existingIds.has(m.id));
+                if (fresh.length > 0) {
+                    this.chatMessages.push(...fresh);
+                    this.chatLastId = fresh[fresh.length - 1].id;
+                    this.chatScrollBottom();
+                }
+            } catch (e) {}
+        }
+
+        async function chatSend() {
+            const text = this.chatText.trim();
+            if (!text || this.chatSending) return;
+            this.chatSending = true;
+            this.chatText = '';
+            try {
+                const r = await fetch('{{ route("siswa.chat.send") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ message: text }),
+                });
+                const d = await r.json();
+                if (d.success) {
+                    this.chatMessages.push(d.data);
+                    this.chatLastId = d.data.id;
+                    this.chatScrollBottom();
+                }
+            } catch (e) {
+                alert('Gagal mengirim pesan.');
+                this.chatText = text;
+            } finally {
+                this.chatSending = false;
+            }
+        }
+
+        function chatScrollBottom() {
+            this.$nextTick(() => {
+                const el = document.getElementById('chat-messages');
+                if (el) el.scrollTop = el.scrollHeight;
+            });
         }
     </script>
 

@@ -13,16 +13,18 @@ use App\Http\Controllers\PosItemController;        // Master Barang POS
 use App\Http\Controllers\PosBundleController;      // Master Paket Bundling
 use App\Http\Controllers\PosTransactionController; // Kasir
 use App\Http\Controllers\PosReportController;      // Laporan POS
-use App\Http\Controllers\IntegrationController;    // Integrasi PPDB
+// IntegrationController removed — modul integrasi PPDB dihapus
 // SppController removed in Phase 6B-4 — spp_bills table dropped
 use App\Http\Controllers\SchoolSettingController;  // Pengaturan Sekolah
 use App\Http\Controllers\NaikKelasController;       // Naik Kelas Massal
 use App\Http\Controllers\RombelController;           // Rombel & Tahun Ajaran
 use App\Http\Controllers\KelasController;           // Master Kelas
-use App\Http\Controllers\PPDBController;            // PPDB Flow
+// PPDBController removed — modul PPDB dihapus
 use App\Http\Controllers\Siswa\AuthSiswaController;
 use App\Http\Controllers\Siswa\DashboardSiswaController;
 use App\Http\Controllers\Siswa\PaymentSiswaController;
+use App\Http\Controllers\Siswa\ChatSiswaController;
+use App\Http\Controllers\ChatTuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +36,7 @@ use App\Http\Controllers\Siswa\PaymentSiswaController;
 | 2. Manajemen Siswa (Data & Keuangan)
 | 3. Tagihan (Billing, Kwitansi, Export, SPP)
 | 4. POS (Kantin, Stok, History, Bundling)
-| 5. Pengaturan (Integrasi PPDB)
+| 5. Pengaturan Sekolah
 | 6. Identitas Sekolah (Kop Surat)
 |
 */
@@ -64,6 +66,11 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
         Route::post('/tagihan/{bill}/pay',   [PaymentSiswaController::class, 'createToken'])->name('payment.token');
         Route::get('/tagihan/{bill}/struk',  [PaymentSiswaController::class, 'struk'])->name('tagihan.struk');
         Route::get('/payment/success',       [PaymentSiswaController::class, 'success'])->name('payment.success');
+
+        // Chat Siswa ↔ TU
+        Route::get('/chat/messages',  [ChatSiswaController::class, 'index'])->name('chat.messages');
+        Route::post('/chat/send',     [ChatSiswaController::class, 'send'])->name('chat.send');
+        Route::get('/chat/unread',    [ChatSiswaController::class, 'unread'])->name('chat.unread');
     });
 });
 
@@ -145,6 +152,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware('role:admin,tu,staf,kepala_sekolah')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/export', 'export')->name('export');
+            Route::get('/export-xlsx', 'exportXlsx')->name('export.xlsx');
             Route::get('/{id}/print', 'print')->name('print');
         });
 
@@ -186,12 +194,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
-    // 5. PENGATURAN SYSTEM (INTEGRASI) — admin only
-    Route::prefix('settings')->name('settings.')->middleware('role:admin')->group(function () {
-        Route::get('/integration', [IntegrationController::class, 'index'])->name('integration');
-        Route::post('/integration', [IntegrationController::class, 'update'])->name('integration.update');
-        Route::post('/integration/sync', [IntegrationController::class, 'sync'])->name('integration.sync');
-    });
+    // 5. PENGATURAN SYSTEM — admin only
+    // (IntegrationController routes removed — modul integrasi dihapus)
 
     // 6. IDENTITAS SEKOLAH (KOP SURAT & LOGO) — admin only
     Route::controller(SchoolSettingController::class)->middleware('role:admin')->group(function() {
@@ -199,38 +203,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/school-settings', 'update')->name('school.update');
     });
 
-    // 9. PPDB FLOW
-    // Read: admin,tu,staf,kepala_sekolah. Write/delete: admin,tu only.
-    Route::prefix('ppdb')->name('ppdb.')->group(function () {
-        Route::middleware('role:admin,tu,staf,kepala_sekolah')->group(function () {
-            Route::get('/', [PPDBController::class, 'index'])->name('index');
-            Route::get('/{id}', [PPDBController::class, 'show'])->name('show');
-        });
-
-        // admin,tu only
-        Route::middleware('role:admin,tu')->group(function () {
-            Route::get('/daftar', [PPDBController::class, 'create'])->name('create');
-            Route::post('/daftar', [PPDBController::class, 'store'])->name('store');
-            Route::get('/konversi', [PPDBController::class, 'konversiIndex'])->name('konversi');
-            Route::post('/konversi', [PPDBController::class, 'konversiEksekusi'])->name('konversi.eksekusi');
-            Route::get('/{id}/edit', [PPDBController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [PPDBController::class, 'update'])->name('update');
-            Route::post('/{id}/seleksi', [PPDBController::class, 'seleksi'])->name('seleksi');
-            Route::delete('/{id}', [PPDBController::class, 'destroy'])->name('destroy');
-        });
-    });
+    // 9. PPDB FLOW — removed (modul PPDB dihapus)
 
     // 7. LEGACY SPP (Sistem Lama - Opsional)
     // Phase 6B-4: SPP legacy routes removed.
     // SppController and spp_bills table have been dropped.
     // Historical SPP data accessible via /bills?type=SPP
 
+    // CHAT TU ↔ SISWA — admin, tu
+    Route::middleware('role:admin,tu')->prefix('chat')->name('chat.')->group(function () {
+        Route::get('/',                            [ChatTuController::class, 'inbox'])->name('inbox');
+        Route::get('/{student}',                   [ChatTuController::class, 'room'])->name('room');
+        Route::post('/{student}/reply',            [ChatTuController::class, 'reply'])->name('reply');
+        Route::get('/{student}/poll',              [ChatTuController::class, 'poll'])->name('poll');
+        Route::get('/unread-count',                [ChatTuController::class, 'unreadCount'])->name('unread');
+    });
+
     // 8. PROFILE USER
     Route::controller(ProfileController::class)->group(function () {
+        Route::get('/panduan', [\App\Http\Controllers\PanduanController::class, 'index'])->name('panduan.index');
         Route::get('/profile', 'edit')->name('profile.edit');
         Route::patch('/profile', 'update')->name('profile.update');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
     });
+
+    // FITUR 4: Audit Trail (admin only)
+    Route::get('/audit', [\App\Http\Controllers\AuditLogController::class, 'index'])
+        ->middleware('role:admin')
+        ->name('audit.index');
+
+    // FITUR 5: Laporan Bulanan (admin, tu, kepala_sekolah)
+    Route::get('/reports/monthly', [\App\Http\Controllers\ReportController::class, 'monthlyReport'])
+        ->middleware('role:admin,tu,kepala_sekolah')
+        ->name('reports.monthly');
 });
 
 

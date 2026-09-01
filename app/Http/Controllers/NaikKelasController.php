@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class NaikKelasController extends Controller
 {
     // Status yang tidak boleh diproses naik kelas
-    const SKIP_STATUSES = ['keluar', 'lulus', 'graduated', 'alumni', 'pindah_keluar'];
+    const SKIP_STATUSES = ['keluar', 'graduated', 'alumni', 'pindah_keluar'];
 
     /**
      * Halaman utama naik kelas massal
@@ -20,9 +20,6 @@ class NaikKelasController extends Controller
      */
     public function index()
     {
-        $jenjang    = DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'SMA';
-        $tingkatMax = Kelas::tingkatMaksimal();
-
         // Ambil semua kelas aktif beserta jumlah siswa aktif
         $kelasAktif = Kelas::aktif()
             ->withCount(['activeStudents'])
@@ -30,36 +27,11 @@ class NaikKelasController extends Controller
             ->orderBy('nama_kelas')
             ->get();
 
-        // Buat mapping otomatis: kelas asal → kelas tujuan
-        // Tingkat akhir → null (siswa akan di-graduate)
-        $mappingOtomatis = $kelasAktif->map(function ($kelas) use ($tingkatMax) {
-            $kelasTujuan = null;
-            if ($kelas->tingkat < $tingkatMax) {
-                // Cari kelas tujuan: tingkat + 1, jurusan sama
-                $kelasTujuan = Kelas::aktif()
-                    ->where('tingkat', $kelas->tingkat + 1)
-                    ->where('jurusan', $kelas->jurusan)
-                    ->first();
-            }
-            return [
-                'kelas_asal'          => $kelas,
-                'kelas_tujuan'        => $kelasTujuan,
-                'is_tingkat_akhir'    => $kelas->tingkat >= $tingkatMax,
-                'jumlah_siswa_aktif'  => $kelas->active_students_count,
-            ];
-        })->filter(fn($m) => $m['jumlah_siswa_aktif'] > 0);
-
-        // Ambil semua kelas aktif untuk dropdown tujuan (manual override)
+        // Semua kelas aktif untuk dropdown tujuan
         $semuaKelas = Kelas::aktif()->orderBy('tingkat')->orderBy('nama_kelas')->get();
 
-        // Statistik jumlah siswa aktif per kelas (untuk tabel ringkasan di view)
-        $statPerKelas = $kelasAktif->map(fn($k) => (object)[
-            'nama_kelas' => $k->nama_kelas,
-            'jumlah'     => $k->active_students_count,
-        ])->filter(fn($s) => $s->jumlah > 0)->values();
-
         return view('students.naik-kelas.index', compact(
-            'kelasAktif', 'mappingOtomatis', 'semuaKelas', 'statPerKelas', 'jenjang', 'tingkatMax'
+            'kelasAktif', 'semuaKelas'
         ));
     }
 
@@ -198,8 +170,8 @@ class NaikKelasController extends Controller
 
                         StudentStatusLog::create([
                             'student_id'  => $siswa->id,
-                            'status_lama' => $siswa->status,
-                            'status_baru' => $siswa->status,
+                            'status_lama' => 'active',  // status tidak berubah
+                            'status_baru' => 'active',  // status tidak berubah
                             'catatan'     => $catatan,
                             'diubah_oleh' => Auth::id(),
                         ]);

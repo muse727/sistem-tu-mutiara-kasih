@@ -15,7 +15,7 @@ class KelasController extends Controller
             ->orderBy('nama_kelas')
             ->get();
 
-        $jenjang    = DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'SMA';
+        $jenjang    = DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'Belum Diatur';
         $tingkatMin = Kelas::tingkatMinimal();
         $tingkatMax = Kelas::tingkatMaksimal();
 
@@ -24,7 +24,7 @@ class KelasController extends Controller
 
     public function create()
     {
-        $jenjang = DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'SMA';
+        $jenjang = DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'Belum Diatur';
         $jenjangList = array_keys(Kelas::JENJANG);
         $tingkatMin = Kelas::tingkatMinimal();
         $tingkatMax = Kelas::tingkatMaksimal();

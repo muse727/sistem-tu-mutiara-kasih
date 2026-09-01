@@ -61,7 +61,7 @@ class Kelas extends Model
      */
     public function getTingkatLabelAttribute(): string
     {
-        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'SMA';
+        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'Belum Diatur';
 
         // SMP/MTs → angka romawi VII, VIII, IX
         if (in_array($jenjang, ['SMP', 'MTs'])) {
@@ -92,7 +92,7 @@ class Kelas extends Model
      */
     public function getIsTingkatAkhirAttribute(): bool
     {
-        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'SMA';
+        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'Belum Diatur';
         $config  = self::JENJANG[$jenjang] ?? ['max' => 12];
         return $this->tingkat >= $config['max'];
     }
@@ -133,7 +133,7 @@ class Kelas extends Model
      */
     public static function tingkatMaksimal(): int
     {
-        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'SMA';
+        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'Belum Diatur';
         return self::JENJANG[$jenjang]['max'] ?? 12;
     }
 
@@ -142,7 +142,7 @@ class Kelas extends Model
      */
     public static function tingkatMinimal(): int
     {
-        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'SMA';
+        $jenjang = \DB::table('school_settings')->where('key', 'jenjang')->value('value') ?? 'Belum Diatur';
         return self::JENJANG[$jenjang]['min'] ?? 10;
     }
 }

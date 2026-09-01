@@ -41,20 +41,26 @@ class PaymentSiswaController extends Controller
             return response()->json(['error' => 'Tagihan ini sudah dibayar.'], 400);
         }
 
-        // Phase 3.7D: enforce ONE active pending attempt per bill.
-        // Lock the bill row to prevent concurrent initiation race conditions.
-        // If an existing pending attempt exists, return it immediately —
-        // no new Snap call, no supersession needed.
+        // C-04: enforce ONE active pending attempt per bill.
+        // Lock + check + orderId reservation happen in ONE atomic transaction
+        // so no concurrent request can slip through the gap between check and create.
         $existingAttempt = null;
-        DB::transaction(function () use ($bill, &$existingAttempt) {
-            // lockForUpdate() prevents a concurrent request from reading
-            // the same pending attempt and also creating a new one.
+        $orderId         = null;
+        DB::transaction(function () use ($bill, &$existingAttempt, &$orderId) {
+            // Lock bill row for the duration of this transaction.
             StudentBill::lockForUpdate()->find($bill->id);
 
             $existingAttempt = PaymentAttempt::where('student_bill_id', $bill->id)
                                              ->where('status', PaymentAttempt::STATUS_PENDING)
                                              ->latest('initiated_at')
                                              ->first();
+
+            if (! $existingAttempt) {
+                // Reserve the order ID inside the lock so no concurrent request
+                // can generate an attempt with the same bill while we hold the lock.
+                $orderId = 'BILL-' . $bill->id . '-' . Str::random(6) . '-' . time();
+                $bill->update(['midtrans_order_id' => $orderId]);
+            }
         });
 
         if ($existingAttempt) {
@@ -65,9 +71,6 @@ class PaymentSiswaController extends Controller
                 'is_production' => config('services.midtrans.is_production', false),
             ]);
         }
-
-        // Order ID unik: BILL-{id}-{random}-{timestamp}
-        $orderId = 'BILL-' . $bill->id . '-' . Str::random(6) . '-' . time();
 
         $billName = $bill->name ?: ('Tagihan ' . ($bill->bill_month ?? '') . '/' . ($bill->bill_year ?? ''));
 

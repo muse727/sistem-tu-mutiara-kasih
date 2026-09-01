@@ -145,6 +145,12 @@ class BillingPaymentService
      */
     private function deductBundleStock(StudentBill $bill): void
     {
+        // Opsi A/C: Untuk tagihan PAKET dan KANTIN, stok sudah dipotong
+        // saat generate bills / checkout kasir. Skip agar tidak double-potong.
+        if (in_array($bill->type, ['PAKET', 'KANTIN'])) {
+            return;
+        }
+
         if ($bill->relationLoaded('items') === false) {
             $bill->load('items.product');
         }
@@ -176,7 +182,7 @@ class BillingPaymentService
             }
         }
 
-        // All stock checks passed — now perform the decrements
+        // All stock checks passed — now perform the decrements atomically
         foreach ($bill->items as $item) {
             $posItem  = $item->product;
             $required = $item->quantity;
@@ -193,7 +199,17 @@ class BillingPaymentService
             }
 
             if ($posItem) {
-                $posItem->decrement('stock', $required);
+                // C-02: Use atomic conditional decrement to prevent race condition.
+                // If another request depleted stock between the check above and now,
+                // affected rows = 0 and we throw to roll back the transaction.
+                $affected = DB::table('pos_items')
+                    ->where('id', $posItem->id)
+                    ->where('stock', '>=', $required)
+                    ->decrement('stock', $required);
+
+                if (! $affected) {
+                    throw new \RuntimeException("Stok {$posItem->name} tidak mencukupi saat dikonfirmasi.");
+                }
             }
         }
     }

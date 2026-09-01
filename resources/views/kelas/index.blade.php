@@ -111,6 +111,19 @@
     transition: background 0.15s;
 }
 .btn-cancel:hover { background: #f8fafc; }
+
+/* Light mode defaults */
+.kelas-topbar { background: #fff; }
+.kelas-topbar-title { color: #1e293b; }
+.kelas-topbar-sub { color: #475569; }
+
+/* Dark mode overrides */
+html.dark .kelas-topbar { background: #1e293b !important; border-color: #334155 !important; }
+html.dark .kelas-topbar-title { color: #f1f5f9 !important; }
+html.dark .kelas-topbar-sub { color: #94a3b8 !important; }
+html.dark .bg-white.rounded-2xl { background: #1e293b !important; border-color: #334155 !important; }
+html.dark .text-slate-600 { color: #94a3b8 !important; }
+html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600, html.dark .text-amber-600 { filter: brightness(1.3); }
 .error-box {
     background: #fef2f2;
     border: 1.5px solid #fecaca;
@@ -136,10 +149,10 @@
 <div class="p-4 md:p-6 space-y-5">
 
     {{-- ===== TOP BAR ===== --}}
-    <div style="background:#fff;border-radius:1rem;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+    <div class="kelas-topbar" style="border-radius:1rem;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
         <div>
-            <h1 style="font-size:1.125rem;font-weight:700;color:#1e293b;margin:0;">Master Kelas</h1>
-            <p style="font-size:0.875rem;color:#94a3b8;margin:0.25rem 0 0;">{{ $kelas->count() }} kelas terdaftar di {{ $jenjang }}</p>
+            <h1 class="kelas-topbar-title" style="font-size:1.125rem;font-weight:700;margin:0;">Master Kelas</h1>
+            <p class="kelas-topbar-sub" style="font-size:0.875rem;margin:0.25rem 0 0;">{{ $kelas->count() }} kelas terdaftar di {{ $jenjang }}</p>
         </div>
         <button
             type="button"
@@ -163,7 +176,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-xs text-slate-400 font-medium">Total Kelas</p>
+                <p class="text-xs text-slate-600 font-medium">Total Kelas</p>
                 <p class="text-2xl font-bold text-slate-800 leading-tight">{{ $kelas->count() }}</p>
             </div>
         </div>
@@ -174,7 +187,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-xs text-slate-400 font-medium">Kelas Aktif</p>
+                <p class="text-xs text-slate-600 font-medium">Kelas Aktif</p>
                 <p class="text-2xl font-bold text-emerald-600 leading-tight">{{ $kelas->where('is_aktif', true)->count() }}</p>
             </div>
         </div>
@@ -185,7 +198,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-xs text-slate-400 font-medium">Total Siswa</p>
+                <p class="text-xs text-slate-600 font-medium">Total Siswa</p>
                 <p class="text-2xl font-bold text-violet-600 leading-tight">{{ $kelas->sum('active_students_count') }}</p>
             </div>
         </div>
@@ -196,7 +209,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-xs text-slate-400 font-medium">Jenjang</p>
+                <p class="text-xs text-slate-600 font-medium">Jenjang</p>
                 <p class="text-2xl font-bold text-amber-600 leading-tight">{{ $jenjang }}</p>
             </div>
         </div>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class TahunAjaran extends Model
 {
@@ -53,7 +54,11 @@ class TahunAjaran extends Model
      */
     public function setAktif(): void
     {
-        self::query()->update(['is_aktif' => false]);
-        $this->update(['is_aktif' => true]);
+        // Nonaktifkan semua dulu
+        DB::table($this->getTable())->update(['is_aktif' => false]);
+        // Aktifkan ini — pakai DB langsung agar tidak ter-skip oleh Eloquent dirty check.
+        // ($this->update() skip kalau nilai sama dengan in-memory value)
+        DB::table($this->getTable())->where('id', $this->id)->update(['is_aktif' => true]);
+        $this->is_aktif = true; // sync in-memory
     }
 }

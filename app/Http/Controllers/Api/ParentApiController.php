@@ -86,8 +86,10 @@ class ParentApiController extends Controller
                 'date'            => $bill->created_at->format('d M Y'),
             ]);
 
+        // Opsi C: exclude KANTIN dari otherBills — sudah ada di $canteenDebts.
+        // Kalau tidak di-exclude, KANTIN akan double-count di portal ortu.
         $otherBills = StudentBill::where('student_id', $student->id)
-            ->where('type', '!=', 'SPP')
+            ->whereNotIn('type', ['SPP', 'KANTIN'])
             ->where('status', 'UNPAID')
             ->orderBy('id', 'desc')
             ->get()
@@ -104,19 +106,25 @@ class ParentApiController extends Controller
                 'date'            => $bill->created_at->format('d M Y'),
             ]);
 
-        $canteenDebts = PosOrder::where('student_id', $student->id)
-            ->where('payment_status', 'UNPAID')
+        // Opsi C: hutang kantin sekarang dari student_bills type=KANTIN.
+        // PosOrder tidak lagi jadi sumber kebenaran piutang siswa.
+        $canteenDebts = StudentBill::where('student_id', $student->id)
+            ->where('type', 'KANTIN')
+            ->where('status', 'UNPAID')
+            ->with('posOrder.items')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($trx) {
-                $itemsCount = $trx->items ? $trx->items->count() : 0;
+            ->map(function ($bill) {
+                $itemsCount = optional($bill->posOrder)->items
+                    ? $bill->posOrder->items->count()
+                    : 0;
                 return [
-                    'type'   => 'POS',
-                    'id'     => $trx->id,
-                    'title'  => 'Jajan Kantin',
-                    'desc'   => $trx->created_at->format('H:i') . " WIB • ({$itemsCount} Item)",
-                    'amount' => $trx->total_amount,
-                    'date'   => $trx->created_at->format('d M Y'),
+                    'type'   => 'POS', // backward-compat: mobile app masih pakai type=POS
+                    'id'     => $bill->id,
+                    'title'  => $bill->name,
+                    'desc'   => $bill->created_at->format('H:i') . " WIB • ({$itemsCount} Item)",
+                    'amount' => $bill->amount,
+                    'date'   => $bill->created_at->format('d M Y'),
                 ];
             });
 
@@ -196,22 +204,24 @@ class ParentApiController extends Controller
 
         } elseif ($request->type === 'POS') {
 
-            // Scope POS lookup to authenticated student as well.
-            $pos = PosOrder::where('id', $request->id)
-                           ->where('student_id', $student->id)
-                           ->first();
+            // Opsi C: type=POS sekarang lookup ke StudentBill type=KANTIN.
+            // id yang dikirim mobile app adalah student_bills.id (bukan pos_orders.id).
+            $bill = StudentBill::where('id', $request->id)
+                               ->where('student_id', $student->id)
+                               ->where('type', 'KANTIN')
+                               ->first();
 
-            if (! $pos) {
+            if (! $bill) {
                 return response()->json(['message' => 'Transaksi tidak ditemukan.'], 404);
             }
 
-            if ($pos->payment_status === 'PAID') {
+            if ($bill->status === 'PAID') {
                 return response()->json(['message' => 'Transaksi sudah lunas.'], 400);
             }
 
-            $amount        = $pos->total_amount;
-            $orderIdPrefix = 'POS';
-            $itemName      = 'Jajan Kantin ' . $pos->created_at->format('d/m');
+            $amount        = $bill->amount;
+            $orderIdPrefix = 'BILL'; // pakai prefix BILL agar PaymentAttempt & audit trail bisa diproses
+            $itemName      = mb_substr($bill->name, 0, 50);
 
             $customerDetails = [
                 'first_name' => $student->name,
@@ -693,13 +703,35 @@ class ParentApiController extends Controller
         // ── Status handling ───────────────────────────────────────────────────
         if (in_array($transactionStatus, ['settlement', 'capture']) && $fraudStatus === 'accept') {
 
-            DB::transaction(function () use ($pos) {
+            DB::transaction(function () use ($pos, $orderId) {
+                // Update pos_orders sebagai ledger kasir
                 $pos->update([
                     'payment_status' => 'PAID',
                     'payment_method' => 'MIDTRANS',
                     'paid_amount'    => $pos->total_amount,
                     'change_amount'  => 0,
                 ]);
+
+                // Opsi C: sync StudentBill type KANTIN yang terhubung
+                $kantinBill = StudentBill::where('pos_order_id', $pos->id)
+                    ->where('type', 'KANTIN')
+                    ->where('status', 'UNPAID')
+                    ->first();
+
+                if ($kantinBill) {
+                    $kantinBill->update([
+                        'status'            => 'PAID',
+                        'paid_at'           => now(),
+                        'payment_method'    => 'MIDTRANS',
+                        'midtrans_order_id' => $orderId,
+                        'payment_token'     => null,
+                    ]);
+                    FinancialAuditLogger::paymentConfirmed(
+                        $kantinBill,
+                        AuditLog::SOURCE_MIDTRANS,
+                        null
+                    );
+                }
             });
 
             Log::info('ParentApi callback: POS payment settled', [

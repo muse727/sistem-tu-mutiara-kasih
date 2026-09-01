@@ -1,0 +1,157 @@
+<x-app-layout>
+    <x-slot name="header">Audit Trail</x-slot>
+
+    <div class="space-y-6">
+
+        {{-- Header --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-red-50 rounded-xl">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Audit Trail</h2>
+                    <p class="text-sm text-gray-500 mt-0.5">Log aktivitas sistem — hanya dapat diakses oleh Admin</p>
+                </div>
+                <div class="ml-auto text-sm text-gray-400">
+                    Total: <span class="font-semibold text-gray-700">{{ $logs->total() }}</span> log
+                </div>
+            </div>
+        </div>
+
+        {{-- Filter --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <form method="GET" action="{{ route('audit.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Cari Deskripsi</label>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           placeholder="Cari aksi / deskripsi..."
+                           class="w-full rounded-xl border-gray-300 text-sm focus:ring-red-400 focus:border-red-400 shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Aksi</label>
+                    <select name="action" class="w-full rounded-xl border-gray-300 text-sm focus:ring-red-400 shadow-sm">
+                        <option value="">Semua Aksi</option>
+                        @foreach($actions as $act)
+                            <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>
+                                {{ $act }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tanggal Mulai</label>
+                    <input type="date" name="start_date" value="{{ request('start_date') }}"
+                           class="w-full rounded-xl border-gray-300 text-sm focus:ring-red-400 shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tanggal Akhir</label>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}"
+                           class="w-full rounded-xl border-gray-300 text-sm focus:ring-red-400 shadow-sm">
+                </div>
+                <div class="md:col-span-2 lg:col-span-4 flex gap-3">
+                    <button type="submit"
+                            class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-semibold transition">
+                        Filter
+                    </button>
+                    <a href="{{ route('audit.index') }}"
+                       class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-xl text-sm font-semibold transition">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        {{-- Tabel --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="text-left px-5 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Waktu</th>
+                            <th class="text-left px-5 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="text-left px-5 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th class="text-left px-5 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Modul</th>
+                            <th class="text-left px-5 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Detail</th>
+                            <th class="text-left px-5 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">IP</th>
+                            <th class="text-left px-5 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Sumber</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        @forelse($logs as $log)
+                        <tr class="hover:bg-gray-50/70 transition-colors">
+                            <td class="px-5 py-3.5 whitespace-nowrap">
+                                <div class="text-gray-700 font-medium">{{ $log->created_at?->format('d/m/Y') }}</div>
+                                <div class="text-xs text-gray-400">{{ $log->created_at?->format('H:i:s') }}</div>
+                            </td>
+                            <td class="px-5 py-3.5">
+                                @if($log->user)
+                                    <div class="font-medium text-gray-700">{{ $log->user->name }}</div>
+                                    <div class="text-xs text-gray-400">{{ $log->user->email }}</div>
+                                @else
+                                    <span class="text-gray-400 italic text-xs">System</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-3.5">
+                                @php
+                                    $actionColors = [
+                                        'PAYMENT_CONFIRMED' => 'bg-emerald-100 text-emerald-700',
+                                        'BILL_CREATED'      => 'bg-sky-100 text-sky-700',
+                                        'BILL_DELETED'      => 'bg-red-100 text-red-700',
+                                        'BILL_UPDATED'      => 'bg-amber-100 text-amber-700',
+                                        'BILL_CANCELLED'    => 'bg-orange-100 text-orange-700',
+                                        'PAYMENT_FAILED'    => 'bg-red-100 text-red-600',
+                                        'DISCOUNT_APPLIED'  => 'bg-purple-100 text-purple-700',
+                                    ];
+                                    $color = $actionColors[$log->action] ?? 'bg-gray-100 text-gray-600';
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $color }}">
+                                    {{ $log->action }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3.5 text-gray-500 text-xs">{{ $log->module }}</td>
+                            <td class="px-5 py-3.5 max-w-xs">
+                                <div class="text-gray-700 text-xs line-clamp-2">{{ $log->description ?? '-' }}</div>
+                                @if($log->auditable_type && $log->auditable_id)
+                                    <div class="text-xs text-gray-400 mt-0.5">{{ $log->auditable_type }} #{{ $log->auditable_id }}</div>
+                                @endif
+                            </td>
+                            <td class="px-5 py-3.5 text-gray-500 text-xs font-mono">{{ $log->ip_address ?? '-' }}</td>
+                            <td class="px-5 py-3.5">
+                                @if($log->source)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                    {{ $log->source === 'MIDTRANS' ? 'bg-blue-50 text-blue-600' :
+                                       ($log->source === 'SYSTEM' ? 'bg-gray-100 text-gray-500' : 'bg-indigo-50 text-indigo-600') }}">
+                                    {{ $log->source }}
+                                </span>
+                                @else
+                                    <span class="text-gray-300">—</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-5 py-12 text-center text-gray-400">
+                                <svg class="w-10 h-10 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Belum ada log audit
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Pagination --}}
+            @if($logs->hasPages())
+            <div class="px-5 py-4 border-t border-gray-100">
+                {{ $logs->links() }}
+            </div>
+            @endif
+        </div>
+
+    </div>
+</x-app-layout>

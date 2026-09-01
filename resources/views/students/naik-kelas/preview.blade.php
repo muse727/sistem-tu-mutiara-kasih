@@ -236,6 +236,40 @@
         </div>
     </div>
 
+    {{-- Loading Overlay --}}
+    <div id="loading-overlay" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4 max-w-sm w-full mx-4">
+                <div class="relative">
+                    <svg class="w-14 h-14 animate-spin text-red-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div class="text-center">
+                    <p class="text-gray-900 font-semibold text-base">Sedang memproses naik kelas...</p>
+                    <p class="text-gray-500 text-sm mt-1">Mohon tunggu, jangan tutup halaman ini.</p>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-red-500 rounded-full animate-progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    @keyframes progress {
+        0%   { width: 0%; }
+        60%  { width: 75%; }
+        90%  { width: 92%; }
+        100% { width: 92%; }
+    }
+    .animate-progress {
+        animation: progress 25s ease-out forwards;
+    }
+    </style>
+
     <script>
     function confirmEksekusi(btn) {
         var total = {{ $totalSiswa }};
@@ -245,11 +279,28 @@
             'Aksi ini tidak dapat dibatalkan.\n\n' +
             'Lanjutkan?'
         );
-        if (confirmed) {
-            btn.disabled = true;
-            btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...';
+        if (!confirmed) {
+            return false;
         }
-        return confirmed;
+
+        // Tampilkan overlay loading
+        document.getElementById('loading-overlay').classList.remove('hidden');
+
+        // Disable tombol setelah konfirmasi
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...';
+
+        // Fallback 60 detik — sembunyikan overlay dan re-enable tombol
+        setTimeout(function() {
+            if (btn.disabled) {
+                document.getElementById('loading-overlay').classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Eksekusi Naik Kelas';
+                window.alert('Proses memakan waktu terlalu lama. Silakan coba lagi.');
+            }
+        }, 60000);
+
+        return true;
     }
     </script>
 </x-app-layout>

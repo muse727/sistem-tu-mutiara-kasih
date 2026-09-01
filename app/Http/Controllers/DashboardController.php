@@ -141,6 +141,48 @@ class DashboardController extends Controller
             ->values();
 
         // ==========================================================
+        // 6. GRAFIK BULANAN 12 BULAN (FITUR 2)
+        // ==========================================================
+
+        $chartMonthly = [];
+        $monthNames   = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        $thisYear     = now()->year;
+
+        for ($m = 1; $m <= 12; $m++) {
+            $billIncome = StudentBill::whereYear('paid_at', $thisYear)
+                ->whereMonth('paid_at', $m)
+                ->whereNotNull('paid_at')
+                ->where('status', 'PAID')
+                ->sum('amount');
+
+            $posIncome = PosOrder::whereYear('created_at', $thisYear)
+                ->whereMonth('created_at', $m)
+                ->where('payment_status', 'PAID')
+                ->sum('payment_amount');
+
+            $chartMonthly[] = [
+                'month' => $monthNames[$m - 1],
+                'total' => $billIncome + $posIncome,
+            ];
+        }
+
+        // Persentase lunas/belum bulan ini
+        $paidCount   = StudentBill::whereMonth('paid_at', now()->month)
+            ->whereYear('paid_at', now()->year)
+            ->where('status', 'PAID')
+            ->distinct('student_id')
+            ->count('student_id');
+
+        $unpaidCount = StudentBill::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('status', 'UNPAID')
+            ->distinct('student_id')
+            ->count('student_id');
+
+        $totalForPercent = $paidCount + $unpaidCount;
+        $paidPercent     = $totalForPercent > 0 ? round(($paidCount / $totalForPercent) * 100, 1) : 0;
+
+        // ==========================================================
         // RETURN VIEW
         // ==========================================================
         return view('dashboard', compact(
@@ -154,7 +196,11 @@ class DashboardController extends Controller
             'unpaidStudents',
             'lowStockItems',
             'chartData',
-            'recentActivities'
+            'recentActivities',
+            'chartMonthly',
+            'paidCount',
+            'unpaidCount',
+            'paidPercent'
         ));
     }
 }

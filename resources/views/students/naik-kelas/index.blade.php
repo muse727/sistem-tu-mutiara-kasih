@@ -76,19 +76,19 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        @forelse($statPerKelas as $stat)
+                        @forelse($kelasAktif->filter(fn($k) => $k->active_students_count > 0) as $kelas)
                         <tr class="hover:bg-blue-50/40 transition-colors duration-150">
                             <td class="px-6 py-3">
                                 <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-gray-50 to-gray-100 rounded-full border border-gray-200">
                                     <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                     </svg>
-                                    <span class="font-semibold text-gray-700 text-sm">{{ $stat->nama_kelas }}</span>
+                                    <span class="font-semibold text-gray-700 text-sm">{{ $kelas->nama_kelas }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-3 text-right">
                                 <span class="inline-flex items-center justify-center min-w-[2.5rem] px-3 py-1 bg-[#0284c7]/10 text-[#0284c7] text-sm font-bold rounded-full">
-                                    {{ $stat->jumlah }}
+                                    {{ $kelas->active_students_count }}
                                 </span>
                             </td>
                         </tr>

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PosItem extends Model
 {
-    protected $fillable = ['name', 'category', 'stock', 'price', 'image'];
+    protected $fillable = ['name', 'category', 'stock', 'price', 'image', 'is_active'];
 
     protected $casts = [
         'price'     => 'integer',

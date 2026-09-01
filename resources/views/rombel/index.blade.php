@@ -6,24 +6,18 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-semibold text-slate-800">Rombel</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Manajemen rombongan belajar per tahun ajaran</p>
+            <p class="text-sm text-slate-500 mt-0.5">
+                Kelompok belajar per tahun ajaran.
+                <a href="{{ route('tahun-ajaran.index') }}" class="text-sky-600 hover:underline font-medium">Kelola Tahun Ajaran →</a>
+            </p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('tahun-ajaran.index') }}"
-               class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Kelola Tahun Ajaran
-            </a>
-            <button onclick="openModal('modalCreate')"
-                    class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Tambah Rombel
-            </button>
-        </div>
+        <button onclick="openModal('modalCreate')"
+                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Rombel
+        </button>
     </div>
 
     @if(!$tahunAjaranAktif)
@@ -74,8 +68,8 @@
                             <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">#</th>
                             <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">Nama Rombel</th>
                             <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">Kelas</th>
-                            <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">Tahun Ajaran</th>
-                            <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">Wali Kelas</th>
+                            <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4 col-ta">Tahun Ajaran</th>
+                            <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">Wali Kelas <span class="text-slate-300 font-normal normal-case">(opsional)</span></th>
                             <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">Siswa</th>
                             <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3 pr-4">Status</th>
                             <th class="text-right text-xs font-semibold text-slate-500 uppercase tracking-wide pb-3">Aksi</th>
@@ -87,8 +81,8 @@
                             <td class="py-3 pr-4 text-slate-400">{{ $i + 1 }}</td>
                             <td class="py-3 pr-4 font-medium text-slate-800">{{ $rombel->nama_rombel }}</td>
                             <td class="py-3 pr-4 text-slate-600">{{ $rombel->kelas->nama_kelas ?? '-' }}</td>
-                            <td class="py-3 pr-4 text-slate-600">{{ $rombel->tahunAjaran->nama ?? '-' }}</td>
-                            <td class="py-3 pr-4 text-slate-600">{{ $rombel->wali_kelas ?: '-' }}</td>
+                            <td class="py-3 pr-4 text-slate-600 col-ta">{{ $rombel->tahunAjaran->nama ?? '-' }}</td>
+                            <td class="py-3 pr-4 text-slate-500 italic">{{ $rombel->wali_kelas ?: '— belum diisi' }}</td>
                             <td class="py-3 pr-4 text-slate-600">{{ $rombel->student_rombels_count }}</td>
                             <td class="py-3 pr-4">
                                 @if($rombel->is_aktif)

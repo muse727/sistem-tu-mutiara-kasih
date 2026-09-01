@@ -10,12 +10,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"
+        integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2"
+        crossorigin="anonymous"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0ea5e9">
+    <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js')}</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @php
         // Ambil pengaturan sidebar & logo dari school_settings (cached per-request)
         $sidebarColor = \DB::table('school_settings')->where('key', 'sidebar_color')->value('value') ?? 'blue';
+
+        // FITUR 1: Badge tagihan jatuh tempo — UNPAID & due_date lewat ATAU created_at > 30 hari
+        $overdueTagihanCount = 0;
+        try {
+            $overdueTagihanCount = \DB::table('student_bills')
+                ->where('status', 'UNPAID')
+                ->where(function($q) {
+                    $q->where(function($qq) {
+                        // Punya due_date dan sudah lewat
+                        $qq->whereNotNull('due_date')->where('due_date', '<', now()->toDateString());
+                    })->orWhere(function($qq) {
+                        // Tidak punya due_date tapi created_at > 30 hari
+                        $qq->whereNull('due_date')->where('created_at', '<', now()->subDays(30));
+                    });
+                })
+                ->count();
+        } catch (\Exception $e) {
+            $overdueTagihanCount = 0;
+        }
         $schoolLogo   = \DB::table('school_settings')->where('key', 'school_logo')->value('value');
         $schoolName   = \DB::table('school_settings')->where('key', 'school_name')->value('value') ?? config('app.name', 'Sistem TU');
 
@@ -40,7 +64,146 @@
     @endphp
 
     <style>
-        [x-cloak] { display: none !important; }
+        /* ══════════════════════════════════════════
+           DARK MODE — pendekatan universal
+           Target: #main-content-area dan semua anak-anaknya
+           Tidak bergantung Tailwind class names
+        ══════════════════════════════════════════ */
+
+        /* Area konten utama */
+        html.dark #main-content-area {
+            background-color: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+        /* Semua div/section/article/main di dalam konten */
+        html.dark #main-content-area div,
+        html.dark #main-content-area section,
+        html.dark #main-content-area article,
+        html.dark #main-content-area aside {
+            background-color: inherit;
+            color: inherit;
+            border-color: #334155;
+        }
+        /* Card — element dengan background putih */
+        html.dark #main-content-area [class*="bg-white"],
+        html.dark #main-content-area [class*="bg-gray-50"],
+        html.dark #main-content-area [class*="bg-gray-100"] {
+            background-color: #1e293b !important;
+            color: #e2e8f0 !important;
+        }
+        /* Teks */
+        html.dark #main-content-area [class*="text-gray-"],
+        html.dark #main-content-area [class*="text-slate-"],
+        html.dark #main-content-area p,
+        html.dark #main-content-area span,
+        html.dark #main-content-area label,
+        html.dark #main-content-area h1,
+        html.dark #main-content-area h2,
+        html.dark #main-content-area h3,
+        html.dark #main-content-area h4,
+        html.dark #main-content-area h5,
+        html.dark #main-content-area h6 {
+            color: #e2e8f0 !important;
+        }
+        /* Border */
+        html.dark #main-content-area [class*="border-gray-"],
+        html.dark #main-content-area [class*="border-slate-"],
+        html.dark #main-content-area [class*="divide-gray-"] > * {
+            border-color: #334155 !important;
+        }
+        /* Input, select, textarea */
+        html.dark #main-content-area input,
+        html.dark #main-content-area textarea,
+        html.dark #main-content-area select {
+            background-color: #1e293b !important;
+            color: #e2e8f0 !important;
+            border-color: #475569 !important;
+        }
+        /* Table */
+        html.dark #main-content-area table { border-color: #334155 !important; }
+        html.dark #main-content-area thead,
+        html.dark #main-content-area thead tr,
+        html.dark #main-content-area thead th {
+            background-color: #0f172a !important;
+            color: #94a3b8 !important;
+            border-color: #334155 !important;
+        }
+        html.dark #main-content-area tbody tr {
+            border-color: #334155 !important;
+        }
+        html.dark #main-content-area tbody tr:hover {
+            background-color: #1e293b !important;
+        }
+        html.dark #main-content-area td, html.dark #main-content-area th {
+            border-color: #334155 !important;
+        }
+        /* Hover states */
+        html.dark #main-content-area [class*="hover:bg-gray-"]:hover,
+        html.dark #main-content-area [class*="hover:bg-white"]:hover {
+            background-color: #334155 !important;
+        }
+        /* Muted/secondary text */
+        html.dark #main-content-area [class*="text-gray-4"],
+        html.dark #main-content-area [class*="text-gray-5"],
+        html.dark #main-content-area [class*="text-slate-4"],
+        html.dark #main-content-area [class*="text-slate-5"] {
+            color: #94a3b8 !important;
+        }
+        /* Header navbar */
+        html.dark header.dm-header {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+        }
+        html.dark header.dm-header [class*="text-gray-"] {
+            color: #e2e8f0 !important;
+        }
+        html.dark header.dm-header button:not(#darkModeToggle) {
+            color: #94a3b8 !important;
+        }
+        html.dark header.dm-header button:hover {
+            background-color: #334155 !important;
+        }
+        /* Footer */
+        html.dark footer.dm-text-muted {
+            background-color: #0f172a !important;
+            color: #64748b !important;
+        }
+        /* Toggle button state */
+        html.dark #darkModeToggle { color: #f59e0b !important; }
+        html.dark #darkModeToggle:hover { background-color: #334155 !important; }
+
+        /* Gradient cards — ganti ke warna gelap, teks tetap berwarna aslinya */
+        html.dark #main-content-area [class*="bg-gradient-to"] {
+            background: #1e293b !important;
+        }
+        /* Jangan override teks berwarna (blue, emerald, red, yellow, amber, green, purple, etc) di dark mode */
+        html.dark #main-content-area [class*="text-blue-"],
+        html.dark #main-content-area [class*="text-emerald-"],
+        html.dark #main-content-area [class*="text-red-"],
+        html.dark #main-content-area [class*="text-yellow-"],
+        html.dark #main-content-area [class*="text-amber-"],
+        html.dark #main-content-area [class*="text-green-"],
+        html.dark #main-content-area [class*="text-purple-"],
+        html.dark #main-content-area [class*="text-indigo-"],
+        html.dark #main-content-area [class*="text-sky-"],
+        html.dark #main-content-area [class*="text-cyan-"],
+        html.dark #main-content-area [class*="text-pink-"],
+        html.dark #main-content-area [class*="text-rose-"],
+        html.dark #main-content-area [class*="text-orange-"],
+        html.dark #main-content-area [class*="text-teal-"],
+        html.dark #main-content-area [class*="text-white"] {
+            color: unset !important;
+        }
+        /* Light mode protection — pastikan teks berwarna tidak di-override di light mode */
+        #main-content-area [class*="text-blue-"],
+        #main-content-area [class*="text-emerald-"],
+        #main-content-area [class*="text-red-"],
+        #main-content-area [class*="text-yellow-"],
+        #main-content-area [class*="text-amber-"],
+        #main-content-area [class*="text-green-"],
+        #main-content-area [class*="text-gray-"] {
+            /* Pastikan ini tidak di-override oleh dark mode CSS apapun saat light mode */
+        }
         .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
@@ -137,18 +300,6 @@
             </a>
             @endif
 
-            {{-- PPDB --}}
-            @if(in_array(Auth::user()->role, ['admin','tu','staf','kepala_sekolah']))
-            <a href="{{ route('ppdb.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                      {{ request()->routeIs('ppdb.*') ? 'sidebar-active shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                </svg>
-                <span>Registrasi Siswa Baru</span>
-            </a>
-            @endif
-
             {{-- Tagihan Sekolah --}}
             @if(in_array(Auth::user()->role, ['admin','tu','staf','kepala_sekolah']))
             <div x-data="{ open: {{ request()->routeIs('bills.*') ? 'true' : 'false' }} }">
@@ -160,6 +311,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                         <span>Tagihan Sekolah</span>
+                        @if($overdueTagihanCount > 0)
+                        <span class="ml-auto inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-500 rounded-full shadow-sm">
+                            {{ $overdueTagihanCount > 99 ? '99+' : $overdueTagihanCount }}
+                        </span>
+                        @endif
                     </div>
                     <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -247,14 +403,7 @@
                     </svg>
                 </button>
                 <div x-show="open" x-cloak class="sidebar-submenu mt-1 space-y-1 rounded-xl p-1">
-                    <a href="{{ route('settings.integration') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition
-                              {{ request()->routeIs('settings.integration') ? 'sidebar-active font-bold shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 010 5.656m-3.656-5.656a4 4 0 010 5.656M8 12h8"/>
-                        </svg>
-                        <span>Integrasi Kesiswaan</span>
-                    </a>
+
                     <a href="{{ route('school.settings') }}"
                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition
                               {{ request()->routeIs('school.settings') ? 'sidebar-active font-bold shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
@@ -266,6 +415,40 @@
                 </div>
             </div>
             @endif
+
+            {{-- FITUR 4: Audit Trail (admin only) --}}
+            @if(Auth::user()->role === 'admin')
+            <a href="{{ route('audit.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('audit.*') ? 'sidebar-active shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <span>Audit Trail</span>
+            </a>
+            @endif
+
+            {{-- FITUR 5: Laporan Bulanan --}}
+            @if(in_array(Auth::user()->role, ['admin','tu','kepala_sekolah']))
+            <a href="{{ route('reports.monthly') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('reports.*') ? 'sidebar-active shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>Laporan Bulanan</span>
+            </a>
+            @endif
+
+            {{-- Panduan --}}
+            <a href="{{ route('panduan.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
+                      {{ request()->routeIs('panduan.*') ? 'sidebar-active shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span>Panduan</span>
+            </a>
 
             {{-- Profile --}}
             <a href="{{ route('profile.edit') }}"
@@ -312,7 +495,7 @@
     ═══════════════════════════════════════════════════════ --}}
     <div class="flex flex-col min-h-screen lg:pl-64">
 
-        <header class="h-16 flex items-center justify-between gap-3 px-6 md:px-8 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
+        <header class="h-16 flex items-center justify-between gap-3 px-6 md:px-8 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30 dm-header">
             <div class="flex items-center gap-3 min-w-0 flex-1">
                 <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -330,18 +513,73 @@
             @if (isset($headerAction))
             <div class="shrink-0">{!! $headerAction !!}</div>
             @endif
-        </header>
 
-        <main class="flex-1">
-            <div class="w-full min-h-full px-6 py-6 lg:px-8 lg:py-8">
+            {{-- FITUR 6: Dark Mode Toggle --}}
+            <button id="darkModeToggle"
+                    title="Toggle Dark Mode"
+                    class="ml-2 p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition shrink-0"
+                    aria-label="Toggle dark mode">
+                {{-- Sun icon (shown in dark mode) --}}
+                <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                {{-- Moon icon (shown in light mode) --}}
+                <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+            </button>
+        </header>
+            <div id="main-content-area" class="w-full min-h-full px-6 py-6 lg:px-8 lg:py-8 dm-content">
                 {{ $slot }}
             </div>
         </main>
 
-        <footer class="px-6 lg:px-8 py-4 text-xs text-gray-400">
+        <footer class="px-6 lg:px-8 py-4 text-xs text-gray-400 dm-text-muted">
             &copy; {{ date('Y') }} {{ $schoolName }}. All rights reserved.
         </footer>
     </div>
+
+
+    {{-- FITUR 6: Dark Mode JS --}}
+    <script>
+        (function() {
+            // Restore dark mode from localStorage on load
+            if (localStorage.getItem('darkMode') === '1') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var toggle   = document.getElementById('darkModeToggle');
+            var iconSun  = document.getElementById('iconSun');
+            var iconMoon = document.getElementById('iconMoon');
+
+            function applyDark(dark) {
+                if (dark) {
+                    document.documentElement.classList.add('dark');
+                    iconSun.classList.remove('hidden');
+                    iconMoon.classList.add('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    iconSun.classList.add('hidden');
+                    iconMoon.classList.remove('hidden');
+                }
+            }
+
+            // Init state from localStorage
+            applyDark(localStorage.getItem('darkMode') === '1');
+
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    var isDark = document.documentElement.classList.contains('dark');
+                    localStorage.setItem('darkMode', isDark ? '0' : '1');
+                    applyDark(!isDark);
+                });
+            }
+        });
+    </script>
 
     {{-- Global SweetAlert Flash Handler --}}
     <script>
