@@ -631,9 +631,9 @@
             {{-- Header --}}
             <div class="bg-gradient-to-r from-sky-600 to-blue-700 px-4 py-3 flex items-center gap-3">
                 <button
-                    x-show="view === 'room'"
+                    :class="view === 'room' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none w-0 overflow-hidden'"
                     @click="view = 'inbox'; activeStudent = null; stopPoll()"
-                    class="text-white hover:text-sky-200 transition flex-shrink-0"
+                    class="text-white hover:text-sky-200 transition-all flex-shrink-0"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 </button>
