@@ -42,6 +42,7 @@ class AuditLogExport implements \Maatwebsite\Excel\Concerns\Export, WithMultiple
 // Sheet 1 — Data Lengkap
 // ─────────────────────────────────────────────────────────
 class AuditLogDataSheet implements
+    \Maatwebsite\Excel\Concerns\Export,
     WithTitle,
     WithStyles,
     WithColumnWidths,
@@ -188,7 +189,7 @@ class AuditLogDataSheet implements
 // ─────────────────────────────────────────────────────────
 // Sheet 2 — Ringkasan / Summary
 // ─────────────────────────────────────────────────────────
-class AuditLogSummarySheet implements WithTitle, WithStyles, WithColumnWidths, ShouldAutoSize
+class AuditLogSummarySheet implements \Maatwebsite\Excel\Concerns\Export, WithTitle, WithStyles, WithColumnWidths, ShouldAutoSize
 {
     use \Maatwebsite\Excel\Concerns\Exportable;
 
