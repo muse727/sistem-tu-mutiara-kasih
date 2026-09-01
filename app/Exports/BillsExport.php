@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\Exportable;
 
-class BillsExport implements WithMultipleSheets, \Maatwebsite\Excel\Concerns\Export
+class BillsExport implements WithMultipleSheets
 {
     use Exportable;
 

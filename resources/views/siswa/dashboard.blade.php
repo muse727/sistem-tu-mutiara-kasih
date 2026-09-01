@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" x-data="{ tab: 'unpaid', ...chatWidget() }" x-init="chatInit()">
+<html lang="id" x-data="{ tab: 'unpaid', ...chatWidget() }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -523,94 +523,95 @@
                 chatLastId: 0,
                 _chatPollInterval: null,
                 _chatUnreadInterval: null,
+
+                // Alpine lifecycle — dipanggil otomatis saat component init
+                init() {
+                    // Polling unread badge setiap 10 detik (saat chat tertutup)
+                    this._chatUnreadInterval = setInterval(async () => {
+                        if (this.chatOpen) return;
+                        try {
+                            const r = await fetch('{{ route("siswa.chat.unread") }}');
+                            const d = await r.json();
+                            this.chatUnread = d.unread ?? 0;
+                        } catch (e) {}
+                    }, 10000);
+
+                    // Watch: saat chat dibuka, load pesan & mulai polling
+                    this.$watch('chatOpen', async (open) => {
+                        if (open) {
+                            await this.chatLoad();
+                            this.chatUnread = 0;
+                            this._chatPollInterval = setInterval(() => this.chatPoll(), 4000);
+                        } else {
+                            clearInterval(this._chatPollInterval);
+                        }
+                    });
+                },
+
+                async chatLoad() {
+                    this.chatLoading = true;
+                    try {
+                        const r = await fetch('{{ route("siswa.chat.messages") }}');
+                        const d = await r.json();
+                        this.chatMessages = d.messages ?? [];
+                        if (this.chatMessages.length > 0) {
+                            this.chatLastId = this.chatMessages[this.chatMessages.length - 1].id;
+                        }
+                        this.chatScrollBottom();
+                    } catch (e) {}
+                    this.chatLoading = false;
+                },
+
+                async chatPoll() {
+                    try {
+                        const r = await fetch('{{ route("siswa.chat.messages") }}');
+                        const d = await r.json();
+                        const msgs = d.messages ?? [];
+                        const existingIds = new Set(this.chatMessages.map(m => m.id));
+                        const fresh = msgs.filter(m => !existingIds.has(m.id));
+                        if (fresh.length > 0) {
+                            this.chatMessages.push(...fresh);
+                            this.chatLastId = fresh[fresh.length - 1].id;
+                            this.chatScrollBottom();
+                        }
+                    } catch (e) {}
+                },
+
+                async chatSend() {
+                    const text = this.chatText.trim();
+                    if (!text || this.chatSending) return;
+                    this.chatSending = true;
+                    this.chatText = '';
+                    try {
+                        const r = await fetch('{{ route("siswa.chat.send") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            },
+                            body: JSON.stringify({ message: text }),
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            this.chatMessages.push(d.data);
+                            this.chatLastId = d.data.id;
+                            this.chatScrollBottom();
+                        }
+                    } catch (e) {
+                        alert('Gagal mengirim pesan.');
+                        this.chatText = text;
+                    } finally {
+                        this.chatSending = false;
+                    }
+                },
+
+                chatScrollBottom() {
+                    this.$nextTick(() => {
+                        const el = document.getElementById('chat-messages');
+                        if (el) el.scrollTop = el.scrollHeight;
+                    });
+                },
             };
-        }
-
-        function chatInit() {
-            // Polling unread badge setiap 10 detik (saat chat tertutup)
-            this._chatUnreadInterval = setInterval(async () => {
-                if (this.chatOpen) return;
-                try {
-                    const r = await fetch('{{ route("siswa.chat.unread") }}');
-                    const d = await r.json();
-                    this.chatUnread = d.unread ?? 0;
-                } catch (e) {}
-            }, 10000);
-
-            // Watch: saat chat dibuka, load pesan & mulai polling
-            this.$watch('chatOpen', async (open) => {
-                if (open) {
-                    await this.chatLoad();
-                    this.chatUnread = 0;
-                    this._chatPollInterval = setInterval(() => this.chatPoll(), 4000);
-                } else {
-                    clearInterval(this._chatPollInterval);
-                }
-            });
-        }
-
-        async function chatLoad() {
-            this.chatLoading = true;
-            try {
-                const r = await fetch('{{ route("siswa.chat.messages") }}');
-                const d = await r.json();
-                this.chatMessages = d.messages ?? [];
-                if (this.chatMessages.length > 0) {
-                    this.chatLastId = this.chatMessages[this.chatMessages.length - 1].id;
-                }
-                this.chatScrollBottom();
-            } catch (e) {}
-            this.chatLoading = false;
-        }
-
-        async function chatPoll() {
-            try {
-                const r = await fetch(`{{ route("siswa.chat.messages") }}`);
-                const d = await r.json();
-                const msgs = d.messages ?? [];
-                const existingIds = new Set(this.chatMessages.map(m => m.id));
-                const fresh = msgs.filter(m => !existingIds.has(m.id));
-                if (fresh.length > 0) {
-                    this.chatMessages.push(...fresh);
-                    this.chatLastId = fresh[fresh.length - 1].id;
-                    this.chatScrollBottom();
-                }
-            } catch (e) {}
-        }
-
-        async function chatSend() {
-            const text = this.chatText.trim();
-            if (!text || this.chatSending) return;
-            this.chatSending = true;
-            this.chatText = '';
-            try {
-                const r = await fetch('{{ route("siswa.chat.send") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                    body: JSON.stringify({ message: text }),
-                });
-                const d = await r.json();
-                if (d.success) {
-                    this.chatMessages.push(d.data);
-                    this.chatLastId = d.data.id;
-                    this.chatScrollBottom();
-                }
-            } catch (e) {
-                alert('Gagal mengirim pesan.');
-                this.chatText = text;
-            } finally {
-                this.chatSending = false;
-            }
-        }
-
-        function chatScrollBottom() {
-            this.$nextTick(() => {
-                const el = document.getElementById('chat-messages');
-                if (el) el.scrollTop = el.scrollHeight;
-            });
         }
     </script>
 

@@ -1,19 +1,87 @@
 <x-app-layout>
 <div class="p-6">
 
-    {{-- Header --}}
-    <div class="flex items-center justify-between mb-6">
+    {{-- ── Header ──────────────────────────────────────────────────────────── --}}
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Tahun Ajaran</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Kelola data tahun ajaran</p>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="p-2 bg-gradient-to-br from-[#0284c7]/10 to-[#0ea5e9]/10 rounded-xl">
+                    <svg class="w-7 h-7 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">Tahun Ajaran</h1>
+            </div>
+            <p class="text-gray-600 ml-12">Master data periode akademik. &nbsp;
+                <a href="{{ route('rombel.index') }}" class="text-[#0284c7] hover:underline font-medium">Lihat Rombel →</a>
+            </p>
         </div>
         <button onclick="openModal('modalCreate')"
-                class="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm">
+                class="flex items-center gap-2 bg-[#0284c7] text-white px-4 py-2.5 rounded-xl hover:bg-[#0369a1] transition-all duration-300 font-medium shadow-sm text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Tambah Tahun Ajaran
         </button>
+    </div>
+
+    {{-- ── Stat Cards ──────────────────────────────────────────────────────── --}}
+    @php
+        $totalTA    = $tahunAjaran->count();
+        $aktifTA    = $tahunAjaran->where('is_aktif', true)->first();
+        $nonaktifTA = $tahunAjaran->where('is_aktif', false)->count();
+    @endphp
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {{-- Total Tahun Ajaran --}}
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100 border border-sky-200 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-sky-800 font-medium">Total Tahun Ajaran</p>
+                    <p class="text-2xl font-bold text-sky-600 mt-1">{{ $totalTA }}</p>
+                </div>
+                <div class="p-3 bg-sky-500/10 rounded-lg">
+                    <svg class="w-6 h-6 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        {{-- Tahun Ajaran Aktif --}}
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-emerald-800 font-medium">Tahun Ajaran Aktif</p>
+                    <p class="text-lg font-bold text-emerald-600 mt-1">{{ $aktifTA?->nama ?? '—' }}</p>
+                    @if($aktifTA?->tanggal_mulai)
+                        <p class="text-xs text-emerald-700 mt-0.5">
+                            {{ \Carbon\Carbon::parse($aktifTA->tanggal_mulai)->format('M Y') }}
+                            – {{ $aktifTA->tanggal_selesai ? \Carbon\Carbon::parse($aktifTA->tanggal_selesai)->format('M Y') : '?' }}
+                        </p>
+                    @endif
+                </div>
+                <div class="p-3 bg-emerald-500/10 rounded-lg">
+                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        {{-- Non-aktif --}}
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-700 font-medium">Tahun Non-aktif</p>
+                    <p class="text-2xl font-bold text-slate-500 mt-1">{{ $nonaktifTA }}</p>
+                </div>
+                <div class="p-3 bg-slate-400/10 rounded-lg">
+                    <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Flash messages --}}
@@ -60,11 +128,11 @@
                     <td class="px-4 py-3 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="fetchAndEditTA({{ $ta->id }})"
-                                    class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+                                    class="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 border border-amber-200">
                                 Edit
                             </button>
                             <button onclick="confirmDeleteTA('{{ route('tahun-ajaran.destroy', $ta) }}', '{{ $ta->nama }}')"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+                                    class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 border border-red-200">
                                 Hapus
                             </button>
                         </div>

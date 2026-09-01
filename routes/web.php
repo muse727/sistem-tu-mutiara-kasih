@@ -212,10 +212,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // CHAT TU ↔ SISWA — admin, tu
     Route::middleware('role:admin,tu')->prefix('chat')->name('chat.')->group(function () {
         Route::get('/',                            [ChatTuController::class, 'inbox'])->name('inbox');
+        Route::get('/unread-count',                [ChatTuController::class, 'unreadCount'])->name('unread');  // MUST be before /{student}
         Route::get('/{student}',                   [ChatTuController::class, 'room'])->name('room');
         Route::post('/{student}/reply',            [ChatTuController::class, 'reply'])->name('reply');
         Route::get('/{student}/poll',              [ChatTuController::class, 'poll'])->name('poll');
-        Route::get('/unread-count',                [ChatTuController::class, 'unreadCount'])->name('unread');
     });
 
     // 8. PROFILE USER

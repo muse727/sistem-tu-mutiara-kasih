@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kelas;
+use App\Models\Setting;
 use App\Models\Student;
+use App\Models\StudentRombel;
 use App\Models\StudentStatusLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,8 +31,14 @@ class NaikKelasController extends Controller
         // Semua kelas aktif untuk dropdown tujuan
         $semuaKelas = Kelas::aktif()->orderBy('tingkat')->orderBy('nama_kelas')->get();
 
+        // Nama jenjang sekolah untuk ditampilkan di header view
+        // school_settings (bukan settings) — sesuai struktur DB
+        $jenjang = DB::table('school_settings')->where('key', 'jenjang')->value('value')
+            ?? DB::table('school_settings')->where('key', 'school_name')->value('value')
+            ?? 'Sekolah';
+
         return view('students.naik-kelas.index', compact(
-            'kelasAktif', 'semuaKelas'
+            'kelasAktif', 'semuaKelas', 'jenjang'
         ));
     }
 
@@ -124,6 +132,12 @@ class NaikKelasController extends Controller
                             'status_changed_at' => now(),
                             'status_changed_by' => $userId,
                         ]);
+
+                        // Tutup rombel lama siswa (set tanggal_keluar)
+                        // agar jumlah_siswa di rombel lama berkurang
+                        StudentRombel::where('student_id', $siswa->id)
+                            ->whereNull('tanggal_keluar')
+                            ->update(['tanggal_keluar' => now()]);
 
                         StudentStatusLog::create([
                             'student_id'  => $siswa->id,
