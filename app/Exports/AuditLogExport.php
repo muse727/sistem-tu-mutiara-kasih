@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -43,6 +44,7 @@ class AuditLogExport implements \Maatwebsite\Excel\Concerns\Export, WithMultiple
 // ─────────────────────────────────────────────────────────
 class AuditLogDataSheet implements
     \Maatwebsite\Excel\Concerns\Export,
+    FromCollection,
     WithTitle,
     WithStyles,
     WithColumnWidths,
@@ -189,7 +191,7 @@ class AuditLogDataSheet implements
 // ─────────────────────────────────────────────────────────
 // Sheet 2 — Ringkasan / Summary
 // ─────────────────────────────────────────────────────────
-class AuditLogSummarySheet implements \Maatwebsite\Excel\Concerns\Export, WithTitle, WithStyles, WithColumnWidths, ShouldAutoSize
+class AuditLogSummarySheet implements \Maatwebsite\Excel\Concerns\Export, FromCollection, WithTitle, WithStyles, WithColumnWidths, ShouldAutoSize
 {
     use \Maatwebsite\Excel\Concerns\Exportable;
 
