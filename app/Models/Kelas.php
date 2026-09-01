@@ -48,8 +48,9 @@ class Kelas extends Model
 
     public function activeStudents(): HasMany
     {
+        // FIX #6: hapus 'lulus' — status orphan sisa refactoring, sudah digantikan 'graduated'
         return $this->hasMany(Student::class, 'kelas_id')
-            ->whereNotIn('status', ['keluar', 'lulus', 'graduated', 'alumni', 'pindah_keluar']);
+            ->whereNotIn('status', ['keluar', 'graduated', 'alumni', 'pindah_keluar']);
     }
 
     // =========================================================================

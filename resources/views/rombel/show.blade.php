@@ -81,6 +81,7 @@
             <span class="bg-sky-100 text-sky-700 text-xs font-bold px-2.5 py-1 rounded-full">{{ $jumlahSiswa }} Siswa</span>
         </div>
 
+        {{-- FIX #2/#5: studentRombels sudah di-filter whereNull('tanggal_keluar') dari controller --}}
         @if($rombel->studentRombels->isEmpty())
             <div class="px-6 py-12 text-center">
                 <svg class="w-12 h-12 text-slate-200 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

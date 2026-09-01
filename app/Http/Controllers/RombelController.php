@@ -174,12 +174,15 @@ class RombelController extends Controller
 
     public function show(Rombel $rombel)
     {
-        // FIX: eager load student di dalam studentRombels — cegah N+1 saat render tabel
-        $rombel->load(['kelas', 'tahunAjaran', 'studentRombels.student']);
+        // Eager load hanya student_rombels yang masih aktif (tanggal_keluar NULL)
+        $rombel->load(['kelas', 'tahunAjaran',
+            'studentRombels' => fn($q) => $q->whereNull('tanggal_keluar')->with('student')
+        ]);
 
-        // FIX: exclude siswa yang sudah ada di rombel MANA PUN di tahun ajaran yang sama
-        // (termasuk rombel ini sendiri) — cegah duplikat siswa antar rombel
+        // FIX #5: exclude siswa yang masih AKTIF di rombel mana pun di tahun ajaran yang sama
+        // — pakai whereNull('tanggal_keluar') agar siswa yang sudah keluar bisa di-assign ulang
         $sudahAdaIds = StudentRombel::where('tahun_ajaran_id', $rombel->tahun_ajaran_id)
+            ->whereNull('tanggal_keluar')
             ->pluck('student_id');
 
         $siswaBelumRombel = Student::whereNotIn('id', $sudahAdaIds)
@@ -188,7 +191,7 @@ class RombelController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Hitung jumlah siswa sekali — dipakai di view tanpa lazy load ulang
+        // FIX #5: hitung hanya siswa aktif (konsisten dengan model accessor)
         $jumlahSiswa = $rombel->studentRombels->count();
 
         return view('rombel.show', compact('rombel', 'siswaBelumRombel', 'jumlahSiswa'));
@@ -232,7 +235,9 @@ class RombelController extends Controller
 
     public function destroy(Rombel $rombel)
     {
-        if ($rombel->studentRombels()->count() > 0) {
+        // FIX #1: cek hanya siswa yang masih AKTIF di rombel (tanggal_keluar NULL)
+        // Rombel yang semua siswanya sudah keluar/lulus bisa dihapus
+        if ($rombel->studentRombels()->whereNull('tanggal_keluar')->count() > 0) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Rombel tidak bisa dihapus karena masih ada siswa yang terdaftar.'], 422);
             }
@@ -263,16 +268,30 @@ class RombelController extends Controller
         $skipped = 0;
 
         foreach ($request->student_ids as $studentId) {
+            // FIX #2a: cek duplikat hanya untuk siswa yang masih AKTIF di rombel (tanggal_keluar NULL)
+            // Siswa yang sudah dikeluarkan bisa di-assign ulang
             $alreadyExists = StudentRombel::where('student_id', $studentId)
                 ->where('tahun_ajaran_id', $rombel->tahun_ajaran_id)
+                ->whereNull('tanggal_keluar')
                 ->exists();
 
             if (!$alreadyExists) {
+                // FIX #3: hanya assign siswa dengan status active
+                $student = Student::find($studentId);
+                if (!$student || $student->status !== 'active') {
+                    $skipped++;
+                    continue;
+                }
+
                 StudentRombel::create([
                     'student_id'      => $studentId,
                     'rombel_id'       => $rombel->id,
                     'tahun_ajaran_id' => $rombel->tahun_ajaran_id,
                 ]);
+
+                // FIX #3: sinkronkan students.kelas_id dengan kelas dari rombel ini
+                $student->update(['kelas_id' => $rombel->kelas_id]);
+
                 $added++;
             } else {
                 $skipped++;
@@ -281,7 +300,7 @@ class RombelController extends Controller
 
         $msg = "{$added} siswa berhasil ditambahkan ke rombel.";
         if ($skipped > 0) {
-            $msg .= " {$skipped} siswa dilewati karena sudah terdaftar di rombel lain.";
+            $msg .= " {$skipped} siswa dilewati karena sudah terdaftar atau status tidak aktif.";
         }
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -291,19 +310,24 @@ class RombelController extends Controller
         return back()->with('success', $msg);
     }
 
-    // FIX: return JSON agar view bisa pakai SweetAlert (sebelumnya hanya redirect back)
     public function removeSiswa(Request $request, Rombel $rombel, Student $student)
     {
-        $deleted = StudentRombel::where('rombel_id', $rombel->id)
+        // FIX #2: soft delete — set tanggal_keluar, jangan hard delete
+        // Histori siswa pernah di rombel tetap tersimpan di DB
+        $updated = StudentRombel::where('rombel_id', $rombel->id)
             ->where('student_id', $student->id)
-            ->delete();
+            ->whereNull('tanggal_keluar')
+            ->update(['tanggal_keluar' => now()]);
 
-        if (!$deleted) {
+        if (!$updated) {
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Siswa tidak ditemukan di rombel ini.'], 404);
+                return response()->json(['success' => false, 'message' => 'Siswa tidak ditemukan atau sudah dikeluarkan dari rombel ini.'], 404);
             }
-            return back()->with('error', 'Siswa tidak ditemukan di rombel ini.');
+            return back()->with('error', 'Siswa tidak ditemukan atau sudah dikeluarkan dari rombel ini.');
         }
+
+        // FIX #4: null-kan students.kelas_id — konsisten dengan ubahStatus()
+        $student->update(['kelas_id' => null]);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => "{$student->name} berhasil dikeluarkan dari rombel."]);
