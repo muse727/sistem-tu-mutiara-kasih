@@ -230,6 +230,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/audit', [\App\Http\Controllers\AuditLogController::class, 'index'])
         ->middleware('role:admin')
         ->name('audit.index');
+    Route::get('/audit/export', [\App\Http\Controllers\AuditLogController::class, 'export'])
+        ->middleware('role:admin')
+        ->name('audit.export');
 
     // FITUR 5: Laporan Bulanan (admin, tu, kepala_sekolah)
     Route::get('/reports/monthly', [\App\Http\Controllers\ReportController::class, 'monthlyReport'])
