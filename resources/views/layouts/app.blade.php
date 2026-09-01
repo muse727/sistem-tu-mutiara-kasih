@@ -611,10 +611,9 @@
          FLOATING CHAT WIDGET — TU Panel
          3 states: bubble → inbox → room
     ═══════════════════════════════════════════ --}}
-    <div
-        x-data="tuChatWidget()"
-        x-init="init()"
+    <div x-data="tuChatWidget()" x-init="init()"
         class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3"
+        style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;"
     >
         {{-- Panel --}}
         <div
