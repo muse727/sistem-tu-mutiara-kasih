@@ -18,7 +18,7 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class AuditLogExport implements WithMultipleSheets
+class AuditLogExport implements \Maatwebsite\Excel\Concerns\Export, WithMultipleSheets
 {
     protected array $filters;
     protected string $schoolName;
