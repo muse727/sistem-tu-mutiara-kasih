@@ -14,7 +14,7 @@ class ChatTuController extends Controller
     public function inbox()
     {
         // Ambil 1 pesan terakhir per siswa, urutkan dari yang paling baru
-        $threads = ChatMessage::with('student')
+        $threads = ChatMessage::with(['student.kelas', 'student.rombelAktif'])
             ->selectRaw('student_id, MAX(id) as last_message_id')
             ->groupBy('student_id')
             ->orderByDesc('last_message_id')
@@ -27,12 +27,13 @@ class ChatTuController extends Controller
                                 ->count();
 
                 return [
-                    'student_id'   => $row->student_id,
-                    'student_name' => optional($lastMsg->student)->name ?? '-',
-                    'student_nis'  => optional($lastMsg->student)->nis ?? '-',
-                    'last_message' => $lastMsg->message,
-                    'last_time'    => $lastMsg->created_at->diffForHumans(),
-                    'unread'       => $unread,
+                    'student_id'    => $row->student_id,
+                    'student_name'  => optional($lastMsg->student)->name ?? '-',
+                    'student_nis'   => optional($lastMsg->student)->nis ?? '-',
+                    'student_kelas' => optional(optional($lastMsg->student)->kelas)->nama ?? '-',
+                    'last_message'  => $lastMsg->message,
+                    'last_time'     => $lastMsg->created_at->diffForHumans(),
+                    'unread'        => $unread,
                 ];
             });
 

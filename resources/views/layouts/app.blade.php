@@ -630,19 +630,21 @@
         >
             {{-- Header --}}
             <div class="bg-gradient-to-r from-sky-600 to-blue-700 px-4 py-3 flex items-center gap-3">
-                <template x-if="view === 'room'">
-                    <button @click="view = 'inbox'; activeStudent = null; stopPoll()" class="text-white/80 hover:text-white transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    </button>
-                </template>
+                <button
+                    x-show="view === 'room'"
+                    @click="view = 'inbox'; activeStudent = null; stopPoll()"
+                    class="text-white hover:text-sky-200 transition flex-shrink-0"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                </button>
                 <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-white font-semibold text-sm leading-none" x-text="view === 'room' ? activeStudent?.name : 'Pesan Masuk'"></p>
-                    <p class="text-sky-200 text-xs mt-0.5" x-text="view === 'room' ? ('NIS ' + activeStudent?.nis) : 'Chat dari siswa'"></p>
+                    <p class="text-sky-200 text-xs mt-0.5" x-text="view === 'room' ? ('NIS ' + activeStudent?.nis + ' · ' + (activeStudent?.kelas ?? '-')) : 'Chat dari siswa'"></p>
                 </div>
-                <button @click="open = false" class="text-white/70 hover:text-white transition">
+                <button @click="open = false" class="text-white/70 hover:text-white transition flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
             </div>
@@ -668,6 +670,7 @@
                                 <p class="text-sm font-semibold text-gray-800 truncate" x-text="thread.student_name"></p>
                                 <span class="text-xs text-gray-400 flex-shrink-0 ml-2" x-text="thread.last_time"></span>
                             </div>
+                            <p class="text-xs text-sky-600 font-medium mt-0.5" x-text="'NIS ' + thread.student_nis + ' · ' + thread.student_kelas"></p>
                             <p class="text-xs text-gray-500 truncate mt-0.5" x-text="thread.last_message"></p>
                         </div>
                         <template x-if="thread.unread > 0">
@@ -777,7 +780,7 @@
             },
 
             openRoom(thread) {
-                this.activeStudent = { id: thread.student_id, name: thread.student_name, nis: thread.student_nis };
+                this.activeStudent = { id: thread.student_id, name: thread.student_name, nis: thread.student_nis, kelas: thread.student_kelas };
                 this.messages = [];
                 this.view = 'room';
                 this.fetchMessages();
