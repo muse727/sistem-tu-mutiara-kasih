@@ -40,6 +40,14 @@ class ChatTuController extends Controller
             ->whereNull('read_at')
             ->count();
 
+        // AJAX request dari floating widget → return JSON
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'threads'      => $threads->values(),
+                'totalUnread'  => $totalUnread,
+            ]);
+        }
+
         return view('tu.chat.inbox', compact('threads', 'totalUnread'));
     }
 
@@ -78,7 +86,7 @@ class ChatTuController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => [
+            'msg'     => [
                 'id'         => $chat->id,
                 'sender'     => $chat->sender,
                 'message'    => $chat->message,

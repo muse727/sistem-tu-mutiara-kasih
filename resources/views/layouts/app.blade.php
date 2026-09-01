@@ -300,21 +300,6 @@
             </a>
             @endif
 
-            {{-- Chat Siswa --}}
-            @if(in_array(Auth::user()->role, ['admin','tu']))
-            <a href="{{ route('chat.inbox') }}"
-               x-data="{ unread: 0 }"
-               x-init="setInterval(() => fetch('{{ route('chat.unread') }}').then(r=>r.json()).then(d=>unread=d.unread), 10000); fetch('{{ route('chat.unread') }}').then(r=>r.json()).then(d=>unread=d.unread)"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
-                      {{ request()->routeIs('chat.*') ? 'sidebar-active shadow-md' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                </svg>
-                <span class="flex-1">Chat Siswa</span>
-                <span x-show="unread > 0" x-text="unread > 99 ? '99+' : unread"
-                      class="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center"></span>
-            </a>
-            @endif
 
             {{-- Tagihan Sekolah --}}
             @if(in_array(Auth::user()->role, ['admin','tu','staf','kepala_sekolah']))
@@ -619,6 +604,238 @@
         @if(session('info'))
             _swalToast.fire({ icon: 'info', title: '{{ addslashes(session('info')) }}' });
         @endif
+    @if(in_array(Auth::user()->role, ['admin','tu']))
+    {{-- ═══════════════════════════════════════════
+         FLOATING CHAT WIDGET — TU Panel
+         3 states: bubble → inbox → room
+    ═══════════════════════════════════════════ --}}
+    <div
+        x-data="tuChatWidget()"
+        x-init="init()"
+        class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3"
+    >
+        {{-- Panel --}}
+        <div
+            x-show="open"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+            x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+            x-cloak
+            class="w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col"
+            style="height: 440px;"
+        >
+            {{-- Header --}}
+            <div class="bg-gradient-to-r from-sky-600 to-blue-700 px-4 py-3 flex items-center gap-3">
+                <template x-if="view === 'room'">
+                    <button @click="view = 'inbox'; activeStudent = null; stopPoll()" class="text-white/80 hover:text-white transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    </button>
+                </template>
+                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-white font-semibold text-sm leading-none" x-text="view === 'room' ? activeStudent?.name : 'Pesan Masuk'"></p>
+                    <p class="text-sky-200 text-xs mt-0.5" x-text="view === 'room' ? ('NIS ' + activeStudent?.nis) : 'Chat dari siswa'"></p>
+                </div>
+                <button @click="open = false" class="text-white/70 hover:text-white transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+            </div>
+
+            {{-- INBOX VIEW --}}
+            <div x-show="view === 'inbox'" class="flex-1 overflow-y-auto">
+                <template x-if="threads.length === 0">
+                    <div class="flex flex-col items-center justify-center h-full text-center px-6">
+                        <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+                        <p class="text-gray-400 text-xs">Belum ada pesan dari siswa</p>
+                    </div>
+                </template>
+                <template x-for="thread in threads" :key="thread.student_id">
+                    <button
+                        @click="openRoom(thread)"
+                        class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition border-b border-gray-50 text-left"
+                    >
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-xs font-bold" x-text="thread.student_name.charAt(0).toUpperCase()"></span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-semibold text-gray-800 truncate" x-text="thread.student_name"></p>
+                                <span class="text-xs text-gray-400 flex-shrink-0 ml-2" x-text="thread.last_time"></span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate mt-0.5" x-text="thread.last_message"></p>
+                        </div>
+                        <template x-if="thread.unread > 0">
+                            <span class="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" x-text="thread.unread"></span>
+                        </template>
+                    </button>
+                </template>
+            </div>
+
+            {{-- ROOM VIEW --}}
+            <div x-show="view === 'room'" class="flex flex-col flex-1 overflow-hidden">
+                {{-- Messages --}}
+                <div x-ref="msgBox" class="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+                    <template x-for="msg in messages" :key="msg.id">
+                        <div :class="msg.sender === 'tu' ? 'flex justify-end' : 'flex justify-start'">
+                            <div
+                                :class="msg.sender === 'tu'
+                                    ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm'
+                                    : 'bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm'"
+                                class="max-w-[75%] px-3 py-2 text-sm"
+                            >
+                                <p x-text="msg.message"></p>
+                                <p class="text-xs mt-1 opacity-60 text-right" x-text="msg.created_at"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                {{-- Input --}}
+                <div class="px-3 py-3 border-t border-gray-100 flex gap-2">
+                    <input
+                        x-model="reply"
+                        @keydown.enter.prevent="sendReply()"
+                        type="text"
+                        placeholder="Ketik balasan..."
+                        class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <button
+                        @click="sendReply()"
+                        :disabled="!reply.trim() || sending"
+                        class="w-8 h-8 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-full flex items-center justify-center transition flex-shrink-0"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Bubble Button --}}
+        <button
+            @click="toggleWidget()"
+            class="w-14 h-14 bg-gradient-to-br from-sky-500 to-blue-700 hover:from-sky-600 hover:to-blue-800 text-white rounded-full shadow-xl flex items-center justify-center transition-all duration-200 relative"
+        >
+            <template x-if="!open">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            </template>
+            <template x-if="open">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </template>
+            <span
+                x-show="!open && unread > 0"
+                x-text="unread > 9 ? '9+' : unread"
+                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center"
+            ></span>
+        </button>
+    </div>
+
+    <script>
+    function tuChatWidget() {
+        return {
+            open: false,
+            view: 'inbox',       // 'inbox' | 'room'
+            threads: [],
+            activeStudent: null,
+            messages: [],
+            reply: '',
+            sending: false,
+            unread: 0,
+            pollTimer: null,
+            unreadTimer: null,
+
+            init() {
+                this.fetchInbox();
+                this.startUnreadPoll();
+            },
+
+            toggleWidget() {
+                this.open = !this.open;
+                if (this.open && this.view === 'inbox') this.fetchInbox();
+            },
+
+            startUnreadPoll() {
+                this.unreadTimer = setInterval(() => this.fetchUnread(), 10000);
+                this.fetchUnread();
+            },
+
+            fetchUnread() {
+                fetch('{{ route('chat.unread') }}')
+                    .then(r => r.json())
+                    .then(d => { this.unread = d.unread; });
+            },
+
+            fetchInbox() {
+                fetch('{{ route('chat.inbox') }}', { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
+                    .then(r => r.json())
+                    .then(d => { this.threads = d.threads || []; this.unread = d.totalUnread || 0; })
+                    .catch(() => {});
+            },
+
+            openRoom(thread) {
+                this.activeStudent = { id: thread.student_id, name: thread.student_name, nis: thread.student_nis };
+                this.messages = [];
+                this.view = 'room';
+                this.fetchMessages();
+                this.startPoll();
+            },
+
+            fetchMessages() {
+                if (!this.activeStudent) return;
+                const lastId = this.messages.length ? this.messages[this.messages.length - 1].id : 0;
+                fetch(`/chat/${this.activeStudent.id}/poll?after_id=${lastId}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.messages && d.messages.length) {
+                            this.messages.push(...d.messages);
+                            this.$nextTick(() => {
+                                const box = this.$refs.msgBox;
+                                if (box) box.scrollTop = box.scrollHeight;
+                            });
+                        }
+                    });
+            },
+
+            startPoll() {
+                this.stopPoll();
+                this.pollTimer = setInterval(() => this.fetchMessages(), 4000);
+            },
+
+            stopPoll() {
+                if (this.pollTimer) { clearInterval(this.pollTimer); this.pollTimer = null; }
+            },
+
+            sendReply() {
+                if (!this.reply.trim() || this.sending || !this.activeStudent) return;
+                this.sending = true;
+                const text = this.reply;
+                this.reply = '';
+                fetch(`/chat/${this.activeStudent.id}/reply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ message: text })
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success && d.msg) {
+                        this.messages.push(d.msg);
+                        this.$nextTick(() => {
+                            const box = this.$refs.msgBox;
+                            if (box) box.scrollTop = box.scrollHeight;
+                        });
+                    }
+                })
+                .finally(() => { this.sending = false; });
+            },
+        };
+    }
     </script>
-</body>
-</html>
+    @endif
+
