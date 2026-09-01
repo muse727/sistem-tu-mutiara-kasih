@@ -223,6 +223,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/panduan', [\App\Http\Controllers\PanduanController::class, 'index'])->name('panduan.index');
         Route::get('/profile', 'edit')->name('profile.edit');
         Route::patch('/profile', 'update')->name('profile.update');
+        Route::post('/profile/avatar', 'uploadAvatar')->name('profile.avatar');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
     });
 

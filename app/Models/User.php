@@ -20,6 +20,7 @@ class User extends Authenticatable
         'password',
         'role',   // Admin, TU, Student
         'phone',  // No HP untuk Notifikasi
+        'avatar',  // Foto profil
     ];
 
     protected $hidden = [
@@ -74,5 +75,16 @@ class User extends Authenticatable
     public function canManageFinance(): bool
     {
         return in_array($this->role, ['admin', 'tu', 'staf'], true);
+    }
+
+    /**
+     * URL foto profil — fallback ke null kalau tidak ada.
+     */
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return null;
     }
 }
