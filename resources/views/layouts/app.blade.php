@@ -465,9 +465,13 @@
         {{-- Footer Sidebar: Avatar + Logout --}}
         <div class="sidebar-footer p-4 border-t border-white/10 flex-shrink-0">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center font-bold shadow-lg flex-shrink-0"
+                <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center font-bold shadow-lg flex-shrink-0 overflow-hidden"
                      style="color: var(--sb-active)">
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    @if(Auth::user()->profile_photo_url)
+                        <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover">
+                    @else
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    @endif
                 </div>
                 <div class="overflow-hidden flex-1 min-w-0">
                     <p class="text-xs font-bold truncate text-white">{{ Auth::user()->name }}</p>
