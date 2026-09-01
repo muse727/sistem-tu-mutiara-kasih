@@ -11,6 +11,11 @@ class StudentRombel extends Model
         'student_id',
         'rombel_id',
         'tahun_ajaran_id',
+        'tanggal_keluar',
+    ];
+
+    protected $casts = [
+        'tanggal_keluar' => 'datetime',
     ];
 
     // ── Relations ────────────────────────────────────────────────────────────

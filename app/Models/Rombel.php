@@ -60,7 +60,8 @@ class Rombel extends Model
 
     public function getJumlahSiswaAttribute(): int
     {
-        return $this->studentRombels()->count();
+        // Hanya hitung siswa yang masih aktif di rombel (belum keluar/pindah/lulus)
+        return $this->studentRombels()->whereNull('tanggal_keluar')->count();
     }
 
     public function getLabelAttribute(): string

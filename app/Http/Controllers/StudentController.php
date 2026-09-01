@@ -287,13 +287,33 @@ class StudentController extends Controller
             }
         }
 
-        DB::transaction(function () use ($student, $statusLama, $statusBaru, $request) {
-            $student->update([
+        // Status non-aktif → null kelas_id + tandai tanggal_keluar di rombel aktif
+        $nonAktifStatuses = ['keluar', 'pindah_keluar', 'graduated', 'alumni'];
+        $isNonAktif       = in_array($statusBaru, $nonAktifStatuses);
+        $wasAktif         = !in_array($statusLama, $nonAktifStatuses);
+
+        DB::transaction(function () use ($student, $statusLama, $statusBaru, $request, $isNonAktif, $wasAktif) {
+            $updateData = [
                 'status'            => $statusBaru,
                 'status_notes'      => $request->catatan,
                 'status_changed_at' => now(),
                 'status_changed_by' => Auth::id(),
-            ]);
+            ];
+
+            // Null-kan kelas_id saat siswa menjadi non-aktif
+            if ($isNonAktif) {
+                $updateData['kelas_id'] = null;
+            }
+
+            $student->update($updateData);
+
+            // Tandai tanggal_keluar di semua rombel aktif siswa ini
+            // Hanya update record yang belum ditandai (masih aktif di rombel)
+            if ($isNonAktif && $wasAktif) {
+                \App\Models\StudentRombel::where('student_id', $student->id)
+                    ->whereNull('tanggal_keluar')
+                    ->update(['tanggal_keluar' => now()]);
+            }
 
             StudentStatusLog::create([
                 'student_id'  => $student->id,

@@ -61,7 +61,13 @@ class KelasController extends Controller
     {
         // Query fresh from DB to bypass any caching issues
         $data = \DB::table('kelas')->where('id', $kelas->id)->first();
-        return response()->json($data);
+
+        // Bug fix #1: kembalikan struktur konsisten agar JS tidak silent fail
+        if (!$data) {
+            return response()->json(['success' => false, 'message' => 'Data kelas tidak ditemukan.'], 404);
+        }
+
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
     public function update(Request $request, Kelas $kelas)
@@ -74,7 +80,8 @@ class KelasController extends Controller
             'is_aktif'    => 'boolean',
         ]);
 
-        $validated['is_aktif'] = $request->boolean('is_aktif', true);
+        // Bug fix #2: default false agar reflect nilai aktual checkbox (unchecked = false)
+        $validated['is_aktif'] = $request->boolean('is_aktif', false);
 
         // Phase 9.3: class_name column dropped — kelas_id is canonical.
         $kelas->update($validated);
@@ -104,7 +111,9 @@ class KelasController extends Controller
         }
 
         $nama = $kelas->nama_kelas;
-        $kelas->students()->update(['kelas_id' => null]);
+        // Bug fix #3: hanya null-kan kelas_id untuk siswa AKTIF.
+        // Siswa alumni/lulus tetap menyimpan histori kelas terakhir mereka.
+        $kelas->activeStudents()->update(['kelas_id' => null]);
         $kelas->delete();
 
         if (request()->ajax() || request()->wantsJson()) {

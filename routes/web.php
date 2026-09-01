@@ -123,7 +123,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // MASTER KELAS — admin + tu only
     Route::middleware('role:admin,tu')->group(function () {
         Route::post('kelas/update-jenjang', [KelasController::class, 'updateJenjang'])->name('kelas.update-jenjang');
-        Route::resource('kelas', KelasController::class)->except(['show']);
+        Route::resource('kelas', KelasController::class)->except(['show'])->parameters(['kelas' => 'kelas']);
     });
 
     // ── Tahun Ajaran — admin + tu only ───────────────────────────────────────

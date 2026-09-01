@@ -99,6 +99,11 @@ class NaikKelasController extends Controller
                             'status_changed_by' => $userId,
                         ]);
 
+                        // Tandai tanggal_keluar di semua rombel aktif siswa yang lulus
+                        \App\Models\StudentRombel::where('student_id', $siswa->id)
+                            ->whereNull('tanggal_keluar')
+                            ->update(['tanggal_keluar' => now()]);
+
                         StudentStatusLog::create([
                             'student_id'  => $siswa->id,
                             'status_lama' => $statusLama,
