@@ -437,11 +437,15 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Status</label>
-                    <select name="status" id="editStatus" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all bg-white">
-                        @foreach(\App\Models\Student::STATUSES as $key => $label)
-                            <option value="{{ $key }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    {{-- Status tidak bisa diubah dari modal Edit -- gunakan halaman Ubah Status --}}
+                    <div id="editStatusDisplay" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 text-sm text-gray-500 flex items-center justify-between">
+                        <span id="editStatusLabel" class="font-medium text-gray-700">-</span>
+                        <span class="text-xs text-gray-400 italic">Gunakan Ubah Status untuk mengubah</span>
+                    </div>
+                    <p class="text-xs text-amber-600 mt-1">
+                        ⚠️ Perubahan status hanya bisa dilakukan melalui
+                        <a id="editUbahStatusLink" href="#" class="underline font-semibold hover:text-amber-800">halaman Ubah Status</a>.
+                    </p>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Alamat</label>
@@ -530,7 +534,14 @@ async function fetchAndEditStudent(id) {
         document.getElementById('editTahunMasuk').value  = d.tahun_masuk || '';
         document.getElementById('editPhone').value       = d.phone || '';
         document.getElementById('editParentPhone').value = d.parent_phone || '';
-        document.getElementById('editStatus').value      = d.status || 'active';
+        // Status tidak bisa diubah dari modal Edit — tampilkan label + link ke Ubah Status
+        const statusLabels = {
+            'active': 'Aktif', 'calon_siswa': 'Calon Siswa', 'keluar': 'Keluar / DO',
+            'pindah_keluar': 'Pindah Keluar', 'pindah_masuk': 'Pindah Masuk',
+            'graduated': 'Lulus', 'alumni': 'Alumni'
+        };
+        document.getElementById('editStatusLabel').textContent = statusLabels[d.status] || d.status || '-';
+        document.getElementById('editUbahStatusLink').href = `/students/${id}/ubah-status`;
         document.getElementById('editAddress').value     = d.address || '';
         document.getElementById('formEdit').dataset.id  = id;
         document.getElementById('editErrors').classList.add('hidden');
