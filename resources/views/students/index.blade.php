@@ -128,6 +128,8 @@
                         <option value="">Semua Status</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
                         <option value="calon_siswa" {{ request('status') === 'calon_siswa' ? 'selected' : '' }}>Calon Siswa</option>
+                        <option value="pindah_masuk" {{ request('status') === 'pindah_masuk' ? 'selected' : '' }}>Pindah Masuk</option>
+                        <option value="pindah_keluar" {{ request('status') === 'pindah_keluar' ? 'selected' : '' }}>Pindah Keluar</option>
                         <option value="keluar" {{ request('status') === 'keluar' ? 'selected' : '' }}>Keluar / DO</option>
                         <option value="graduated" {{ request('status') === 'graduated' ? 'selected' : '' }}>Lulus</option>
                         <option value="alumni" {{ request('status') === 'alumni' ? 'selected' : '' }}>Alumni</option>
