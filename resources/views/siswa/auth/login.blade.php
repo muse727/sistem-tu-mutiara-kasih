@@ -7,7 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Portal Siswa — Login</title>
+    <link rel="manifest" href="/manifest-siswa.json">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
@@ -16,21 +18,25 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-sky-400 via-sky-600 to-blue-900 flex items-center justify-center px-4 py-10">
+<body class="min-h-screen bg-gradient-to-br {{ $bgGradient }} flex items-center justify-center px-4 py-10">
 
     <div class="w-full max-w-sm">
 
         {{-- Logo & Header --}}
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-2xl mb-4">
-                <svg class="w-11 h-11 text-sky-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M12 14l9-5-9-5-9 5 9 5z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M12 14l6.16-3.422A12.083 12.083 0 0121 13c0 5.523-4.03 10.075-9.284 10.95a.75.75 0 01-.432 0C6.03 23.075 2 18.523 2 13c0-.538.05-1.064.144-1.578L12 14z"/>
-                </svg>
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-2xl mb-4 p-1">
+                @if (!empty($schoolLogo))
+                    <img src="{{ Storage::url($schoolLogo) }}" alt="Logo Sekolah" class="w-full h-full object-contain rounded-xl">
+                @else
+                    <svg class="w-11 h-11 text-sky-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 14l6.16-3.422A12.083 12.083 0 0121 13c0 5.523-4.03 10.075-9.284 10.95a.75.75 0 01-.432 0C6.03 23.075 2 18.523 2 13c0-.538.05-1.064.144-1.578L12 14z"/>
+                    </svg>
+                @endif
             </div>
-            <h1 class="text-2xl font-bold text-white tracking-tight">Portal Siswa</h1>
+            <h1 class="text-2xl font-bold text-white tracking-tight">{{ $schoolName ?? 'Portal Siswa' }}</h1>
             <p class="text-sky-200 text-sm mt-1">Sistem Informasi Sekolah</p>
         </div>
 
@@ -122,6 +128,12 @@
                     </p>
                 </div>
 
+                {{-- Cloudflare Turnstile --}}
+                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
+                @error('cf-turnstile-response')
+                <p class="text-xs text-red-500 -mt-2">{{ $message }}</p>
+                @enderror
+
                 {{-- Submit --}}
                 <button
                     type="submit"
@@ -154,6 +166,99 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                 `;
             }
+        }
+    </script>
+
+    {{-- ===== POPUP DOWNLOAD APK ===== --}}
+    {{-- Hanya tampil jika BUKAN standalone mode (belum install APK) --}}
+    <div id="apk-popup" class="fixed inset-0 z-[9999] items-end justify-center px-4 pb-6 hidden">
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="dismissApkPopup()"></div>
+
+        {{-- Card --}}
+        <div class="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-5" style="animation: slide-up 0.35s ease-out;">
+            {{-- Close --}}
+            <button onclick="dismissApkPopup()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            {{-- Content --}}
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-2xl bg-sky-50 flex items-center justify-center shrink-0">
+                    <svg class="w-8 h-8 text-sky-500" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-gray-900 text-base leading-tight">Install Aplikasi Portal Siswa</p>
+                    <p class="text-gray-400 text-xs mt-0.5">Akses lebih cepat & nyaman di HP kamu</p>
+                </div>
+            </div>
+
+            <ul class="text-sm text-gray-500 space-y-1.5 mb-5">
+                <li class="flex items-center gap-2"><span class="text-sky-500">✓</span> Notifikasi tagihan & pembayaran</li>
+                <li class="flex items-center gap-2"><span class="text-sky-500">✓</span> Buka langsung tanpa buka browser</li>
+                <li class="flex items-center gap-2"><span class="text-sky-500">✓</span> Ringan, gratis, tidak perlu Play Store</li>
+            </ul>
+
+            <div class="flex gap-3">
+                <a href="/download/app-siswa.apk"
+                   onclick="markApkInstalled()"
+                   class="flex-1 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold py-3 rounded-2xl text-center transition-colors flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download APK
+                </a>
+                <button onclick="dismissApkPopup()"
+                        class="px-4 py-3 rounded-2xl border border-gray-200 text-gray-500 text-sm font-medium hover:bg-gray-50 transition-colors">
+                    Nanti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <script>
+        (function () {
+            // Jika buka via APK (standalone mode) → popup tidak ditampilkan sama sekali
+            var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                            || window.navigator.standalone === true;
+            if (isStandalone) return;
+
+            // Jika sudah klik Download APK sebelumnya → tidak tampil
+            if (localStorage.getItem('apk_installed_v1')) return;
+
+            // Tampilkan popup setelah 800ms
+            setTimeout(function () {
+                var popup = document.getElementById('apk-popup');
+                if (popup) {
+                    popup.classList.remove('hidden');
+                    popup.classList.add('flex');
+                }
+            }, 800);
+        })();
+
+        function markApkInstalled() {
+            localStorage.setItem('apk_installed_v1', '1');
+            document.getElementById('apk-popup').classList.add('hidden');
+            document.getElementById('apk-popup').classList.remove('flex');
+        }
+
+        function dismissApkPopup() {
+            // Nanti = tutup sementara, localStorage TIDAK di-set
+            // Popup akan muncul lagi next visit
+            var popup = document.getElementById('apk-popup');
+            popup.classList.add('hidden');
+            popup.classList.remove('flex');
         }
     </script>
 </body>

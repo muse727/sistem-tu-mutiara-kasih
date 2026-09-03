@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
-use App\Models\Setting;
+
 use App\Models\StudentBill;
+use App\Services\FinancialAuditLogger;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardSiswaController extends Controller
 {
@@ -14,6 +16,7 @@ class DashboardSiswaController extends Controller
         $student = Auth::guard('siswa')->user();
 
         $bills = StudentBill::where('student_id', $student->id)
+                            ->with('items')
                             ->orderByDesc('bill_year')
                             ->orderByDesc('bill_month')
                             ->get();
@@ -23,9 +26,10 @@ class DashboardSiswaController extends Controller
         $totalUnpaid = $unpaidBills->sum('amount');
         $totalPaid   = $paidBills->sum('amount');
 
-        $schoolName = Setting::where('key', 'school_name')->value('value') ?? 'Sekolah';
+        $schoolName = DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah';
 
         $thisMonthBills = StudentBill::where('student_id', $student->id)
+                            ->with('items')
                             ->where('bill_month', now()->month)
                             ->where('bill_year', now()->year)
                             ->orderBy('name')
@@ -46,7 +50,11 @@ class DashboardSiswaController extends Controller
             abort(403);
         }
 
-        $schoolName = Setting::where('key', 'school_name')->value('value') ?? 'Sekolah';
+        $schoolName = DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah';
+
+        $bill->load('items');
+
+        FinancialAuditLogger::billViewed($student->id, $student->name, $bill, request());
 
         return view('siswa.bill-detail', compact('bill', 'student', 'schoolName'));
     }
@@ -63,8 +71,12 @@ class DashboardSiswaController extends Controller
             return redirect()->route('siswa.dashboard');
         }
 
-        $schoolName    = Setting::where('key', 'school_name')->value('value') ?? 'Sekolah';
-        $schoolAddress = Setting::where('key', 'school_address')->value('value') ?? '';
+        $schoolName    = DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah';
+        $schoolAddress = DB::table('school_settings')->where('key', 'school_address')->value('value') ?? '';
+
+        $bill->load('items');
+
+        FinancialAuditLogger::receiptDownloaded($student->id, $student->name, $bill, request());
 
         return view('siswa.struk', compact('bill', 'student', 'schoolName', 'schoolAddress'));
     }

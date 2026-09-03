@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "id.my.brody.tu.twa",
+        "sha256_cert_fingerprints": ["13:2B:93:53:49:AD:CC:17:CA:39:63:B2:E1:27:19:80:FD:C0:4B:0E:38:F8:5F:EB:A4:10:A8:A7:B1:F7:02:B2"]
+      }
+    }]

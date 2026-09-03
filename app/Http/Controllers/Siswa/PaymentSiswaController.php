@@ -167,6 +167,124 @@ class PaymentSiswaController extends Controller
     }
 
     /**
+     * Buat Midtrans Snap token untuk MULTIPLE tagihan sekaligus.
+     * Dipanggil via AJAX dari dashboard siswa (fitur Bayar Dipilih).
+     */
+    public function createMultiToken(Request $request)
+    {
+        $student = Auth::guard('siswa')->user();
+
+        $billIds = $request->input('bill_ids', []);
+
+        if (empty($billIds) || !is_array($billIds)) {
+            return response()->json(['error' => 'Pilih minimal 1 tagihan.'], 422);
+        }
+
+        // Batasi max 10 tagihan sekaligus
+        if (count($billIds) > 10) {
+            return response()->json(['error' => 'Maksimal 10 tagihan sekaligus.'], 422);
+        }
+
+        // Ambil semua bill, verifikasi kepemilikan + status
+        $bills = StudentBill::whereIn('id', $billIds)
+                            ->where('student_id', $student->id)
+                            ->whereIn('status', ['UNPAID', 'PARTIAL'])
+                            ->get();
+
+        if ($bills->count() !== count($billIds)) {
+            return response()->json(['error' => 'Beberapa tagihan tidak valid atau sudah dibayar.'], 422);
+        }
+
+        $grossAmount = $bills->sum('amount');
+
+        if ($grossAmount <= 0) {
+            return response()->json(['error' => 'Total tagihan tidak valid.'], 422);
+        }
+
+        // Generate 1 order ID untuk semua bill ini
+        $orderId = 'MULTI-' . implode('_', $bills->pluck('id')->sort()->values()->toArray())
+                   . '-' . Str::random(6) . '-' . time();
+
+        // Build item_details untuk Midtrans
+        $itemDetails = $bills->map(function ($bill) {
+            $name = $bill->name ?: ('Tagihan ' . ($bill->bill_month ?? '') . '/' . ($bill->bill_year ?? ''));
+            return [
+                'id'       => 'bill-' . $bill->id,
+                'price'    => (int) $bill->amount,
+                'quantity' => 1,
+                'name'     => mb_substr($name, 0, 50),
+            ];
+        })->values()->toArray();
+
+        $params = [
+            'transaction_details' => [
+                'order_id'     => $orderId,
+                'gross_amount' => (int) $grossAmount,
+            ],
+            'customer_details' => [
+                'first_name' => $student->name,
+                'phone'      => $student->parent_phone ?? '',
+            ],
+            'item_details' => $itemDetails,
+            'callbacks' => [
+                'finish' => route('siswa.payment.success'),
+            ],
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+
+            // Simpan orderId ke semua bill + buat PaymentAttempt untuk masing-masing
+            DB::transaction(function () use ($bills, $orderId, $snapToken, $grossAmount, $request) {
+                foreach ($bills as $bill) {
+                    // Cancel pending attempts lama
+                    $pending = PaymentAttempt::where('student_bill_id', $bill->id)
+                                            ->where('status', PaymentAttempt::STATUS_PENDING)
+                                            ->get();
+                    foreach ($pending as $old) {
+                        $old->update(['status' => PaymentAttempt::STATUS_CANCEL, 'expired_at' => now()]);
+                    }
+
+                    // Update bill dengan multi order ID
+                    $bill->update([
+                        'midtrans_order_id' => $orderId,
+                        'payment_token'     => $snapToken,
+                    ]);
+
+                    // Buat attempt untuk bill ini
+                    PaymentAttempt::create([
+                        'student_bill_id' => $bill->id,
+                        'order_id'        => $orderId,
+                        'snap_token'      => $snapToken,
+                        'status'          => PaymentAttempt::STATUS_PENDING,
+                        'gross_amount'    => $bill->amount,
+                        'initiated_at'    => now(),
+                        'source'          => PaymentAttempt::SOURCE_WEB,
+                    ]);
+                }
+            });
+
+            return response()->json([
+                'snap_token'    => $snapToken,
+                'client_key'    => config('services.midtrans.client_key'),
+                'order_id'      => $orderId,
+                'is_production' => config('services.midtrans.is_production', false),
+                'total'         => $grossAmount,
+                'bill_count'    => $bills->count(),
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('PaymentSiswaController::createMultiToken failed', [
+                'bill_ids' => $billIds,
+                'error'    => $e->getMessage(),
+            ]);
+            return response()->json([
+                'error' => 'Gagal membuat token pembayaran: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Midtrans server-to-server webhook callback.
      * Route ini di-exclude dari CSRF di bootstrap/app.php.
      *
@@ -233,6 +351,16 @@ class PaymentSiswaController extends Controller
                 'ip' => $request->ip(),
             ]);
             return response()->json(['message' => 'OK'], 200);
+        }
+
+        // Support dua format order_id:
+        // - BILL-{id}-{rand}-{ts}   → single bill
+        // - MULTI-{id1}_{id2}_...-{rand}-{ts} → multi bill
+        $isMulti = str_starts_with($orderId, 'MULTI-');
+
+        if ($isMulti) {
+            // Delegate ke handler multi-bill
+            return $this->handleMultiCallback($orderId, $transactionStatus, $fraudStatus, $payload, $request);
         }
 
         preg_match('/^BILL-(\d+)-/', $orderId, $matches);
@@ -360,13 +488,21 @@ class PaymentSiswaController extends Controller
                     ]);
                 }
 
+                // Build human-readable payment method label from Midtrans payload.
+                // payment_type examples: 'bank_transfer', 'gopay', 'qris', 'cstore', 'akulaku', 'shopeepay'
+                // bank examples: 'bca', 'bni', 'bri', 'mandiri', 'permata'
+                $paymentType = $payload['payment_type'] ?? null;
+                $bank        = $payload['bank'] ?? ($payload['va_numbers'][0]['bank'] ?? null);
+                $paymentMethodLabel = self::resolvePaymentMethodLabel($paymentType, $bank);
+
                 $bill->update([
                     'status'            => 'PAID',
                     'paid_at'           => now(),   // application clock — intentionally differs from settled_at
-                    'payment_method'    => 'MIDTRANS',
+                    'payment_method'    => $paymentMethodLabel,
                     'confirmed_by'      => null,    // Phase 2.3: gateway-confirmed, no operator
                     'midtrans_order_id' => $orderId,
                     'payment_token'     => null,
+                    'verify_token'      => $bill->verify_token ?? \Illuminate\Support\Str::random(32),
                 ]);
 
                 $bill->refresh();
@@ -481,6 +617,162 @@ class PaymentSiswaController extends Controller
     }
 
     /**
+     * Handle Midtrans callback untuk order MULTI- (bayar beberapa tagihan sekaligus).
+     * Dipanggil dari callback() saat order_id dideteksi prefix MULTI-.
+     */
+    private function handleMultiCallback(string $orderId, string $transactionStatus, string $fraudStatus, array $payload, $request)
+    {
+        // Parse bill IDs dari format: MULTI-{id1}_{id2}_...-{rand}-{ts}
+        // Contoh: MULTI-5_7_12-aBcDeF-1788335963
+        preg_match('/^MULTI-([\_\d]+)-/', $orderId, $matches);
+        $idString = $matches[1] ?? null;
+
+        if (! $idString) {
+            Log::warning('Midtrans callback: unrecognised MULTI order_id format', [
+                'order_id' => $orderId,
+                'ip'       => $request->ip(),
+            ]);
+            return response()->json(['message' => 'OK'], 200);
+        }
+
+        $billIds = array_filter(explode('_', $idString), 'is_numeric');
+
+        if (empty($billIds)) {
+            Log::warning('Midtrans callback: no valid bill IDs in MULTI order_id', [
+                'order_id' => $orderId,
+            ]);
+            return response()->json(['message' => 'OK'], 200);
+        }
+
+        $bills = StudentBill::whereIn('id', $billIds)->get();
+
+        if ($bills->isEmpty()) {
+            Log::warning('Midtrans callback: no bills found for MULTI order', [
+                'order_id' => $orderId,
+                'bill_ids' => $billIds,
+            ]);
+            return response()->json(['message' => 'OK'], 200);
+        }
+
+        if (in_array($transactionStatus, ['settlement', 'capture']) && $fraudStatus === 'accept') {
+            $paymentType = $payload['payment_type'] ?? null;
+            $bank        = $payload['bank'] ?? ($payload['va_numbers'][0]['bank'] ?? null);
+            $methodLabel = self::resolvePaymentMethodLabel($paymentType, $bank);
+
+            DB::transaction(function () use ($bills, $orderId, $transactionStatus, $payload, $methodLabel, $request) {
+                foreach ($bills as $bill) {
+                    if ($bill->status === 'PAID') {
+                        continue; // Idempotent — skip jika sudah paid
+                    }
+
+                    // Settle attempt untuk bill ini
+                    $attempt = PaymentAttempt::where('student_bill_id', $bill->id)
+                                            ->where('order_id', $orderId)
+                                            ->first();
+
+                    if ($attempt && ! in_array($attempt->status, PaymentAttempt::TERMINAL_STATUSES)) {
+                        $attempt->update([
+                            'status'         => $transactionStatus,
+                            'payment_method' => $payload['payment_type'] ?? null,
+                            'bank'           => $payload['bank'] ?? ($payload['va_numbers'][0]['bank'] ?? null),
+                            'va_number'      => $payload['va_numbers'][0]['va_number'] ?? null,
+                            'transaction_id' => $payload['transaction_id'] ?? null,
+                            'settled_at'     => $this->parseMidtransTimestamp(
+                                                   $payload['settlement_time'] ?? ($payload['transaction_time'] ?? null)
+                                               ) ?? now(),
+                            'expired_at'     => null,
+                            'snap_token'     => null,
+                        ]);
+                    }
+
+                    $bill->update([
+                        'status'            => 'PAID',
+                        'paid_at'           => now(),
+                        'payment_method'    => $methodLabel,
+                        'confirmed_by'      => null,
+                        'midtrans_order_id' => $orderId,
+                        'payment_token'     => null,
+                        'verify_token'      => $bill->verify_token ?? \Illuminate\Support\Str::random(32),
+                    ]);
+
+                    Log::info('Midtrans callback: MULTI bill settled', [
+                        'order_id' => $orderId,
+                        'bill_id'  => $bill->id,
+                    ]);
+                }
+            });
+
+            Log::info('Midtrans callback: MULTI payment settled', [
+                'order_id'  => $orderId,
+                'bill_count' => $bills->count(),
+            ]);
+
+        } elseif (in_array($transactionStatus, ['expire', 'cancel', 'deny'])) {
+            // Cancel semua pending attempts untuk order ini
+            DB::transaction(function () use ($bills, $orderId, $transactionStatus, $request, $payload) {
+                foreach ($bills as $bill) {
+                    $attempt = PaymentAttempt::where('student_bill_id', $bill->id)
+                                            ->where('order_id', $orderId)
+                                            ->where('status', PaymentAttempt::STATUS_PENDING)
+                                            ->first();
+
+                    if ($attempt) {
+                        $attempt->update([
+                            'status'     => PaymentAttempt::STATUS_CANCEL,
+                            'expired_at' => now(),
+                            'snap_token' => null,
+                        ]);
+                    }
+
+                    // Clear payment token jika masih aktif untuk order ini
+                    if ($bill->midtrans_order_id === $orderId) {
+                        $bill->update(['payment_token' => null]);
+                    }
+                }
+            });
+
+            Log::info('Midtrans callback: MULTI payment expired/cancelled', [
+                'order_id'           => $orderId,
+                'transaction_status' => $transactionStatus,
+            ]);
+        }
+
+        return response()->json(['message' => 'OK'], 200);
+    }
+
+    /**
+     * Resolve a human-readable payment method label from Midtrans payload fields.
+     *
+     * payment_type values from Midtrans:
+     *   bank_transfer, gopay, qris, shopeepay, cstore, akulaku, kredivo, uob_ezpay
+     * bank values: bca, bni, bri, mandiri, permata
+     */
+    private static function resolvePaymentMethodLabel(?string $paymentType, ?string $bank): string
+    {
+        if (empty($paymentType)) {
+            return 'Midtrans';
+        }
+
+        $bank = strtoupper($bank ?? '');
+
+        return match ($paymentType) {
+            'bank_transfer'  => $bank ? "VA {$bank}" : 'Virtual Account',
+            'echannel'       => 'Mandiri Bill',
+            'gopay'          => 'GoPay',
+            'dana'           => 'Dana',
+            'ovo'            => 'OVO',
+            'linkaja'        => 'LinkAja',
+            'qris'           => 'QRIS',
+            'shopeepay'      => 'ShopeePay',
+            'akulaku'        => 'Akulaku',
+            'kredivo'        => 'Kredivo',
+            'cstore'         => $bank === 'ALFAMART' ? 'Alfamart' : ($bank === 'INDOMARET' ? 'Indomaret' : 'Minimarket'),
+            'uob_ezpay'      => 'UOB EZPay',
+            default          => ucwords(str_replace('_', ' ', $paymentType)),
+        };
+    }
+
+    /**
      * Parse a Midtrans timestamp string into a Carbon instance.
      * Midtrans uses "YYYY-MM-DD HH:MM:SS" in Asia/Jakarta timezone.
      * Returns null if the value is empty or unparseable.
@@ -524,8 +816,8 @@ class PaymentSiswaController extends Controller
             return redirect()->route('siswa.dashboard');
         }
 
-        $schoolName    = \App\Models\Setting::where('key', 'school_name')->value('value') ?? 'Sekolah';
-        $schoolAddress = \App\Models\Setting::where('key', 'school_address')->value('value') ?? '';
+        $schoolName    = DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah';
+        $schoolAddress = DB::table('school_settings')->where('key', 'school_address')->value('value') ?? '';
 
         return view('siswa.struk', compact('bill', 'student', 'schoolName', 'schoolAddress'));
     }

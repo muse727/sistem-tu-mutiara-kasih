@@ -30,7 +30,7 @@ class DashboardController extends Controller
         $billMidtransToday = StudentBill::whereDate('paid_at', today())
                                         ->whereNotNull('paid_at')
                                         ->where('status', 'PAID')
-                                        ->where('payment_method', 'MIDTRANS')
+                                        ->where('payment_method', '!=', 'CASH')
                                         ->sum('amount');
 
         $totalIncomeToday = $posToday + $billCashToday + $billMidtransToday;
@@ -51,7 +51,7 @@ class DashboardController extends Controller
                                       ->whereYear('paid_at', now()->year)
                                       ->whereNotNull('paid_at')
                                       ->where('status', 'PAID')
-                                      ->where('payment_method', 'MIDTRANS')
+                                      ->where('payment_method', '!=', 'CASH')
                                       ->sum('amount');
 
         // Tambahkan POS bulan ini ke cash (BUG FIX: pie chart sebelumnya tidak termasuk POS)
@@ -130,7 +130,7 @@ class DashboardController extends Controller
                                      'desc'   => 'Bayar Tagihan - ' . optional($item->student)->name,
                                      'amount' => $item->amount,
                                      'type'   => 'BILL',
-                                     'method' => $item->payment_method === 'MIDTRANS' ? 'Online (App)' : 'Tunai (TU)',
+                                     'method' => $item->payment_method === 'CASH' ? 'Tunai (TU)' : 'Online (App)',
                                  ]);
 
         $recentActivities = collect($latestPos)

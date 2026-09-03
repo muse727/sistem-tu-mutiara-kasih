@@ -67,10 +67,23 @@ class AuditLog extends Model
     const PAYMENT_ATTEMPT_CANCELLED            = 'PAYMENT_ATTEMPT_CANCELLED';
     const PAYMENT_ATTEMPT_SETTLEMENT_IGNORED   = 'PAYMENT_ATTEMPT_SETTLEMENT_IGNORED';
 
+    // ── Student activity constants ────────────────────────────────────────────
+
+    const STUDENT_LOGIN              = 'STUDENT_LOGIN';
+    const STUDENT_LOGIN_FAILED       = 'STUDENT_LOGIN_FAILED';
+    const STUDENT_LOGOUT             = 'STUDENT_LOGOUT';
+    const BILL_VIEWED                = 'BILL_VIEWED';
+    const RECEIPT_DOWNLOADED         = 'RECEIPT_DOWNLOADED';
+    const RECEIPT_VERIFIED           = 'RECEIPT_VERIFIED';
+    const PROFILE_UPDATED            = 'PROFILE_UPDATED';
+    const PASSWORD_CHANGED           = 'PASSWORD_CHANGED';
+    const PASSWORD_RESET_BY_ADMIN    = 'PASSWORD_RESET_BY_ADMIN';
+
     // ── Source constants ──────────────────────────────────────────────────────
 
     const SOURCE_WEB      = 'WEB';
     const SOURCE_API      = 'API';
     const SOURCE_MIDTRANS = 'MIDTRANS';
     const SOURCE_SYSTEM   = 'SYSTEM';
+    const SOURCE_SISWA    = 'SISWA';
 }

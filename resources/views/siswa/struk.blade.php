@@ -123,8 +123,16 @@
                     {{-- Metode Bayar --}}
                     <div class="flex items-start justify-between gap-4">
                         <span class="text-xs text-gray-400 shrink-0 pt-0.5 w-28">Metode Bayar</span>
-                        <span class="text-sm font-semibold text-gray-800 text-right capitalize">
-                            {{ $bill->payment_method ?? 'Cash' }}
+                        <span class="text-sm font-semibold text-gray-800 text-right">
+                            @php
+                                $pm = $bill->payment_method ?? 'CASH';
+                                $pmLabel = match(strtoupper($pm)) {
+                                    'CASH'    => 'Tunai',
+                                    'MIDTRANS'=> 'Midtrans',
+                                    default   => $pm,
+                                };
+                            @endphp
+                            {{ $pmLabel }}
                         </span>
                     </div>
 
@@ -145,14 +153,66 @@
                     <div class="flex items-start justify-between gap-4">
                         <span class="text-xs text-gray-400 shrink-0 pt-0.5 w-28">No. Transaksi</span>
                         <span class="text-xs font-mono font-semibold text-gray-600 text-right break-all">
-                            {{ $bill->payment_token ?? 'CASH-' . $bill->id }}
+                            @php
+                                $pm = strtoupper($bill->payment_method ?? 'CASH');
+                                if ($bill->midtrans_order_id) {
+                                    $txId = $bill->midtrans_order_id;
+                                } elseif ($pm === 'CASH' || $pm === 'TUNAI') {
+                                    $txId = 'CASH-' . $bill->id;
+                                } else {
+                                    $txId = 'TRX-' . $bill->id;
+                                }
+                            @endphp
+                            {{ $txId }}
                         </span>
                     </div>
 
                 </div>
 
+                {{-- Rincian Item (jika ada) --}}
+                @if($bill->items->isNotEmpty())
+                <div class="border-t-2 border-dashed border-gray-200 mt-6 mb-4"></div>
+
+                <div class="mb-2">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Rincian Tagihan</p>
+                    <div class="space-y-2">
+                        @foreach($bill->items as $item)
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-medium text-gray-700">{{ $item->item_name }}</p>
+                                @if($item->quantity > 1)
+                                <p class="text-xs text-gray-400">{{ $item->quantity }}x × Rp {{ number_format($item->price, 0, ',', '.') }}</p>
+                                @endif
+                            </div>
+                            <p class="text-xs font-semibold text-gray-700 shrink-0">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
+                        </div>
+                        @endforeach
+                    </div>
+                    {{-- Total row --}}
+                    <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-200">
+                        <p class="text-xs font-bold text-gray-700">Total</p>
+                        <p class="text-xs font-bold text-green-600">Rp {{ number_format($bill->amount, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+                @endif
+
                 {{-- Bottom divider --}}
                 <div class="border-t-2 border-dashed border-gray-200 mt-6 mb-4"></div>
+
+                {{-- QR Code Verifikasi --}}
+                @if($bill->verify_token)
+                @php $verifyUrl = url('/siswa/verify/' . $bill->verify_token); @endphp
+                <div class="flex flex-col items-center mb-4">
+                    <p class="text-xs text-gray-400 mb-2">Scan untuk verifikasi keaslian struk</p>
+                    <img
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($verifyUrl) }}&bgcolor=ffffff&color=0369a1&margin=4"
+                        alt="QR Verifikasi"
+                        class="w-28 h-28 rounded-xl border border-gray-100"
+                        loading="lazy"
+                    />
+                    <p class="text-[10px] text-gray-300 mt-1.5 font-mono break-all text-center px-4">{{ $bill->verify_token }}</p>
+                </div>
+                @endif
 
                 {{-- Footer text --}}
                 <p class="text-center text-xs text-gray-400 leading-relaxed">
@@ -166,13 +226,45 @@
         {{-- ===== ACTION BUTTONS ===== --}}
         <div class="mt-5 flex flex-col gap-3 no-print">
 
-            {{-- Cetak --}}
+            {{-- Share WhatsApp --}}
+            @if($bill->verify_token)
+            @php
+                $verifyUrl = url('/siswa/verify/' . $bill->verify_token);
+                $pm = strtoupper($bill->payment_method ?? 'CASH');
+                if ($bill->midtrans_order_id) {
+                    $txId = $bill->midtrans_order_id;
+                } elseif ($pm === 'CASH' || $pm === 'TUNAI') {
+                    $txId = 'CASH-' . $bill->id;
+                } else {
+                    $txId = 'TRX-' . $bill->id;
+                }
+                $waText = "✅ *Bukti Pembayaran*\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    "📋 *" . ($bill->name ?? 'Tagihan') . "*\n" .
+                    "👤 " . ($bill->student->name ?? '-') . "\n" .
+                    "💰 Rp " . number_format($bill->amount, 0, ',', '.') . "\n" .
+                    "🏦 " . ($bill->payment_method === 'CASH' ? 'Tunai' : ($bill->payment_method ?? 'Tunai')) . "\n" .
+                    "🔖 " . $txId . "\n" .
+                    "━━━━━━━━━━━━━━━━━━\n" .
+                    "🔗 Verifikasi: " . $verifyUrl;
+            @endphp
+            <a href="https://wa.me/?text={{ urlencode($waText) }}"
+               target="_blank"
+               class="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold text-sm py-3.5 rounded-2xl transition-colors shadow-md shadow-green-200">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+                Bagikan via WhatsApp
+            </a>
+            @endif
+
+            {{-- Cetak / Simpan PDF --}}
             <button onclick="window.print()"
                     class="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-semibold text-sm py-3.5 rounded-2xl transition-colors shadow-md shadow-sky-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/>
                 </svg>
-                Cetak / Screenshot
+                Cetak / Simpan PDF
             </button>
 
             {{-- Kembali ke Dashboard --}}

@@ -15,6 +15,23 @@ class ViewStudent extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('reset_password')
+                ->label('Reset Password')
+                ->icon('heroicon-o-key')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->modalHeading('Reset Password Siswa')
+                ->modalDescription(fn () => 'Reset password ' . $this->record->name . ' ke tanggal lahir (' . \Carbon\Carbon::parse($this->record->birth_date)->format('dmy') . ')? Password custom akan dihapus.')
+                ->modalSubmitActionLabel('Ya, Reset Password')
+                ->action(function () {
+                    $this->record->update(['custom_password' => null]);
+                    \Filament\Notifications\Notification::make()
+                        ->title('Password berhasil direset')
+                        ->body('Password ' . $this->record->name . ' kembali ke tanggal lahir (' . \Carbon\Carbon::parse($this->record->birth_date)->format('dmy') . ').')
+                        ->success()
+                        ->send();
+                })
+                ->visible(fn () => ! is_null($this->record->custom_password)),
             Actions\EditAction::make(),
             Actions\DeleteAction::make(),
         ];

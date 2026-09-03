@@ -48,6 +48,43 @@
             </div>
         @endif
 
+        {{-- ===== RINCIAN TAGIHAN CARD (jika ada items) ===== --}}
+        @if($bill->items->isNotEmpty())
+        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/60 overflow-hidden mb-3">
+            <div class="px-5 pt-5 pb-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-800">Rincian Tagihan</p>
+                </div>
+
+                {{-- Tabel rincian --}}
+                <div class="space-y-2">
+                    @foreach($bill->items as $item)
+                    <div class="flex items-start justify-between gap-3 py-2 border-b border-gray-100 last:border-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ $item->item_name }}</p>
+                            @if($item->quantity > 1)
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $item->quantity }}x × Rp {{ number_format($item->price, 0, ',', '.') }}</p>
+                            @endif
+                        </div>
+                        <p class="text-sm font-semibold text-gray-800 shrink-0">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
+                    </div>
+                    @endforeach
+                </div>
+
+                {{-- Garis total --}}
+                <div class="flex items-center justify-between pt-3 mt-1 border-t-2 border-dashed border-gray-200">
+                    <p class="text-sm font-semibold text-gray-700">Total</p>
+                    <p class="text-sm font-bold text-sky-600">Rp {{ number_format($bill->amount, 0, ',', '.') }}</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
         {{-- ===== DETAIL CARD ===== --}}
         <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/60 overflow-hidden">
             {{-- Top strip warna sesuai status --}}

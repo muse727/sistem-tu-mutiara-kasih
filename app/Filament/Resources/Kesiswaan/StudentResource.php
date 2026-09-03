@@ -210,6 +210,23 @@ class StudentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('reset_password')
+                    ->label('Reset Password')
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Reset Password Siswa')
+                    ->modalDescription(fn ($record) => 'Reset password ' . $record->name . ' ke tanggal lahir (' . \Carbon\Carbon::parse($record->birth_date)->format('dmy') . ')? Password custom akan dihapus.')
+                    ->modalSubmitActionLabel('Ya, Reset Password')
+                    ->action(function ($record) {
+                        $record->update(['custom_password' => null]);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Password berhasil direset')
+                            ->body('Password ' . $record->name . ' kembali ke tanggal lahir (' . \Carbon\Carbon::parse($record->birth_date)->format('dmy') . ').')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn ($record) => ! is_null($record->custom_password)),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ])

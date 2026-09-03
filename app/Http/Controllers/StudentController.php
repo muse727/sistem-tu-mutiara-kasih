@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use League\Csv\Reader;
+use App\Services\FinancialAuditLogger;
 
 class StudentController extends Controller
 {
@@ -212,6 +213,26 @@ class StudentController extends Controller
     // =========================================================================
     // DELETE
     // =========================================================================
+
+    public function resetPassword($id)
+    {
+        $student = Student::findOrFail($id);
+
+        $student->update(['custom_password' => null]);
+
+        FinancialAuditLogger::passwordResetByAdmin(
+            $student->id,
+            $student->name,
+            $student->nis,
+            Auth::id(),
+            Auth::user()->name ?? 'Admin',
+            request()
+        );
+
+        return redirect()
+            ->route('students.show', $id)
+            ->with('success', 'Password ' . $student->name . ' berhasil direset ke tanggal lahir (' . $student->birth_date->format('dmy') . ').');
+    }
 
     public function destroy($id)
     {

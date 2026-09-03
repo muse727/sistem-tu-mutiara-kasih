@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="id" x-data="{ tab: 'unpaid', ...chatWidget() }">
+<html lang="id" x-data="{ tab: 'unpaid', selectedBills: [], selectedItems: [], selectedTotal: 0, multiSheetOpen: false, multiLoading: false, toggleBill(id, name, amount) { const idx = this.selectedBills.indexOf(id); if (idx === -1) { this.selectedBills.push(id); this.selectedItems.push({id, name, amount}); } else { this.selectedBills.splice(idx, 1); this.selectedItems.splice(idx, 1); } this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); }, togglePilihSemua() { const allIds = {{ $unpaidBills->pluck('id') }}; const allItems = {{ $unpaidBills->map(fn($b) => ['id' => $b->id, 'name' => $b->name ?? 'Tagihan '.$b->bill_month.'/'.$b->bill_year, 'amount' => (int)$b->amount]) }}; if (this.selectedBills.length === allIds.length) { this.selectedBills = []; this.selectedItems = []; this.selectedTotal = 0; } else { this.selectedBills = allIds; this.selectedItems = allItems; this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); } }, openMultiSheet() { this.multiSheetOpen = true; }, ...chatWidget() }">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -34,12 +35,14 @@
     <div class="bg-gradient-to-r from-sky-500 via-sky-600 to-blue-700 px-4 pt-12 pb-20">
         <div class="max-w-md mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
-                {{-- Avatar initials --}}
-                <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                {{-- Avatar + link ke profil --}}
+                <a href="{{ route('siswa.profil') }}" class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold text-lg shadow-inner hover:bg-white/30 transition-colors shrink-0">
                     {{ strtoupper(substr($student->name, 0, 1)) }}
-                </div>
+                </a>
                 <div>
-                    <p class="text-white font-bold text-base leading-tight">{{ $student->name }}</p>
+                    <a href="{{ route('siswa.profil') }}" class="hover:underline decoration-white/50">
+                        <p class="text-white font-bold text-base leading-tight">{{ $student->name }}</p>
+                    </a>
                     <p class="text-sky-200 text-xs mt-0.5">NIS: {{ $student->nis }}</p>
                     <p class="text-sky-300 text-xs">{{ optional($student->kelas)->nama_kelas ?? $schoolName }}</p>
                 </div>
@@ -155,6 +158,23 @@
 
             {{-- ===== BELUM LUNAS ===== --}}
             <div x-show="tab === 'unpaid'" class="divide-y divide-gray-50">
+
+                {{-- Header: Pilih Semua --}}
+                @if($unpaidBills->count() > 1)
+                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/60">
+                    <label class="flex items-center gap-2 cursor-pointer select-none" @click.prevent="togglePilihSemua()">
+                        <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors"
+                             :class="selectedBills.length === {{ $unpaidBills->count() }} ? 'bg-sky-600 border-sky-600' : 'border-gray-300 bg-white'">
+                            <svg x-show="selectedBills.length === {{ $unpaidBills->count() }}" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Pilih Semua</span>
+                    </label>
+                    <span class="text-xs text-gray-400" x-show="selectedBills.length > 0" x-text="selectedBills.length + ' dipilih'"></span>
+                </div>
+                @endif
+
                 @php $unpaidGrouped = $unpaidBills->groupBy('bill_year'); @endphp
                 @forelse($unpaidGrouped as $year => $yearBills)
                     <div class="px-4 pt-3 pb-1">
@@ -163,13 +183,22 @@
                     @foreach($yearBills as $bill)
                         <div
                             class="bill-card flex items-center px-4 py-4 gap-3 cursor-pointer hover:bg-sky-50/40 active:bg-sky-100/60"
-                            onclick="initBayar({{ $bill->id }}, '{{ addslashes($bill->name ?? 'Tagihan') }}', {{ (int)$bill->amount }})"
+                            :class="selectedBills.includes({{ $bill->id }}) ? 'bg-sky-50/60' : ''"
+                            @click="toggleBill({{ $bill->id }}, '{{ addslashes($bill->name ?? 'Tagihan') }}', {{ (int)$bill->amount }})"
                         >
-                            {{-- Left: icon --}}
-                            <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
+                            {{-- Left: checkbox + icon --}}
+                            <div class="shrink-0 flex items-center">
+                                <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mr-3"
+                                     :class="selectedBills.includes({{ $bill->id }}) ? 'bg-sky-600 border-sky-600' : 'border-gray-300 bg-white'">
+                                    <svg x-show="selectedBills.includes({{ $bill->id }})" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
                             </div>
                             {{-- Center: info --}}
                             <div class="flex-1 min-w-0">
@@ -275,6 +304,108 @@
 
     </div>
 
+    {{-- ===== STICKY BOTTOM BAR (muncul saat ada tagihan dipilih) ===== --}}
+    <div
+        x-data="{}"
+        x-show="selectedBills.length > 0"
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="translate-y-full opacity-0"
+        x-transition:enter-end="translate-y-0 opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="translate-y-0 opacity-100"
+        x-transition:leave-end="translate-y-full opacity-0"
+        class="fixed bottom-0 left-0 right-0 z-40 no-print"
+    >
+        <div class="max-w-md mx-auto px-4 pb-4">
+            <div class="bg-white rounded-2xl shadow-2xl shadow-gray-300/60 border border-gray-100 px-4 py-3 flex items-center gap-3">
+                {{-- Info --}}
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs text-gray-400" x-text="selectedBills.length + ' tagihan dipilih'"></p>
+                    <p class="text-base font-extrabold text-gray-900" x-text="'Rp ' + selectedTotal.toLocaleString('id-ID')"></p>
+                </div>
+                {{-- Batalkan --}}
+                <button
+                    @click="selectedBills = []; selectedItems = []"
+                    class="text-xs text-gray-400 font-medium px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors shrink-0"
+                >
+                    Batal
+                </button>
+                {{-- Bayar --}}
+                <button
+                    @click="openMultiSheet()"
+                    class="bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors shrink-0 shadow-md shadow-sky-200"
+                >
+                    Bayar Dipilih
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MULTI PAYMENT BOTTOM SHEET ===== --}}
+    <div
+        x-data="{}"
+        x-show="multiSheetOpen"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-end"
+    >
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="multiSheetOpen = false"></div>
+
+        {{-- Sheet --}}
+        <div
+            class="relative w-full bg-white rounded-t-3xl shadow-2xl px-5 py-6 max-w-md mx-auto"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-full"
+            x-transition:enter-end="translate-y-0"
+        >
+            <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
+
+            <h3 class="text-base font-bold text-gray-900 mb-4">Konfirmasi Pembayaran</h3>
+
+            {{-- List tagihan dipilih --}}
+            <div class="space-y-2 mb-4 max-h-48 overflow-y-auto">
+                <template x-for="item in selectedItems" :key="item.id">
+                    <div class="flex items-center justify-between gap-3 py-2 border-b border-gray-50 last:border-0">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0"></div>
+                            <p class="text-sm text-gray-700 truncate" x-text="item.name"></p>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-800 shrink-0" x-text="'Rp ' + item.amount.toLocaleString('id-ID')"></p>
+                    </div>
+                </template>
+            </div>
+
+            {{-- Total --}}
+            <div class="bg-sky-50 rounded-2xl p-4 mb-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-sky-600 font-medium" x-text="selectedBills.length + ' tagihan'"></p>
+                    <p class="text-sm text-sky-700 font-semibold">Total Pembayaran</p>
+                </div>
+                <p class="text-xl font-extrabold text-sky-700" x-text="'Rp ' + selectedTotal.toLocaleString('id-ID')"></p>
+            </div>
+
+            <p class="text-xs text-gray-400 mb-5 text-center">Pembayaran diproses melalui Midtrans. Mendukung transfer bank, kartu kredit, QRIS, dan e-wallet.</p>
+
+            <div class="space-y-3">
+                <button
+                    @click="multiLoading = true; prosesMultiPayment(() => { multiLoading = false; multiSheetOpen = false; })"
+                    :disabled="multiLoading"
+                    class="w-full bg-sky-600 hover:bg-sky-700 disabled:bg-sky-300 text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                    <template x-if="multiLoading">
+                        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                    </template>
+                    <span x-text="multiLoading ? 'Memproses...' : 'Bayar Sekarang'"></span>
+                </button>
+                <button @click="multiSheetOpen = false" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl transition-colors text-sm">Batal</button>
+            </div>
+        </div>
+    </div>
+
     {{-- ===== PAYMENT BOTTOM SHEET (Alpine) ===== --}}
     <div
         x-data="{ open: false, billId: null, billName: '', amount: 0, loading: false }"
@@ -344,7 +475,7 @@
             }));
         }
 
-        // Dipanggil saat tombol "Bayar Sekarang" diklik di bottom sheet
+        // Dipanggil saat tombol "Bayar Sekarang" diklik di bottom sheet SINGLE
         async function prosesPayment(billId, onDone) {
             try {
                 const res = await fetch(`/siswa/tagihan/${billId}/pay`, {
@@ -381,6 +512,60 @@
                     onClose: function() {
                         // Pengguna tutup popup tanpa bayar — tidak perlu action
                     }
+                });
+
+            } catch (e) {
+                alert('Error jaringan: ' + e.message);
+                onDone();
+            }
+        }
+
+        // Dipanggil saat tombol "Bayar Sekarang" diklik di bottom sheet MULTI
+        async function prosesMultiPayment(onDone) {
+            // Ambil selectedBills dari Alpine
+            const alpineEl = document.querySelector('[x-data]');
+            const alpine   = Alpine.evaluate(alpineEl, 'selectedBills');
+
+            if (!alpine || alpine.length === 0) {
+                alert('Pilih minimal 1 tagihan.');
+                onDone();
+                return;
+            }
+
+            try {
+                const res = await fetch('/siswa/payment/multi', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept':        'application/json',
+                        'Content-Type':  'application/json',
+                    },
+                    body: JSON.stringify({ bill_ids: alpine }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert('Gagal: ' + (data.error || 'Terjadi kesalahan, coba lagi.'));
+                    onDone();
+                    return;
+                }
+
+                onDone(); // tutup sheet sebelum Snap terbuka
+
+                snap.pay(data.snap_token, {
+                    onSuccess: function(result) {
+                        window.location.href = '/siswa/payment/success';
+                    },
+                    onPending: function(result) {
+                        alert('Pembayaran pending. Selesaikan pembayaran sesuai instruksi yang diberikan.');
+                        window.location.reload();
+                    },
+                    onError: function(result) {
+                        alert('Pembayaran gagal: ' + (result.status_message || 'Terjadi kesalahan.'));
+                        window.location.reload();
+                    },
+                    onClose: function() {}
                 });
 
             } catch (e) {
@@ -617,6 +802,7 @@
             };
         }
     </script>
+
 
 </body>
 </html>

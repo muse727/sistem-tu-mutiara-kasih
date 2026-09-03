@@ -59,12 +59,19 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
     // Midtrans webhook — tidak butuh auth, Midtrans yang hit ini
     Route::post('/payment/callback', [PaymentSiswaController::class, 'callback'])->name('payment.callback');
 
+    // Verifikasi struk publik — tidak butuh login
+    Route::get('/verify/{token}', [\App\Http\Controllers\Siswa\VerifyPaymentController::class, 'show'])->name('verify');
+
     // Protected — wajib login siswa
     Route::middleware('auth.siswa')->group(function () {
         Route::get('/dashboard',            [DashboardSiswaController::class, 'index'])->name('dashboard');
         Route::get('/tagihan/{bill}',        [DashboardSiswaController::class, 'detail'])->name('bill.detail');
         Route::post('/tagihan/{bill}/pay',   [PaymentSiswaController::class, 'createToken'])->name('payment.token');
+        Route::post('/payment/multi',          [PaymentSiswaController::class, 'createMultiToken'])->name('payment.multi');
         Route::get('/tagihan/{bill}/struk',  [PaymentSiswaController::class, 'struk'])->name('tagihan.struk');
+        Route::get('/profil',                  [\App\Http\Controllers\Siswa\ProfilSiswaController::class, 'show'])->name('profil');
+        Route::post('/profil',                 [\App\Http\Controllers\Siswa\ProfilSiswaController::class, 'update'])->name('profil.update');
+        Route::post('/profil/password',        [\App\Http\Controllers\Siswa\ProfilSiswaController::class, 'updatePassword'])->name('profil.password');
         Route::get('/payment/success',       [PaymentSiswaController::class, 'success'])->name('payment.success');
 
         // Chat Siswa ↔ TU
@@ -101,6 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{id}/edit', [StudentController::class, 'edit'])->name('edit');
             Route::put('/{id}', [StudentController::class, 'update'])->name('update');
             Route::post('/{id}/status', [StudentController::class, 'ubahStatus'])->name('ubah-status.process');
+            Route::patch('/{id}/reset-password', [StudentController::class, 'resetPassword'])->name('reset-password');
         });
 
         // Delete — admin, tu only (staf cannot delete students)

@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Repeater;
 
 class StudentBillResource extends Resource
 {
@@ -102,6 +103,60 @@ class StudentBillResource extends Resource
                     Forms\Components\Textarea::make('notes')
                         ->label('Catatan')
                         ->rows(2)
+                        ->columnSpanFull(),
+                ]),
+
+            Forms\Components\Section::make('Rincian Tagihan')
+                ->description('Opsional — isi jika tagihan memiliki breakdown item. Jika diisi, total otomatis dihitung dari rincian.')
+                ->collapsible()
+                ->schema([
+                    Repeater::make('items')
+                        ->label('')
+                        ->relationship('items')
+                        ->schema([
+                            Forms\Components\TextInput::make('item_name')
+                                ->label('Nama Item')
+                                ->required()
+                                ->placeholder('Contoh: Biaya Gedung, SPP, Seragam...')
+                                ->columnSpan(3),
+
+                            Forms\Components\TextInput::make('quantity')
+                                ->label('Qty')
+                                ->numeric()
+                                ->default(1)
+                                ->minValue(1)
+                                ->required()
+                                ->live()
+                                ->afterStateUpdated(fn ($state, $set, $get) =>
+                                    $set('subtotal', (float) $state * (float) ($get('price') ?? 0))
+                                )
+                                ->columnSpan(1),
+
+                            Forms\Components\TextInput::make('price')
+                                ->label('Harga Satuan (Rp)')
+                                ->numeric()
+                                ->prefix('Rp')
+                                ->required()
+                                ->minValue(0)
+                                ->live()
+                                ->afterStateUpdated(fn ($state, $set, $get) =>
+                                    $set('subtotal', (float) $state * (float) ($get('quantity') ?? 1))
+                                )
+                                ->columnSpan(2),
+
+                            Forms\Components\TextInput::make('subtotal')
+                                ->label('Subtotal (Rp)')
+                                ->numeric()
+                                ->prefix('Rp')
+                                ->readOnly()
+                                ->default(0)
+                                ->columnSpan(2),
+                        ])
+                        ->columns(8)
+                        ->addActionLabel('+ Tambah Item Rincian')
+                        ->reorderable()
+                        ->cloneable()
+                        ->defaultItems(0)
                         ->columnSpanFull(),
                 ]),
         ]);

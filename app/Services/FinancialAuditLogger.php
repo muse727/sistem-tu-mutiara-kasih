@@ -384,6 +384,204 @@ class FinancialAuditLogger
         ]);
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // STUDENT ACTIVITY — Portal Siswa
+    // ─────────────────────────────────────────────────────────────────────────
+
+    public static function studentLogin(
+        int $studentId,
+        string $nis,
+        string $nama,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::STUDENT_LOGIN,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'Student',
+            'auditable_id'   => $studentId,
+            'old_values'     => null,
+            'new_values'     => ['nis' => $nis],
+            'description'    => "{$nama} (NIS {$nis}) berhasil login portal siswa",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function studentLoginFailed(
+        string $nis,
+        string $reason = 'Kredensial salah',
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::STUDENT_LOGIN_FAILED,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'Student',
+            'auditable_id'   => null,
+            'old_values'     => null,
+            'new_values'     => ['nis' => $nis, 'reason' => $reason],
+            'description'    => "Login gagal untuk NIS {$nis}: {$reason}",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function studentLogout(
+        int $studentId,
+        string $nis,
+        string $nama,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::STUDENT_LOGOUT,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'Student',
+            'auditable_id'   => $studentId,
+            'old_values'     => null,
+            'new_values'     => ['nis' => $nis],
+            'description'    => "{$nama} (NIS {$nis}) logout dari portal siswa",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function billViewed(
+        int $studentId,
+        string $nama,
+        StudentBill $bill,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::BILL_VIEWED,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'StudentBill',
+            'auditable_id'   => $bill->id,
+            'old_values'     => null,
+            'new_values'     => [
+                'bill_id'  => $bill->id,
+                'nama'     => $bill->name,
+                'amount'   => (string) $bill->amount,
+                'status'   => $bill->status,
+            ],
+            'description'    => "{$nama} membuka detail tagihan #{$bill->id} ({$bill->name}, Rp " . number_format($bill->amount, 0, ',', '.') . ")",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function receiptDownloaded(
+        int $studentId,
+        string $nama,
+        StudentBill $bill,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::RECEIPT_DOWNLOADED,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'StudentBill',
+            'auditable_id'   => $bill->id,
+            'old_values'     => null,
+            'new_values'     => [
+                'bill_id'        => $bill->id,
+                'nama_tagihan'   => $bill->name,
+                'payment_method' => $bill->payment_method,
+                'amount'         => (string) $bill->amount,
+            ],
+            'description'    => "{$nama} mengakses struk pembayaran #{$bill->id} ({$bill->name}, Rp " . number_format($bill->amount, 0, ',', '.') . " via {$bill->payment_method})",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function receiptVerified(
+        StudentBill $bill,
+        string $verifyToken,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::RECEIPT_VERIFIED,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'StudentBill',
+            'auditable_id'   => $bill->id,
+            'old_values'     => null,
+            'new_values'     => [
+                'bill_id'      => $bill->id,
+                'verify_token' => substr($verifyToken, 0, 8) . '...',
+            ],
+            'description'    => "QR struk #{$bill->id} ({$bill->name}) di-scan/diverifikasi",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function profileUpdated(
+        int $studentId,
+        string $nama,
+        array $oldValues,
+        array $newValues,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::PROFILE_UPDATED,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'Student',
+            'auditable_id'   => $studentId,
+            'old_values'     => $oldValues,
+            'new_values'     => $newValues,
+            'description'    => "{$nama} memperbarui profil: " . implode(', ', array_keys($newValues)),
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function passwordChanged(
+        int $studentId,
+        string $nama,
+        string $nis,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => null,
+            'action'         => AuditLog::PASSWORD_CHANGED,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'Student',
+            'auditable_id'   => $studentId,
+            'old_values'     => null,
+            'new_values'     => ['nis' => $nis],
+            'description'    => "{$nama} (NIS {$nis}) mengganti password akun portal",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_SISWA,
+        ]);
+    }
+
+    public static function passwordResetByAdmin(
+        int $studentId,
+        string $namaSiswa,
+        string $nis,
+        int $adminUserId,
+        string $namaAdmin,
+        ?Request $request = null
+    ): void {
+        static::write([
+            'user_id'        => $adminUserId,
+            'action'         => AuditLog::PASSWORD_RESET_BY_ADMIN,
+            'module'         => 'portal_siswa',
+            'auditable_type' => 'Student',
+            'auditable_id'   => $studentId,
+            'old_values'     => ['custom_password' => '[SET]'],
+            'new_values'     => ['custom_password' => null, 'fallback' => 'tanggal_lahir'],
+            'description'    => "Admin {$namaAdmin} mereset password {$namaSiswa} (NIS {$nis}) ke tanggal lahir",
+            'ip_address'     => static::ip($request),
+            'source'         => AuditLog::SOURCE_WEB,
+        ]);
+    }
+
     /** Write the audit record — never throws. */
     private static function write(array $data): void
     {

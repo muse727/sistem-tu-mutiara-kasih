@@ -48,4 +48,9 @@ return [
         'is_3ds'         => env('MIDTRANS_IS_3DS', true),
     ],
 
+    'turnstile' => [
+        'site_key'   => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

@@ -106,6 +106,12 @@
         </div>
 
         {{-- Submit --}}
+        {{-- Cloudflare Turnstile --}}
+        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
+        @error('cf-turnstile-response')
+        <p class="text-xs text-red-500 -mt-2">{{ $message }}</p>
+        @enderror
+
         <button
             type="submit"
             class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#0284c7] to-[#0ea5e9] hover:from-[#0369a1] hover:to-[#0284c7] text-white font-semibold py-3 px-6 rounded-xl shadow-md shadow-sky-200 hover:shadow-sky-300 transition-all duration-200 text-sm mt-2"

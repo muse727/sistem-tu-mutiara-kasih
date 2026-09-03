@@ -27,8 +27,19 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'email'                 => ['required', 'string', 'email'],
+            'password'              => ['required', 'string'],
+            'cf-turnstile-response' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     */
+    public function messages(): array
+    {
+        return [
+            'cf-turnstile-response.required' => 'Captcha wajib diselesaikan.',
         ];
     }
 
@@ -40,6 +51,22 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+
+        // Verifikasi Cloudflare Turnstile
+        $turnstileResponse = \Illuminate\Support\Facades\Http::asForm()->post(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            [
+                'secret'   => config('services.turnstile.secret_key'),
+                'response' => $this->input('cf-turnstile-response'),
+                'remoteip' => $this->ip(),
+            ]
+        );
+
+        if (! $turnstileResponse->json('success')) {
+            throw ValidationException::withMessages([
+                'cf-turnstile-response' => 'Verifikasi captcha gagal. Silakan coba lagi.',
+            ]);
+        }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
