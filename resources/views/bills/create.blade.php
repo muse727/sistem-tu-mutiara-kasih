@@ -17,6 +17,18 @@
                 </a>
             </div>
 
+                        <style>
+                /* Styling khusus radio button biar nyala tanpa nunggu build Tailwind */
+                .radio-card-input:checked + .radio-card {
+                    border-color: #F56C3E !important;
+                    background-color: #fff7ed !important;
+                    box-shadow: 0 0 0 2px rgba(245, 108, 62, 0.2) !important;
+                }
+                .radio-card-input:checked + .radio-card .indicator {
+                    border: 5px solid #F56C3E !important;
+                    background-color: white !important;
+                }
+            </style>
             <form action="{{ route('bills.store') }}" method="POST" id="billForm">
                 @csrf
                 
@@ -30,8 +42,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <label class="cursor-pointer relative">
-                            <input type="radio" name="target_type" value="student" class="peer sr-only" checked onclick="toggleTarget('student')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-1 peer-checked:ring-[#F56C3E] peer-checked:bg-orange-50 peer-checked:[&_.indicator]:border-[#F56C3E] peer-checked:[&_.indicator]:bg-white peer-checked:[&_.indicator]:border-[5px]">
+                            <input type="radio" name="target_type" value="student" class="radio-card-input sr-only" checked onclick="toggleTarget('student')">
+                            <div class="radio-card p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
                                     <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
                                     Per Siswa
@@ -41,8 +53,8 @@
                         </label>
 
                         <label class="cursor-pointer relative">
-                            <input type="radio" name="target_type" value="class" class="peer sr-only" onclick="toggleTarget('class')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-1 peer-checked:ring-[#F56C3E] peer-checked:bg-orange-50 peer-checked:[&_.indicator]:border-[#F56C3E] peer-checked:[&_.indicator]:bg-white peer-checked:[&_.indicator]:border-[5px]">
+                            <input type="radio" name="target_type" value="class" class="radio-card-input sr-only" onclick="toggleTarget('class')">
+                            <div class="radio-card p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
                                     <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
                                     Satu Kelas
@@ -52,8 +64,8 @@
                         </label>
 
                         <label class="cursor-pointer relative">
-                            <input type="radio" name="target_type" value="all" class="peer sr-only" onclick="toggleTarget('all')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-1 peer-checked:ring-[#F56C3E] peer-checked:bg-orange-50 peer-checked:[&_.indicator]:border-[#F56C3E] peer-checked:[&_.indicator]:bg-white peer-checked:[&_.indicator]:border-[5px]">
+                            <input type="radio" name="target_type" value="all" class="radio-card-input sr-only" onclick="toggleTarget('all')">
+                            <div class="radio-card p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
                                     <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
                                     Semua Siswa
