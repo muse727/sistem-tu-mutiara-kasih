@@ -223,6 +223,7 @@
                         <tr>
                             <td colspan="4" class="px-6 py-16 text-center">
                                 <p class="text-gray-400 text-sm">Belum ada data siswa.</p>
+                                @if(Auth::user()->role === 'admin' || Auth::user()->role === 'tu')
                                 <button onclick="openModal('modalCreate')"
                                         class="mt-4 inline-flex items-center gap-2 bg-[#F56C3E] text-white px-5 py-2.5 rounded-xl hover:bg-[#e45322] transition-all duration-300 font-medium shadow-sm text-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
