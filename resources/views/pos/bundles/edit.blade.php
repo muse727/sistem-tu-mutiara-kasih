@@ -57,7 +57,7 @@
                                     </svg>
                                     Total Harga Paket
                                 </h3>
-                                <div class="bg-sky-50 border border-sky-200 rounded-xl px-4 py-4 text-center">
+                                <div class="bg-sky-50 border border-gray-200 rounded-xl px-4 py-4 text-center">
                                     <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide mb-1">Total (otomatis dari komposisi)</p>
                                     <p class="text-2xl font-black text-sky-700" id="autoTotal">Rp 0</p>
                                     <p class="text-xs text-slate-400 mt-2">Dihitung dari harga jual satuan × qty</p>
@@ -193,7 +193,7 @@
                             icon: 'question',
                             showCancelButton: true,
                             confirmButtonColor: '#f59e0b', // Amber
-                            cancelButtonColor: '#94a3b8',
+                            cancelButtonColor: '#777777',
                             confirmButtonText: 'Ya, Hapus',
                             cancelButtonText: 'Batal'
                         }).then((result) => {

@@ -34,7 +34,7 @@ class ReportController extends Controller
         $totalMidtrans = StudentBill::whereMonth('paid_at', $bulan)
             ->whereYear('paid_at', $tahun)
             ->where('status', 'PAID')
-            ->where('payment_method', 'MIDTRANS')
+            ->where('payment_method', '!=', 'CASH')
             ->sum('amount');
 
         $totalPos      = PosOrder::whereMonth('created_at', $bulan)

@@ -3,12 +3,12 @@
     <div class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen py-12">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-gradient-to-br from-white to-slate-50 shadow-2xl sm:rounded-3xl p-8 border border-slate-200 relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-[#0284c7]/5 to-transparent rounded-full blur-3xl opacity-50"></div>
+                <div class="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-[#F56C3E]/5 to-transparent rounded-full blur-3xl opacity-50"></div>
                 
                 <div class="flex items-center gap-4 mb-8 relative z-10">
                     <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-r from-[#0284c7] to-blue-400 rounded-2xl blur-lg opacity-30"></div>
-                        <div class="relative bg-gradient-to-br from-[#0284c7] to-blue-600 p-3 rounded-2xl shadow-lg">
+                        <div class="absolute inset-0 bg-gradient-to-r from-[#F56C3E] to-blue-400 rounded-2xl blur-lg opacity-30"></div>
+                        <div class="relative bg-gradient-to-br from-[#F56C3E] to-blue-600 p-3 rounded-2xl shadow-lg">
                             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
@@ -27,7 +27,7 @@
                         <div class="space-y-6">
                             <div class="bg-gradient-to-br from-white to-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
                                 <label class="block text-sm font-bold text-slate-600 mb-3 flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                     Detail Paket
@@ -43,7 +43,7 @@
                                                 </svg>
                                             </div>
                                             <input type="text" name="name" required placeholder="Contoh: Paket Seragam Lengkap Kelas X" 
-                                                   class="w-full pl-10 rounded-xl border-slate-300 shadow-sm focus:ring-[#0284c7] focus:border-[#0284c7] text-slate-800 font-medium py-3.5 bg-white">
+                                                   class="w-full pl-10 rounded-xl border-slate-300 shadow-sm focus:ring-[#F56C3E] focus:border-[#F56C3E] text-slate-800 font-medium py-3.5 bg-white">
                                         </div>
                                     </div>
                                     
@@ -53,12 +53,12 @@
                             
                             <div class="bg-gradient-to-br from-white to-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
                                 <h3 class="text-sm font-bold text-slate-600 mb-4 flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M12 7h.01M15 7h.01"></path>
                                     </svg>
                                     Total Harga Paket
                                 </h3>
-                                <div class="bg-sky-50 border border-sky-200 rounded-xl px-4 py-4 text-center">
+                                <div class="bg-sky-50 border border-gray-200 rounded-xl px-4 py-4 text-center">
                                     <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide mb-1">Total (otomatis dari komposisi)</p>
                                     <p class="text-2xl font-black text-sky-700" id="autoTotal">Rp 0</p>
                                     <p class="text-xs text-slate-400 mt-2">Dihitung dari harga jual satuan × qty</p>
@@ -70,7 +70,7 @@
                             <div class="bg-gradient-to-br from-white to-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
                                 <div class="flex items-center justify-between mb-4">
                                     <h3 class="text-sm font-bold text-slate-600 flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                                         </svg>
                                         Komposisi Paket
@@ -97,7 +97,7 @@
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                                             </svg>
                                                         </div>
-                                                        <select name="products[]" required class="product-select w-full pl-10 rounded-lg border-slate-300 shadow-sm focus:ring-[#0284c7] focus:border-[#0284c7] text-sm py-2.5 bg-white">
+                                                        <select name="products[]" required class="product-select w-full pl-10 rounded-lg border-slate-300 shadow-sm focus:ring-[#F56C3E] focus:border-[#F56C3E] text-sm py-2.5 bg-white">
                                                             <option value="">-- Pilih Barang --</option>
                                                             @foreach($products as $p)
                                                                 <option value="{{ $p->id }}" data-price="{{ $p->price }}" data-stock="{{ $p->stock }}" data-name="{{ $p->name }}">{{ $p->name }} (Stok: {{ $p->stock }}, Harga: Rp {{ number_format($p->price, 0, ',', '.') }})
@@ -112,7 +112,7 @@
                                                     <div class="flex items-center gap-2">
                                                         <div class="relative flex-1">
                                                             <input type="number" name="quantities[]" value="1" min="1" required 
-                                                                   class="quantity-input w-full rounded-lg border-slate-300 shadow-sm focus:ring-[#0284c7] focus:border-[#0284c7] text-sm py-2.5 text-center bg-white">
+                                                                   class="quantity-input w-full rounded-lg border-slate-300 shadow-sm focus:ring-[#F56C3E] focus:border-[#F56C3E] text-sm py-2.5 text-center bg-white">
                                                         </div>
                                                         <button type="button" class="remove-row p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100" disabled>
                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@
                                     </div>
                                 </div>
                                 
-                                <button type="button" id="add-row" class="mt-6 w-full py-3.5 border-2 border-dashed border-slate-300 hover:border-[#0284c7] text-slate-500 hover:text-[#0284c7] rounded-xl font-bold text-sm transition-all duration-300 hover:bg-blue-50/50 flex items-center justify-center gap-2 group">
+                                <button type="button" id="add-row" class="mt-6 w-full py-3.5 border-2 border-dashed border-slate-300 hover:border-[#F56C3E] text-slate-500 hover:text-[#F56C3E] rounded-xl font-bold text-sm transition-all duration-300 hover:bg-blue-50/50 flex items-center justify-center gap-2 group">
                                     <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                     </svg>
@@ -143,7 +143,7 @@
                             </svg>
                             Batal
                         </a>
-                        <button type="submit" class="px-8 py-3.5 bg-gradient-to-r from-[#0284c7] to-blue-500 hover:from-blue-600 hover:to-[#0284c7] text-white rounded-xl font-bold shadow-lg shadow-blue-200/50 transition-all transform hover:-translate-y-0.5 flex items-center gap-3">
+                        <button type="submit" class="px-8 py-3.5 bg-gradient-to-r from-[#F56C3E] to-blue-500 hover:from-blue-600 hover:to-[#F56C3E] text-white rounded-xl font-bold shadow-lg shadow-blue-200/50 transition-all transform hover:-translate-y-0.5 flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
@@ -217,8 +217,8 @@
                             text: "Barang ini akan dihapus dari komposisi paket.",
                             icon: 'question',
                             showCancelButton: true,
-                            confirmButtonColor: '#0284c7',
-                            cancelButtonColor: '#94a3b8',
+                            confirmButtonColor: '#F56C3E',
+                            cancelButtonColor: '#777777',
                             confirmButtonText: 'Ya, Hapus',
                             cancelButtonText: 'Batal'
                         }).then((result) => {
@@ -242,7 +242,7 @@
                             icon: 'warning',
                             title: 'Tidak Bisa Dihapus',
                             text: 'Minimal harus ada satu barang dalam paket!',
-                            confirmButtonColor: '#0284c7'
+                            confirmButtonColor: '#F56C3E'
                         });
                     }
                 });
@@ -286,7 +286,7 @@
                         icon: 'error',
                         title: 'Data Belum Lengkap',
                         text: 'Semua barang harus dipilih!',
-                        confirmButtonColor: '#0284c7'
+                        confirmButtonColor: '#F56C3E'
                     });
                 }
             });

@@ -4,8 +4,8 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-gradient-to-br from-[#0284c7]/10 to-[#0ea5e9]/10 rounded-xl">
-                        <svg class="w-7 h-7 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-gradient-to-br from-[#F56C3E]/10 to-[#F56C3E]/10 rounded-xl">
+                        <svg class="w-7 h-7 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                     </div>
@@ -23,14 +23,14 @@
                     <span>Naik Kelas</span>
                 </a>
                 <a href="{{ route('students.import') }}"
-                   class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl hover:border-[#0284c7]/50 hover:shadow-md transition-all duration-300 font-medium shadow-sm text-sm">
-                    <svg class="w-4 h-4 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl hover:border-[#F56C3E]/50 hover:shadow-md transition-all duration-300 font-medium shadow-sm text-sm">
+                    <svg class="w-4 h-4 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                     </svg>
                     <span>Import CSV</span>
                 </a>
                 <button onclick="openModal('modalCreate')"
-                        class="flex items-center gap-2 bg-[#0284c7] text-white px-4 py-2.5 rounded-xl hover:bg-[#0369a1] transition-all duration-300 font-medium shadow-sm text-sm">
+                        class="flex items-center gap-2 bg-[#F56C3E] text-white px-4 py-2.5 rounded-xl hover:bg-[#e45322] transition-all duration-300 font-medium shadow-sm text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -45,10 +45,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-blue-800 font-medium">Total Siswa</p>
-                        <p class="text-2xl font-bold text-blue-600 mt-1">{{ $stats['total'] }}</p>
+                        <p class="text-2xl font-bold text-[#171717] mt-1">{{ $stats['total'] }}</p>
                     </div>
-                    <div class="p-3 bg-blue-500/10 rounded-lg">
-                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-3 bg-[#F56C3E]/10 rounded-lg">
+                        <svg class="w-6 h-6 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                     </div>
@@ -58,10 +58,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-emerald-800 font-medium">Aktif</p>
-                        <p class="text-2xl font-bold text-emerald-600 mt-1">{{ $stats['aktif'] }}</p>
+                        <p class="text-2xl font-bold text-[#171717] mt-1">{{ $stats['aktif'] }}</p>
                     </div>
-                    <div class="p-3 bg-emerald-500/10 rounded-lg">
-                        <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-3 bg-[#F56C3E]/10 rounded-lg">
+                        <svg class="w-6 h-6 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
@@ -71,10 +71,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-red-800 font-medium">Tidak Aktif</p>
-                        <p class="text-2xl font-bold text-red-600 mt-1">{{ $stats['tidak_aktif'] }}</p>
+                        <p class="text-2xl font-bold text-[#171717] mt-1">{{ $stats['tidak_aktif'] }}</p>
                     </div>
-                    <div class="p-3 bg-red-500/10 rounded-lg">
-                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-3 bg-[#F56C3E]/10 rounded-lg">
+                        <svg class="w-6 h-6 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
                         </svg>
                     </div>
@@ -84,10 +84,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-yellow-800 font-medium">Calon Siswa</p>
-                        <p class="text-2xl font-bold text-yellow-600 mt-1">{{ $stats['calon'] }}</p>
+                        <p class="text-2xl font-bold text-[#171717] mt-1">{{ $stats['calon'] }}</p>
                     </div>
-                    <div class="p-3 bg-yellow-500/10 rounded-lg">
-                        <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-3 bg-[#F56C3E]/10 rounded-lg">
+                        <svg class="w-6 h-6 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                     </div>
@@ -108,12 +108,12 @@
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}"
                                placeholder="Cari berdasarkan Nama atau NIS..."
-                               class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 bg-white transition-all duration-300">
+                               class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E]/20 bg-white transition-all duration-300">
                     </div>
                 </div>
                 <div class="w-full lg:w-52">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Kelas</label>
-                    <select name="kelas_id" class="w-full py-3.5 px-4 rounded-xl border border-gray-200 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 bg-white transition-all duration-300">
+                    <select name="kelas_id" class="w-full py-3.5 px-4 rounded-xl border border-gray-200 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E]/20 bg-white transition-all duration-300">
                         <option value="">Semua Kelas</option>
                         @foreach($kelasList as $kelas)
                             <option value="{{ $kelas->id }}" {{ request('kelas_id') == $kelas->id ? 'selected' : '' }}>
@@ -124,7 +124,7 @@
                 </div>
                 <div class="w-full lg:w-44">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Status</label>
-                    <select name="status" class="w-full py-3.5 px-4 rounded-xl border border-gray-200 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 bg-white transition-all duration-300">
+                    <select name="status" class="w-full py-3.5 px-4 rounded-xl border border-gray-200 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E]/20 bg-white transition-all duration-300">
                         <option value="">Semua Status</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
                         <option value="calon_siswa" {{ request('status') === 'calon_siswa' ? 'selected' : '' }}>Calon Siswa</option>
@@ -136,7 +136,7 @@
                     </select>
                 </div>
                 <button type="submit"
-                        class="flex items-center gap-2 bg-[#0284c7] text-white px-6 py-3.5 rounded-xl hover:bg-[#0369a1] transition-all duration-300 font-medium shadow-sm text-sm whitespace-nowrap">
+                        class="flex items-center gap-2 bg-[#F56C3E] text-white px-6 py-3.5 rounded-xl hover:bg-[#e45322] transition-all duration-300 font-medium shadow-sm text-sm whitespace-nowrap">
                     Cari
                 </button>
                 @if(request('search') || request('status') || request('kelas_id'))
@@ -153,7 +153,7 @@
             <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-gray-900">Daftar Siswa</h3>
-                    <span class="text-sm text-gray-500">Total <span class="font-bold text-[#0284c7]">{{ $students->total() }}</span> siswa</span>
+                    <span class="text-sm text-gray-500">Total <span class="font-bold text-[#F56C3E]">{{ $students->total() }}</span> siswa</span>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -171,38 +171,38 @@
                         <tr class="group hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-blue-100/30 transition-all duration-300">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#0284c7] to-[#0ea5e9] text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#F56C3E] to-[#F56C3E] text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0">
                                         {{ substr($student->name, 0, 1) }}
                                     </div>
                                     <div>
                                         <p class="font-bold text-gray-900">{{ $student->name }}</p>
                                         <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded border border-gray-200">NIS: {{ $student->nis }}</span>
+                                            <span class="text-xs font-mono bg-white text-[#171717] px-2 py-1 rounded shadow-sm border border-gray-200">NIS: {{ $student->nis }}</span>
                                             @if($student->nisn)
-                                            <span class="text-xs font-mono bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100">NISN: {{ $student->nisn }}</span>
+                                            <span class="text-xs font-mono bg-white text-[#171717] px-2 py-1 rounded shadow-sm border border-gray-200">NISN: {{ $student->nisn }}</span>
                                             @endif
                                         </div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-full border border-gray-200 font-bold text-gray-700 text-sm">
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full border border-gray-200 font-bold text-gray-700 text-sm">
                                     {{ optional($student->kelas)->nama_kelas ?? '-' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
                                 @if($student->status === 'active')
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Aktif</span>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#F56C3E] text-white shadow-sm">Aktif</span>
                                 @elseif($student->status === 'calon_siswa')
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-200">Calon</span>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-[#171717] border border-[#EDEDED] shadow-sm">Calon</span>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-50 text-red-700 border border-red-200">{{ \App\Models\Student::STATUSES[$student->status] ?? ucfirst($student->status) }}</span>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#171717] text-white shadow-sm">{{ \App\Models\Student::STATUSES[$student->status] ?? ucfirst($student->status) }}</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <a href="{{ route('students.show', $student) }}"
-                                       class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border border-sky-200">
+                                       class="bg-white hover:bg-gray-50 text-[#171717] shadow-sm px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border border-gray-200">
                                         Detail
                                     </a>
                                     <button onclick="fetchAndEditStudent({{ $student->id }})"
@@ -221,7 +221,7 @@
                             <td colspan="4" class="px-6 py-16 text-center">
                                 <p class="text-gray-400 text-sm">Belum ada data siswa.</p>
                                 <button onclick="openModal('modalCreate')"
-                                        class="mt-4 inline-flex items-center gap-2 bg-[#0284c7] text-white px-5 py-2.5 rounded-xl hover:bg-[#0369a1] transition-all duration-300 font-medium shadow-sm text-sm">
+                                        class="mt-4 inline-flex items-center gap-2 bg-[#F56C3E] text-white px-5 py-2.5 rounded-xl hover:bg-[#e45322] transition-all duration-300 font-medium shadow-sm text-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                     </svg>
@@ -256,31 +256,31 @@
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Lengkap <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Lengkap <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" name="name" placeholder="Nama lengkap siswa"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">NIS <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">NIS <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" name="nis" placeholder="Nomor Induk Siswa"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">NISN</label>
                     <input type="text" name="nisn" placeholder="Nomor Induk Siswa Nasional"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jenis Kelamin <span class="text-red-500">*</span></label>
-                    <select name="gender" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jenis Kelamin <span class="text-[#F56C3E]">*</span></label>
+                    <select name="gender" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all bg-white">
                         <option value="">-- Pilih --</option>
                         <option value="L">Laki-laki</option>
                         <option value="P">Perempuan</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kelas <span class="text-red-500">*</span></label>
-                    <select name="kelas_id" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kelas <span class="text-[#F56C3E]">*</span></label>
+                    <select name="kelas_id" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all bg-white">
                         <option value="">-- Pilih Kelas --</option>
                         @foreach($kelasList as $kelas)
                             <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
@@ -291,17 +291,17 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tempat Lahir</label>
                     <input type="text" name="birth_place" placeholder="Kota/kabupaten"
                            value="{{ old('birth_place') }}"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tanggal Lahir</label>
                     <input type="date" name="birth_date"
                            value="{{ old('birth_date') }}"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Agama</label>
-                    <select name="agama" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all bg-white">
+                    <select name="agama" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all bg-white">
                         <option value="">-- Pilih --</option>
                         <option value="Islam">Islam</option>
                         <option value="Kristen">Kristen</option>
@@ -314,17 +314,17 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tahun Masuk</label>
                     <input type="number" name="tahun_masuk" placeholder="{{ date('Y') }}" min="2000" max="{{ date('Y') + 1 }}"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">No. HP Siswa</label>
                     <input type="text" name="phone" placeholder="08xxxxxxxxxx"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">No. HP Orang Tua</label>
                     <input type="text" name="parent_phone" placeholder="08xxxxxxxxxx"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div class="md:col-span-2 p-3 rounded-xl border border-green-200 bg-green-50">
                     <p class="text-xs text-green-700 font-semibold">Status: Siswa Aktif (input langsung TU selalu aktif)</p>
@@ -332,7 +332,7 @@
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Alamat</label>
                     <textarea name="address" rows="3" placeholder="Alamat lengkap"
-                              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all resize-none"></textarea>
+                              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all resize-none"></textarea>
                 </div>
             </div>
 
@@ -346,7 +346,7 @@
                     Batal
                 </button>
                 <button type="submit" id="btnCreateSubmit"
-                        class="px-6 py-2 bg-[#0284c7] hover:bg-[#0369a1] text-white rounded-xl text-sm font-medium transition-colors">
+                        class="px-6 py-2 bg-[#F56C3E] hover:bg-[#e45322] text-white rounded-xl text-sm font-medium transition-colors">
                     Simpan
                 </button>
             </div>
@@ -369,31 +369,31 @@
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Lengkap <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Lengkap <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" name="name" id="editName"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">NIS <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">NIS <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" name="nis" id="editNis"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">NISN</label>
                     <input type="text" name="nisn" id="editNisn"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jenis Kelamin <span class="text-red-500">*</span></label>
-                    <select name="gender" id="editGender" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jenis Kelamin <span class="text-[#F56C3E]">*</span></label>
+                    <select name="gender" id="editGender" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all bg-white">
                         <option value="">-- Pilih --</option>
                         <option value="L">Laki-laki</option>
                         <option value="P">Perempuan</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kelas <span class="text-red-500">*</span></label>
-                    <select name="kelas_id" id="editKelasId" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all bg-white">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Kelas <span class="text-[#F56C3E]">*</span></label>
+                    <select name="kelas_id" id="editKelasId" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all bg-white">
                         <option value="">-- Pilih Kelas --</option>
                         @foreach($kelasList as $kelas)
                             <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
@@ -403,16 +403,16 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tempat Lahir</label>
                     <input type="text" name="birth_place" id="editBirthPlace"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tanggal Lahir</label>
                     <input type="date" name="birth_date" id="editBirthDate"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Agama</label>
-                    <select name="agama" id="editAgama" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all bg-white">
+                    <select name="agama" id="editAgama" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all bg-white">
                         <option value="">-- Pilih --</option>
                         <option value="Islam">Islam</option>
                         <option value="Kristen">Kristen</option>
@@ -425,17 +425,17 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tahun Masuk</label>
                     <input type="number" name="tahun_masuk" id="editTahunMasuk" min="2000" max="{{ date('Y') + 1 }}"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">No. HP Siswa</label>
                     <input type="text" name="phone" id="editPhone"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">No. HP Orang Tua</label>
                     <input type="text" name="parent_phone" id="editParentPhone"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all">
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Status</label>
@@ -452,7 +452,7 @@
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Alamat</label>
                     <textarea name="address" id="editAddress" rows="3"
-                              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none text-sm transition-all resize-none"></textarea>
+                              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none text-sm transition-all resize-none"></textarea>
                 </div>
             </div>
 
@@ -466,7 +466,7 @@
                     Batal
                 </button>
                 <button type="submit" id="btnEditSubmit"
-                        class="px-6 py-2 bg-[#0284c7] hover:bg-[#0369a1] text-white rounded-xl text-sm font-medium transition-colors">
+                        class="px-6 py-2 bg-[#F56C3E] hover:bg-[#e45322] text-white rounded-xl text-sm font-medium transition-colors">
                     Update
                 </button>
             </div>
@@ -593,7 +593,7 @@ function confirmDeleteStudent(url, nama) {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
+        cancelButtonColor: '#777777',
         confirmButtonText: 'Ya, Hapus!',
         cancelButtonText: 'Batal'
     }).then(result => {

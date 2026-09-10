@@ -413,19 +413,19 @@
                         <p>Menu ini hanya bisa diakses oleh <strong>Admin</strong>. Digunakan untuk mengatur identitas sekolah yang tampil di kwitansi dan laporan.</p>
                         <div class="space-y-2">
                             <div class="flex items-start gap-2">
-                                <span class="text-green-500 font-bold">✓</span>
+                                <span class="text-[#F56C3E] font-bold">✓</span>
                                 <p><strong>Nama Sekolah</strong> — akan muncul di bagian atas kwitansi dan laporan export.</p>
                             </div>
                             <div class="flex items-start gap-2">
-                                <span class="text-green-500 font-bold">✓</span>
+                                <span class="text-[#F56C3E] font-bold">✓</span>
                                 <p><strong>Alamat & Telepon</strong> — informasi kontak sekolah di kwitansi.</p>
                             </div>
                             <div class="flex items-start gap-2">
-                                <span class="text-green-500 font-bold">✓</span>
+                                <span class="text-[#F56C3E] font-bold">✓</span>
                                 <p><strong>Logo Sekolah</strong> — logo yang diunggah akan muncul di header kwitansi.</p>
                             </div>
                             <div class="flex items-start gap-2">
-                                <span class="text-green-500 font-bold">✓</span>
+                                <span class="text-[#F56C3E] font-bold">✓</span>
                                 <p><strong>Warna Sidebar</strong> — sesuaikan warna tampilan aplikasi dengan identitas sekolah Anda.</p>
                             </div>
                         </div>
@@ -475,27 +475,27 @@
             </h2>
             <ul class="space-y-2 text-sm text-gray-600">
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-500 mt-0.5">•</span>
+                    <span class="text-[#F56C3E] mt-0.5">•</span>
                     <span>Setelah melakukan perubahan penting, selalu klik tombol <strong>Simpan</strong> agar data tidak hilang.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-500 mt-0.5">•</span>
+                    <span class="text-[#F56C3E] mt-0.5">•</span>
                     <span>Jika ada notifikasi berwarna <strong>merah</strong>, baca pesannya dengan teliti — biasanya ada data yang belum lengkap.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-500 mt-0.5">•</span>
+                    <span class="text-[#F56C3E] mt-0.5">•</span>
                     <span>Notifikasi <strong>hijau</strong> berarti aksi berhasil disimpan.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-500 mt-0.5">•</span>
+                    <span class="text-[#F56C3E] mt-0.5">•</span>
                     <span>Data yang sudah dihapus <strong>tidak bisa dikembalikan</strong>. Pastikan yakin sebelum menghapus.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-500 mt-0.5">•</span>
+                    <span class="text-[#F56C3E] mt-0.5">•</span>
                     <span>Gunakan fitur <strong>Export</strong> secara rutin untuk backup data ke komputer Anda.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-500 mt-0.5">•</span>
+                    <span class="text-[#F56C3E] mt-0.5">•</span>
                     <span>Logout setelah selesai menggunakan aplikasi, terutama jika memakai komputer bersama.</span>
                 </li>
             </ul>
@@ -520,49 +520,49 @@
                     <tbody class="divide-y divide-gray-50">
                         <tr>
                             <td class="py-2 px-3 text-gray-700">Lihat Dashboard</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                         </tr>
                         <tr class="bg-gray-50/50">
                             <td class="py-2 px-3 text-gray-700">Tambah/Edit Siswa</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>
                         </tr>
                         <tr>
                             <td class="py-2 px-3 text-gray-700">Hapus Siswa</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>
                         </tr>
                         <tr class="bg-gray-50/50">
                             <td class="py-2 px-3 text-gray-700">Kelola Tagihan</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                         </tr>
                         <tr>
                             <td class="py-2 px-3 text-gray-700">Transaksi Kasir</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>
                         </tr>
                         <tr class="bg-gray-50/50">
                             <td class="py-2 px-3 text-gray-700">Riwayat Transaksi</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                         </tr>
                         <tr>
                             <td class="py-2 px-3 text-gray-700">Pengaturan Sekolah</td>
-                            <td class="text-center py-2 px-3 text-green-500 font-bold">✓</td>
+                            <td class="text-center py-2 px-3 text-[#F56C3E] font-bold">✓</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>
                             <td class="text-center py-2 px-3 text-gray-300">—</td>

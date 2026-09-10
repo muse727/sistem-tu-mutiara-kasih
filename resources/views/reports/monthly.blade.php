@@ -13,8 +13,8 @@
         body {
             font-family: 'Inter', sans-serif;
             font-size: 13px;
-            color: #1e293b;
-            background: #f8fafc;
+            color: #171717;
+            background: #F5F5F5;
         }
 
         /* ── Print wrapper ───────────────────────────────────────── */
@@ -32,7 +32,7 @@
             align-items: center;
             gap: 16px;
             padding-bottom: 16px;
-            border-bottom: 3px solid #0ea5e9;
+            border-bottom: 3px solid #F56C3E;
             margin-bottom: 20px;
         }
         .report-header img {
@@ -43,12 +43,12 @@
         .report-header .school-info h1 {
             font-size: 16px;
             font-weight: 700;
-            color: #0f172a;
+            color: #171717;
             letter-spacing: -0.3px;
         }
         .report-header .school-info p {
             font-size: 11px;
-            color: #64748b;
+            color: #777777;
             margin-top: 2px;
         }
         .report-title {
@@ -60,11 +60,11 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #0f172a;
+            color: #171717;
         }
         .report-title p {
             font-size: 12px;
-            color: #475569;
+            color: #333333;
             margin-top: 4px;
         }
 
@@ -76,7 +76,7 @@
             margin-bottom: 24px;
         }
         .summary-box {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #EDEDED;
             border-radius: 8px;
             padding: 12px;
             text-align: center;
@@ -85,18 +85,18 @@
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #64748b;
+            color: #777777;
             font-weight: 600;
         }
         .summary-box .value {
             font-size: 13px;
             font-weight: 700;
-            color: #0f172a;
+            color: #171717;
             margin-top: 4px;
         }
         .summary-box.total {
-            background: #0ea5e9;
-            border-color: #0ea5e9;
+            background: #F56C3E;
+            border-color: #F56C3E;
         }
         .summary-box.total .label,
         .summary-box.total .value {
@@ -109,8 +109,8 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #0284c7;
-            border-left: 3px solid #0ea5e9;
+            color: #F56C3E;
+            border-left: 3px solid #F56C3E;
             padding-left: 8px;
             margin-bottom: 10px;
             margin-top: 20px;
@@ -124,27 +124,27 @@
             margin-bottom: 8px;
         }
         thead tr {
-            background: #f1f5f9;
+            background: #F5F5F5;
         }
         thead th {
             padding: 7px 8px;
             text-align: left;
             font-weight: 600;
-            color: #475569;
+            color: #333333;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #EDEDED;
         }
         tbody tr {
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #F5F5F5;
         }
         tbody tr:last-child {
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #EDEDED;
         }
         tbody td {
             padding: 6px 8px;
-            color: #334155;
+            color: #333333;
         }
         tbody tr:nth-child(even) td {
             background: #fafafa;
@@ -152,8 +152,8 @@
         tfoot tr td {
             padding: 7px 8px;
             font-weight: 700;
-            color: #0f172a;
-            border-top: 2px solid #e2e8f0;
+            color: #171717;
+            border-top: 2px solid #EDEDED;
         }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
@@ -166,24 +166,24 @@
             margin-bottom: 20px;
         }
         .rekap-item {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #EDEDED;
             border-radius: 6px;
             padding: 8px 10px;
         }
         .rekap-item .kelas-name {
             font-size: 11px;
             font-weight: 600;
-            color: #334155;
+            color: #333333;
         }
         .rekap-item .kelas-total {
             font-size: 12px;
             font-weight: 700;
-            color: #0284c7;
+            color: #F56C3E;
             margin-top: 2px;
         }
         .rekap-item .kelas-count {
             font-size: 10px;
-            color: #94a3b8;
+            color: #777777;
         }
 
         /* ── Signature Section ───────────────────────────────────── */
@@ -198,16 +198,16 @@
         }
         .signature-box .title {
             font-size: 11px;
-            color: #475569;
+            color: #333333;
             margin-bottom: 60px;
         }
         .signature-box .name-line {
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #333333;
             margin-bottom: 4px;
         }
         .signature-box .name {
             font-size: 11px;
-            color: #64748b;
+            color: #777777;
         }
 
         /* ── Print Button (screen only) ──────────────────────────── */
@@ -216,7 +216,7 @@
             top: 0;
             left: 0;
             right: 0;
-            background: #0f172a;
+            background: #171717;
             color: white;
             padding: 10px 20px;
             display: flex;
@@ -229,7 +229,7 @@
         .print-bar .info span { color: #7dd3fc; font-weight: 600; }
         .print-bar .actions { display: flex; gap: 8px; }
         .btn-print {
-            background: #0ea5e9;
+            background: #F56C3E;
             color: white;
             border: none;
             padding: 8px 18px;
@@ -242,7 +242,7 @@
             gap: 6px;
         }
         .btn-back {
-            background: #334155;
+            background: #333333;
             color: white;
             border: none;
             padding: 8px 16px;
@@ -298,7 +298,7 @@
             @if($schoolLogo)
             <img src="{{ asset('storage/' . $schoolLogo) }}" alt="Logo">
             @else
-            <div style="width:60px;height:60px;background:#0ea5e9;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+            <div style="width:60px;height:60px;background:#F56C3E;border-radius:12px;display:flex;align-items:center;justify-content:center;">
                 <svg width="32" height="32" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
             @endif
@@ -386,7 +386,7 @@
             </tfoot>
         </table>
         @else
-        <p style="color:#94a3b8;font-size:12px;padding:12px 0;">Tidak ada transaksi tagihan bulan ini.</p>
+        <p style="color:#777777;font-size:12px;padding:12px 0;">Tidak ada transaksi tagihan bulan ini.</p>
         @endif
 
         {{-- Tabel POS --}}
@@ -408,7 +408,7 @@
                 <tr>
                     <td class="text-center">{{ $i + 1 }}</td>
                     <td>{{ $order->transaction_code }}</td>
-                    <td style="font-size:10px;color:#64748b;">
+                    <td style="font-size:10px;color:#777777;">
                         {{ $order->items->map(fn($it) => ($it->item->name ?? '?') . ' x' . $it->qty)->join(', ') }}
                     </td>
                     <td class="text-right">Rp {{ number_format($order->payment_amount, 0, ',', '.') }}</td>
@@ -426,7 +426,7 @@
             </tfoot>
         </table>
         @else
-        <p style="color:#94a3b8;font-size:12px;padding:12px 0;">Tidak ada transaksi kantin bulan ini.</p>
+        <p style="color:#777777;font-size:12px;padding:12px 0;">Tidak ada transaksi kantin bulan ini.</p>
         @endif
 
         {{-- Signature --}}

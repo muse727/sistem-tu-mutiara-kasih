@@ -78,7 +78,7 @@
                         'LAINNYA'      => 'Lainnya',
                     ];
                 @endphp
-                <span class="inline-block mt-2 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase">
+                <span class="inline-block mt-2 bg-white text-[#171717] border border-[#EDEDED] shadow-sm text-xs font-bold px-3 py-1 rounded-full uppercase">
                     {{ $typeLabels[$bill->type] ?? $bill->type }}
                 </span>
             </div>

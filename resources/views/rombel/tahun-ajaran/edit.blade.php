@@ -25,7 +25,7 @@
             {{-- Nama --}}
             <div class="mb-5">
                 <label for="nama" class="block text-sm font-medium text-slate-700 mb-1.5">
-                    Nama Tahun Ajaran <span class="text-red-500">*</span>
+                    Nama Tahun Ajaran <span class="text-[#F56C3E]">*</span>
                 </label>
                 <input
                     type="text"
@@ -43,7 +43,7 @@
             {{-- Tanggal Mulai --}}
             <div class="mb-5">
                 <label for="tanggal_mulai" class="block text-sm font-medium text-slate-700 mb-1.5">
-                    Tanggal Mulai <span class="text-red-500">*</span>
+                    Tanggal Mulai <span class="text-[#F56C3E]">*</span>
                 </label>
                 <input
                     type="date"
@@ -60,7 +60,7 @@
             {{-- Tanggal Selesai --}}
             <div class="mb-5">
                 <label for="tanggal_selesai" class="block text-sm font-medium text-slate-700 mb-1.5">
-                    Tanggal Selesai <span class="text-red-500">*</span>
+                    Tanggal Selesai <span class="text-[#F56C3E]">*</span>
                 </label>
                 <input
                     type="date"

@@ -29,7 +29,7 @@
                     {{-- Tidak valid --}}
                     <div class="flex flex-col items-center text-center py-4">
                         <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-8 h-8 text-[#F56C3E]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </div>
@@ -41,11 +41,11 @@
                     {{-- Valid --}}
                     <div class="flex flex-col items-center text-center mb-6">
                         <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg class="w-8 h-8 text-[#F56C3E]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                             </svg>
                         </div>
-                        <span class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                        <span class="inline-flex items-center gap-1.5 bg-[#F56C3E] text-white shadow-sm text-xs font-bold px-3 py-1 rounded-full mb-2">
                             <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                             PEMBAYARAN TERVERIFIKASI
                         </span>

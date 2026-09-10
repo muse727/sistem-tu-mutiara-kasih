@@ -45,7 +45,7 @@
                     autofocus
                     autocomplete="username"
                     placeholder="admin@sekolah.sch.id"
-                    class="w-full pl-10 pr-4 py-3 rounded-xl border {{ $errors->has('email') ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-200 focus:border-[#0284c7]' }} focus:outline-none focus:ring-2 {{ $errors->has('email') ? 'focus:ring-red-200' : 'focus:ring-[#0284c7]/20' }} text-sm transition-all bg-white text-gray-900 placeholder-gray-400"
+                    class="w-full pl-10 pr-4 py-3 rounded-xl border {{ $errors->has('email') ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-200 focus:border-[#F56C3E]' }} focus:outline-none focus:ring-2 {{ $errors->has('email') ? 'focus:ring-red-200' : 'focus:ring-[#F56C3E]/20' }} text-sm transition-all bg-white text-gray-900 placeholder-gray-400"
                 />
             </div>
         </div>
@@ -58,7 +58,7 @@
                 </label>
                 @if (Route::has('password.request'))
                     <a href="{{ route('password.request') }}"
-                       class="text-xs text-[#0284c7] hover:text-[#0369a1] font-medium transition-colors">
+                       class="text-xs text-[#F56C3E] hover:text-[#e45322] font-medium transition-colors">
                         Lupa password?
                     </a>
                 @endif
@@ -76,7 +76,7 @@
                     required
                     autocomplete="current-password"
                     placeholder="••••••••"
-                    class="w-full pl-10 pr-11 py-3 rounded-xl border {{ $errors->has('password') ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-200 focus:border-[#0284c7]' }} focus:outline-none focus:ring-2 {{ $errors->has('password') ? 'focus:ring-red-200' : 'focus:ring-[#0284c7]/20' }} text-sm transition-all bg-white text-gray-900 placeholder-gray-400"
+                    class="w-full pl-10 pr-11 py-3 rounded-xl border {{ $errors->has('password') ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-200 focus:border-[#F56C3E]' }} focus:outline-none focus:ring-2 {{ $errors->has('password') ? 'focus:ring-red-200' : 'focus:ring-[#F56C3E]/20' }} text-sm transition-all bg-white text-gray-900 placeholder-gray-400"
                 />
                 {{-- Toggle show/hide password --}}
                 <button type="button" onclick="togglePassword()"
@@ -98,7 +98,7 @@
                 id="remember_me"
                 type="checkbox"
                 name="remember"
-                class="w-4 h-4 rounded border-gray-300 text-[#0284c7] focus:ring-[#0284c7]/30 transition"
+                class="w-4 h-4 rounded border-gray-300 text-[#F56C3E] focus:ring-[#F56C3E]/30 transition"
             >
             <label for="remember_me" class="ml-2.5 text-sm text-gray-600 select-none cursor-pointer">
                 Ingat saya di perangkat ini
@@ -109,12 +109,12 @@
         {{-- Cloudflare Turnstile --}}
         <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
         @error('cf-turnstile-response')
-        <p class="text-xs text-red-500 -mt-2">{{ $message }}</p>
+        <p class="text-xs text-[#F56C3E] -mt-2">{{ $message }}</p>
         @enderror
 
         <button
             type="submit"
-            class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#0284c7] to-[#0ea5e9] hover:from-[#0369a1] hover:to-[#0284c7] text-white font-semibold py-3 px-6 rounded-xl shadow-md shadow-sky-200 hover:shadow-sky-300 transition-all duration-200 text-sm mt-2"
+            class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#F56C3E] to-[#F56C3E] hover:from-[#e45322] hover:to-[#F56C3E] text-white font-semibold py-3 px-6 rounded-xl shadow-md shadow-sky-200 hover:shadow-sky-300 transition-all duration-200 text-sm mt-2"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
@@ -128,7 +128,7 @@
     <div class="mt-6 pt-5 border-t border-gray-100">
         <p class="text-center text-xs text-gray-400 mb-3">Bukan staf sekolah?</p>
         <a href="{{ route('siswa.login') }}"
-           class="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:border-[#0284c7]/40 hover:bg-sky-50 text-gray-600 hover:text-[#0284c7] font-medium py-2.5 px-6 rounded-xl transition-all duration-200 text-sm">
+           class="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:border-[#F56C3E]/40 hover:bg-white text-[#171717] border border-[#EDEDED] shadow-sm hover:text-[#F56C3E] font-medium py-2.5 px-6 rounded-xl transition-all duration-200 text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>

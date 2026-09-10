@@ -5,13 +5,13 @@
         <div class="max-w-7xl mx-auto space-y-8">
             <!-- Header Section -->
             <div class="bg-gradient-to-br from-white to-slate-50 p-8 rounded-3xl shadow-2xl border border-slate-200 relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-[#0284c7]/5 to-transparent rounded-full blur-3xl opacity-50"></div>
+                <div class="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-[#F56C3E]/5 to-transparent rounded-full blur-3xl opacity-50"></div>
                 
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-10 relative z-10">
                     <div class="flex items-center gap-4">
                         <div class="relative">
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#0284c7] to-blue-400 rounded-2xl blur-lg opacity-30"></div>
-                            <div class="relative bg-gradient-to-br from-[#0284c7] to-blue-600 p-3 rounded-2xl shadow-lg">
+                            <div class="absolute inset-0 bg-gradient-to-r from-[#F56C3E] to-blue-400 rounded-2xl blur-lg opacity-30"></div>
+                            <div class="relative bg-gradient-to-br from-[#F56C3E] to-blue-600 p-3 rounded-2xl shadow-lg">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                                 </svg>
@@ -33,7 +33,7 @@
                                         </svg>
                                     </div>
                                     <input type="date" name="start_date" value="{{ $startDate }}" 
-                                           class="w-full pl-10 rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                                           class="w-full pl-10 rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
                                 </div>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -42,7 +42,7 @@
                                         </svg>
                                     </div>
                                     <input type="date" name="end_date" value="{{ $endDate }}" 
-                                           class="w-full pl-10 rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                                           class="w-full pl-10 rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
                                 </div>
                             </div>
                             
@@ -52,7 +52,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
-                                <select name="status" class="pl-10 w-full rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                                <select name="status" class="pl-10 w-full rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
                                     <option value="">Semua Status</option>
                                     <option value="PAID" {{ request('status') == 'PAID' ? 'selected' : '' }}>Lunas (Cash)</option>
                                     <option value="UNPAID" {{ request('status') == 'UNPAID' ? 'selected' : '' }}>Belum Lunas</option>
@@ -66,7 +66,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
                                     </svg>
                                 </div>
-                                <select name="sort" class="pl-10 w-full rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                                <select name="sort" class="pl-10 w-full rounded-xl border-slate-300 bg-white text-slate-600 text-sm py-3 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
                                     <option value="" {{ request('sort') == '' ? 'selected' : '' }}>Terbaru</option>
                                     <option value="oldest_unpaid" {{ request('sort') == 'oldest_unpaid' ? 'selected' : '' }}>Piutang Terlama</option>
                                 </select>
@@ -85,7 +85,7 @@
 
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                    <div class="bg-gradient-to-br from-[#0284c7] to-blue-500 p-6 rounded-2xl text-white shadow-xl shadow-blue-200/50 relative overflow-hidden group hover:shadow-2xl hover:shadow-blue-300/50 transition-all duration-300">
+                    <div class="bg-gradient-to-br from-[#F56C3E] to-blue-500 p-6 rounded-2xl text-white shadow-xl shadow-blue-200/50 relative overflow-hidden group hover:shadow-2xl hover:shadow-blue-300/50 transition-all duration-300">
                         <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="relative">
                             <div class="flex items-center gap-3 mb-3">
@@ -105,7 +105,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <div class="flex items-center gap-2 mb-2">
-                                    <div class="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg">
+                                    <div class="p-1.5 bg-[#F56C3E] text-white shadow-sm rounded-lg">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                                         </svg>
@@ -150,13 +150,13 @@
                 <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center gap-3">
-                            <svg class="w-6 h-6 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                             Daftar Transaksi
                         </h3>
                         <div class="text-sm text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
-                            Total: <span class="font-bold text-[#0284c7]">{{ $transactions->total() }}</span> transaksi
+                            Total: <span class="font-bold text-[#F56C3E]">{{ $transactions->total() }}</span> transaksi
                         </div>
                     </div>
                 </div>
@@ -323,8 +323,8 @@
                 `,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#0284c7',
-                cancelButtonColor: '#94a3b8',
+                confirmButtonColor: '#F56C3E',
+                cancelButtonColor: '#777777',
                 confirmButtonText: 'Ya, Lunasi Sekarang',
                 cancelButtonText: 'Batal',
                 background: '#ffffff',

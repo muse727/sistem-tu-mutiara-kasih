@@ -14,7 +14,7 @@
         body {
             font-family: 'Consolas', 'Courier New', monospace; /* Font struk standar */
             font-size: 12px;
-            background-color: #f3f4f6; /* Abu muda buat background layar */
+            background-color: #F5F5F5; /* Abu muda buat background layar */
             color: #000;
             display: flex;
             justify-content: center;
@@ -121,7 +121,7 @@
             z-index: 100;
         }
         .btn-print {
-            background-color: #2563eb;
+            background-color: #F56C3E;
             color: white;
             border: none;
             padding: 10px 20px;

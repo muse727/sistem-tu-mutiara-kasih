@@ -21,10 +21,10 @@
 
             // Warna hero panel kiri login mengikuti pilihan sidebar_color
             $heroPalette = [
-                'blue'   => '#0284c7', 'indigo' => '#4f46e5', 'violet' => '#7c3aed',
+                'blue'   => '#F56C3E', 'indigo' => '#4f46e5', 'violet' => '#7c3aed',
                 'pink'   => '#db2777', 'rose'   => '#e11d48', 'orange' => '#ea580c',
                 'amber'  => '#d97706', 'green'  => '#059669', 'teal'   => '#0d9488',
-                'brown'  => '#78350f', 'slate'  => '#334155', 'black'  => '#0f172a',
+                'brown'  => '#78350f', 'slate'  => '#333333', 'black'  => '#171717',
             ];
             $heroColor = $heroPalette[$sidebarColor] ?? $heroPalette['blue'];
         @endphp

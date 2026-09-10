@@ -8,10 +8,10 @@
             <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Generate Tagihan Paket</h2>
-                    <p class="text-sm text-slate-500 mt-1">Buat tagihan dari bundle <span class="font-semibold text-[#0284c7]">{{ $bundle->name }}</span> untuk siswa yang dipilih</p>
+                    <p class="text-sm text-slate-500 mt-1">Buat tagihan dari bundle <span class="font-semibold text-[#F56C3E]">{{ $bundle->name }}</span> untuk siswa yang dipilih</p>
                 </div>
                 <a href="{{ route('pos.bundles.index') }}"
-                   class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl hover:border-[#0284c7]/50 hover:shadow-md transition-all font-medium text-sm shadow-sm">
+                   class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl hover:border-[#F56C3E]/50 hover:shadow-md transition-all font-medium text-sm shadow-sm">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
@@ -26,7 +26,7 @@
             @if($errors->any())
             <div class="bg-red-50 border border-red-200 rounded-xl px-5 py-4 mb-6">
                 <div class="flex items-center gap-2 mb-2">
-                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <span class="font-bold text-red-700">Terdapat kesalahan:</span>
@@ -48,7 +48,7 @@
                     <div class="bg-white rounded-2xl shadow border border-slate-100 overflow-hidden">
                         <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-white">
                             <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                 </svg>
                                 Detail Bundle
@@ -91,7 +91,7 @@
                             @endforelse
                             <div class="flex items-center justify-between px-6 py-4 bg-blue-50">
                                 <p class="text-sm font-bold text-slate-700">Total Bundle</p>
-                                <p class="text-lg font-extrabold text-[#0284c7]" id="bundleTotalDisplay">
+                                <p class="text-lg font-extrabold text-[#F56C3E]" id="bundleTotalDisplay">
                                     Rp {{ number_format($bundleTotal, 0, ',', '.') }}
                                 </p>
                             </div>
@@ -114,14 +114,14 @@
                                 <input type="number" name="discount_amount" id="discountInput" form="generateForm"
                                        min="0" max="{{ $bundleTotal }}" value="{{ old('discount_amount', 0) }}"
                                        placeholder="0"
-                                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 text-sm outline-none transition">
+                                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E]/20 text-sm outline-none transition">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">Keterangan Diskon</label>
                                 <input type="text" name="discount_note" form="generateForm"
                                        value="{{ old('discount_note') }}"
                                        placeholder="Contoh: Beasiswa, potongan alumni..."
-                                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 text-sm outline-none transition">
+                                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E]/20 text-sm outline-none transition">
                             </div>
                             {{-- Final amount preview --}}
                             <div class="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
@@ -146,7 +146,7 @@
                                     <div class="flex items-center gap-2">
                                         {{-- Filter by kelas --}}
                                         <select id="kelasFilter"
-                                                class="text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none bg-white">
+                                                class="text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none bg-white">
                                             <option value="">Semua Kelas</option>
                                             @foreach($kelasList as $kelas)
                                                 <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
@@ -154,12 +154,12 @@
                                         </select>
                                         {{-- Search --}}
                                         <input type="text" id="studentSearch" placeholder="Cari nama / NIS..."
-                                               class="text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0284c7]/20 focus:border-[#0284c7] outline-none w-48">
+                                               class="text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F56C3E]/20 focus:border-[#F56C3E] outline-none w-48">
                                     </div>
                                 </div>
                                 {{-- Select all --}}
                                 <div class="flex items-center gap-2 mt-3">
-                                    <input type="checkbox" id="selectAll" class="rounded border-slate-300 text-[#0284c7]">
+                                    <input type="checkbox" id="selectAll" class="rounded border-slate-300 text-[#F56C3E]">
                                     <label for="selectAll" class="text-sm font-medium text-slate-600 cursor-pointer">Pilih semua yang terlihat</label>
                                     <span class="ml-auto text-xs text-slate-400" id="selectedCount">0 siswa dipilih</span>
                                 </div>
@@ -173,7 +173,7 @@
                                            data-name="{{ strtolower($student->name) }}"
                                            data-nis="{{ $student->nis }}">
                                         <input type="checkbox" name="student_ids[]" value="{{ $student->id }}"
-                                               class="student-checkbox rounded border-slate-300 text-[#0284c7] w-4 h-4 shrink-0">
+                                               class="student-checkbox rounded border-slate-300 text-[#F56C3E] w-4 h-4 shrink-0">
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-semibold text-slate-800 truncate">{{ $student->name }}</p>
                                             <p class="text-xs text-slate-400">
@@ -183,7 +183,7 @@
                                             </p>
                                         </div>
                                         <span class="text-xs px-2 py-0.5 rounded-full font-semibold shrink-0
-                                            {{ $student->status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                                            {{ $student->status === 'active' ? 'bg-[#F56C3E] text-white shadow-sm' : 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm' }}">
                                             {{ $student->status === 'active' ? 'Aktif' : 'Calon' }}
                                         </span>
                                     </label>
@@ -198,7 +198,7 @@
                                     Total: <span class="font-bold text-slate-800" id="footerCount">0</span> siswa dipilih
                                 </p>
                                 <button type="submit" id="submitBtn"
-                                        class="flex items-center gap-2 bg-[#0284c7] hover:bg-[#0369a1] text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-200/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                        class="flex items-center gap-2 bg-[#F56C3E] hover:bg-[#e45322] text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-200/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                                         disabled>
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -278,8 +278,8 @@
                    Nominal: <strong>Rp ${fin.toLocaleString('id-ID')}</strong>${disc > 0 ? '<br>Diskon: Rp ' + disc.toLocaleString('id-ID') : ''}`,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#0284c7',
-            cancelButtonColor: '#94a3b8',
+            confirmButtonColor: '#F56C3E',
+            cancelButtonColor: '#777777',
             confirmButtonText: 'Ya, Generate!',
             cancelButtonText: 'Batal',
         }).then(result => {

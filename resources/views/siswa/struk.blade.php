@@ -15,14 +15,14 @@
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; }
-            .print-card { box-shadow: none !important; border: 1px solid #e5e7eb !important; }
+            .print-card { box-shadow: none !important; border: 1px solid #EDEDED !important; }
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-10">
 
     {{-- ===== HEADER ===== --}}
-    <div class="bg-gradient-to-r from-sky-500 via-sky-600 to-blue-700 px-4 pt-10 pb-16 no-print">
+    <div class="bg-gradient-to-r from-[#F56C3E] to-[#e45322] px-4 pt-10 pb-16 no-print">
         <div class="max-w-md mx-auto flex items-center gap-3">
             <a href="{{ route('siswa.dashboard') }}"
                class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-3 py-2 rounded-xl transition-colors">
@@ -33,7 +33,7 @@
             </a>
             <div>
                 <p class="text-white font-bold text-base leading-tight">Bukti Pembayaran</p>
-                <p class="text-sky-200 text-xs mt-0.5">{{ $schoolName }}</p>
+                <p class="text-white/80 text-xs mt-0.5">{{ $schoolName }}</p>
             </div>
         </div>
     </div>
@@ -53,7 +53,7 @@
         <div class="print-card bg-white rounded-3xl shadow-xl shadow-gray-200/60 overflow-hidden">
 
             {{-- Top decorative strip --}}
-            <div class="h-1.5 bg-gradient-to-r from-sky-400 via-blue-500 to-sky-600"></div>
+            <div class="h-1.5 bg-gradient-to-r from-[#F56C3E] to-[#e45322]"></div>
 
             <div class="px-6 pt-6 pb-8">
 
@@ -78,7 +78,7 @@
                 @if($bill->original_amount && $bill->original_amount != $bill->amount)
                 <div class="mb-3 text-center space-y-0.5">
                     <p class="text-gray-400 text-sm line-through">Rp {{ number_format($bill->original_amount, 0, ',', '.') }}</p>
-                    <p class="text-red-500 text-xs">Diskon Rp {{ number_format($bill->discount_amount, 0, ',', '.') }}{{ $bill->discount_note ? ' — ' . $bill->discount_note : '' }}</p>
+                    <p class="text-[#F56C3E] text-xs">Diskon Rp {{ number_format($bill->discount_amount, 0, ',', '.') }}{{ $bill->discount_note ? ' — ' . $bill->discount_note : '' }}</p>
                 </div>
                 @endif
                 <p class="text-center text-green-600 font-extrabold text-3xl mb-6">
@@ -205,7 +205,7 @@
                 <div class="flex flex-col items-center mb-4">
                     <p class="text-xs text-gray-400 mb-2">Scan untuk verifikasi keaslian struk</p>
                     <img
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($verifyUrl) }}&bgcolor=ffffff&color=0369a1&margin=4"
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($verifyUrl) }}&bgcolor=ffffff&color=F56C3E&margin=4"
                         alt="QR Verifikasi"
                         class="w-28 h-28 rounded-xl border border-gray-100"
                         loading="lazy"
@@ -260,7 +260,7 @@
 
             {{-- Cetak / Simpan PDF --}}
             <button onclick="window.print()"
-                    class="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-semibold text-sm py-3.5 rounded-2xl transition-colors shadow-md shadow-sky-200">
+                    class="w-full flex items-center justify-center gap-2 bg-[#F56C3E] hover:bg-[#e45322] active:bg-[#be3e15] text-white font-semibold text-sm py-3.5 rounded-2xl transition-colors shadow-md shadow-[#F56C3E]/30">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/>
                 </svg>
@@ -269,7 +269,7 @@
 
             {{-- Kembali ke Dashboard --}}
             <a href="{{ route('siswa.dashboard') }}"
-               class="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-semibold text-sm py-3.5 rounded-2xl transition-colors border border-gray-200">
+               class="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 active:bg-white text-[#171717] border border-[#EDEDED] shadow-sm font-semibold text-sm py-3.5 rounded-2xl transition-colors border border-gray-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                 </svg>

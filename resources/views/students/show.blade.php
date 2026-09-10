@@ -25,7 +25,7 @@
                     Status siswa sudah <strong>{{ $student->status_label }}</strong>, namun masih terdapat tunggakan sebesar
                     <strong>Rp {{ number_format($totalTunggakan, 0, ',', '.') }}</strong>.
                 </p>
-                <p class="text-red-500 text-xs mt-1">Harap selesaikan pembayaran sebelum menerbitkan surat keterangan pindah atau dokumen kelulusan.</p>
+                <p class="text-[#F56C3E] text-xs mt-1">Harap selesaikan pembayaran sebelum menerbitkan surat keterangan pindah atau dokumen kelulusan.</p>
             </div>
         </div>
         @endif
@@ -64,10 +64,10 @@
 
                     {{-- Info password login siswa --}}
                     @if($student->birth_date)
-                    <div class="mt-4 p-3 bg-blue-50 rounded-xl border border-blue-100 text-left">
+                    <div class="mt-4 p-3 bg-blue-50 rounded-xl border border-gray-200 text-left">
                         <p class="text-xs text-blue-600 font-bold uppercase mb-1">Password Login Siswa</p>
                         <p class="text-sm font-mono font-bold text-blue-800">{{ $student->birth_date->format('dmy') }}</p>
-                        <p class="text-xs text-blue-500 mt-0.5">Format: ddmmyy (tanggal lahir)</p>
+                        <p class="text-xs text-[#F56C3E] mt-0.5">Format: ddmmyy (tanggal lahir)</p>
                     </div>
                     @endif
 
@@ -99,7 +99,7 @@
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2 mb-4">
-                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Tagihan & Hutang
                     </h3>
                     
@@ -244,7 +244,7 @@
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-right">
-                                            <a href="{{ route('pos.transaction.print', $trx->id) }}" target="_blank" class="text-blue-500 hover:underline text-xs">Struk</a>
+                                            <a href="{{ route('pos.transaction.print', $trx->id) }}" target="_blank" class="text-[#F56C3E] hover:underline text-xs">Struk</a>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -299,8 +299,8 @@
                 // not executable HTML — preventing stored XSS via bill name.
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#d1d5db',
+                confirmButtonColor: '#F56C3E',
+                cancelButtonColor: '#EDEDED',
                 confirmButtonText: 'Ya, Terima Uang',
                 cancelButtonText: 'Batal',
                 didOpen: function () {

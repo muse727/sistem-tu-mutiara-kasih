@@ -328,9 +328,9 @@ class BillController extends Controller
         $bill   = StudentBill::with(['student.kelas', 'items'])->findOrFail($id);
         // H-02: Use Setting model (same source as PaymentSiswaController) for consistency
         $school = [
-            'school_name'    => \App\Models\Setting::where('key', 'school_name')->value('value') ?? 'Sekolah',
-            'school_address' => \App\Models\Setting::where('key', 'school_address')->value('value') ?? '',
-            'school_phone'   => \App\Models\Setting::where('key', 'school_phone')->value('value') ?? '',
+            'school_name'    => DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah',
+            'school_address' => DB::table('school_settings')->where('key', 'school_address')->value('value') ?? '',
+            'school_phone'   => DB::table('school_settings')->where('key', 'school_phone')->value('value') ?? '',
         ];
 
         return view('bills.print', compact('bill', 'school'));
@@ -426,9 +426,9 @@ class BillController extends Controller
         $bills  = $query->limit(5000)->get();
         // H-02: Use Setting model for consistency with the rest of the app
         $school = [
-            'school_name'    => \App\Models\Setting::where('key', 'school_name')->value('value') ?? 'Sekolah',
-            'school_address' => \App\Models\Setting::where('key', 'school_address')->value('value') ?? '',
-            'school_phone'   => \App\Models\Setting::where('key', 'school_phone')->value('value') ?? '',
+            'school_name'    => DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah',
+            'school_address' => DB::table('school_settings')->where('key', 'school_address')->value('value') ?? '',
+            'school_phone'   => DB::table('school_settings')->where('key', 'school_phone')->value('value') ?? '',
         ];
 
         // Kelas label untuk filter info

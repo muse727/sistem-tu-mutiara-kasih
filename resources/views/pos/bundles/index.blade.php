@@ -8,8 +8,8 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div class="flex items-center gap-4">
                         <div class="relative">
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#0284c7] to-blue-400 rounded-xl blur-lg opacity-30"></div>
-                            <div class="relative bg-gradient-to-br from-[#0284c7] to-blue-600 p-3 rounded-xl shadow-lg">
+                            <div class="absolute inset-0 bg-gradient-to-r from-[#F56C3E] to-blue-400 rounded-xl blur-lg opacity-30"></div>
+                            <div class="relative bg-gradient-to-br from-[#F56C3E] to-blue-600 p-3 rounded-xl shadow-lg">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                 </svg>
@@ -21,8 +21,8 @@
                         </div>
                     </div>
                     <button onclick="openModal('modalCreate')" class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-[#0284c7] to-blue-500 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative flex items-center gap-3 bg-gradient-to-r from-[#0284c7] to-blue-500 hover:from-blue-600 hover:to-[#0284c7] text-white px-6 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200/50 transition-all transform group-hover:-translate-y-0.5">
+                        <div class="absolute inset-0 bg-gradient-to-r from-[#F56C3E] to-blue-500 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative flex items-center gap-3 bg-gradient-to-r from-[#F56C3E] to-blue-500 hover:from-blue-600 hover:to-[#F56C3E] text-white px-6 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200/50 transition-all transform group-hover:-translate-y-0.5">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
@@ -64,7 +64,7 @@
                 </svg>
                 <p class="text-slate-400 font-medium">Belum ada paket bundling.</p>
                 <button onclick="openModal('modalCreate')"
-                        class="mt-4 inline-flex items-center gap-2 bg-[#0284c7] text-white px-5 py-2.5 rounded-xl hover:bg-[#0369a1] transition font-medium text-sm">
+                        class="mt-4 inline-flex items-center gap-2 bg-[#F56C3E] text-white px-5 py-2.5 rounded-xl hover:bg-[#e45322] transition font-medium text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -83,7 +83,7 @@
                                 <p class="text-sm text-slate-500 mt-1 line-clamp-2">{{ $bundle->description }}</p>
                                 @endif
                             </div>
-                            <span class="ml-3 shrink-0 px-2.5 py-1 rounded-full text-xs font-bold {{ $bundle->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="ml-3 shrink-0 px-2.5 py-1 rounded-full text-xs font-bold {{ $bundle->is_active ? 'bg-[#F56C3E] text-white shadow-sm' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $bundle->is_active ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
@@ -91,7 +91,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div>
                                 <p class="text-xs text-slate-400 font-medium">Total Harga</p>
-                                <p class="text-xl font-black text-[#0284c7]">Rp {{ number_format($bundle->total_item_price, 0, ',', '.') }}</p>
+                                <p class="text-xl font-black text-[#F56C3E]">Rp {{ number_format($bundle->total_item_price, 0, ',', '.') }}</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-xs text-slate-400 font-medium">Item</p>
@@ -169,7 +169,7 @@ const bundleProductsData = @json($productsJson);
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Paket <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Paket <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" name="name" placeholder="Nama paket bundling"
                            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
                 </div>
@@ -178,7 +178,7 @@ const bundleProductsData = @json($productsJson);
                     <textarea name="description" rows="2" placeholder="Deskripsi singkat paket"
                               class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition resize-none"></textarea>
                 </div>
-                <div class="md:col-span-2 flex items-center justify-between bg-sky-50 border border-sky-200 rounded-xl px-4 py-3">
+                <div class="md:col-span-2 flex items-center justify-between bg-sky-50 border border-gray-200 rounded-xl px-4 py-3">
                     <div>
                         <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide">Total Harga Paket (otomatis)</p>
                         <p class="text-lg font-black text-sky-700" id="createTotalDisplay">Rp 0</p>
@@ -194,7 +194,7 @@ const bundleProductsData = @json($productsJson);
             {{-- Items --}}
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <label class="text-sm font-semibold text-slate-700">Komposisi Barang <span class="text-red-500">*</span></label>
+                    <label class="text-sm font-semibold text-slate-700">Komposisi Barang <span class="text-[#F56C3E]">*</span></label>
                     <span class="text-xs text-slate-400" id="createItemCount">1 item</span>
                 </div>
                 <div id="createItemsContainer" class="space-y-3">
@@ -209,7 +209,7 @@ const bundleProductsData = @json($productsJson);
                         <input type="number" name="quantities[]" value="1" min="1" placeholder="Qty"
                                oninput="recalcCreateTotal()"
                                class="w-20 border border-slate-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                        <button type="button" onclick="removeCreateRow(this)" class="text-slate-400 hover:text-red-500 transition-colors p-1" disabled>
+                        <button type="button" onclick="removeCreateRow(this)" class="text-slate-400 hover:text-[#F56C3E] transition-colors p-1" disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -232,7 +232,7 @@ const bundleProductsData = @json($productsJson);
                     Batal
                 </button>
                 <button type="submit" id="btnCreateSubmit"
-                        class="px-6 py-2 bg-[#0284c7] hover:bg-[#0369a1] text-white rounded-xl text-sm font-medium transition-colors">
+                        class="px-6 py-2 bg-[#F56C3E] hover:bg-[#e45322] text-white rounded-xl text-sm font-medium transition-colors">
                     Simpan Paket
                 </button>
             </div>
@@ -255,7 +255,7 @@ const bundleProductsData = @json($productsJson);
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Paket <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Paket <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" name="name" id="editName"
                            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
                 </div>
@@ -264,7 +264,7 @@ const bundleProductsData = @json($productsJson);
                     <textarea name="description" id="editDescription" rows="2"
                               class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition resize-none"></textarea>
                 </div>
-                <div class="md:col-span-2 flex items-center justify-between bg-sky-50 border border-sky-200 rounded-xl px-4 py-3">
+                <div class="md:col-span-2 flex items-center justify-between bg-sky-50 border border-gray-200 rounded-xl px-4 py-3">
                     <div>
                         <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide">Total Harga Paket (otomatis)</p>
                         <p class="text-lg font-black text-sky-700" id="editTotalDisplay">Rp 0</p>
@@ -280,7 +280,7 @@ const bundleProductsData = @json($productsJson);
             {{-- Items --}}
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <label class="text-sm font-semibold text-slate-700">Komposisi Barang <span class="text-red-500">*</span></label>
+                    <label class="text-sm font-semibold text-slate-700">Komposisi Barang <span class="text-[#F56C3E]">*</span></label>
                     <span class="text-xs text-slate-400" id="editItemCount">0 item</span>
                 </div>
                 <div id="editItemsContainer" class="space-y-3"></div>
@@ -300,7 +300,7 @@ const bundleProductsData = @json($productsJson);
                     Batal
                 </button>
                 <button type="submit" id="btnEditSubmit"
-                        class="px-6 py-2 bg-[#0284c7] hover:bg-[#0369a1] text-white rounded-xl text-sm font-medium transition-colors">
+                        class="px-6 py-2 bg-[#F56C3E] hover:bg-[#e45322] text-white rounded-xl text-sm font-medium transition-colors">
                     Update Paket
                 </button>
             </div>
@@ -347,7 +347,7 @@ function itemRowHTML(productId, qty, prefix) {
         <input type="number" name="quantities[]" value="${qty || 1}" min="1" placeholder="Qty"
                oninput="${recalcFn}"
                class="w-20 border border-slate-300 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-        <button type="button" onclick="${removeFn}" class="text-slate-400 hover:text-red-500 transition-colors p-1">
+        <button type="button" onclick="${removeFn}" class="text-slate-400 hover:text-[#F56C3E] transition-colors p-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -528,7 +528,7 @@ function confirmDeleteBundle(url, nama) {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#e11d48',
-        cancelButtonColor: '#94a3b8',
+        cancelButtonColor: '#777777',
         confirmButtonText: 'Ya, Hapus Permanen',
         cancelButtonText: 'Batal'
     }).then(result => {

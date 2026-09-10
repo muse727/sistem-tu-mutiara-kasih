@@ -10,11 +10,11 @@
     <style>
         [x-cloak] { display: none !important; }
         .chat-bubble-student {
-            background: #f1f5f9;
+            background: #F5F5F5;
             border-radius: 4px 18px 18px 18px;
         }
         .chat-bubble-tu {
-            background: #0ea5e9;
+            background: #F56C3E;
             color: white;
             border-radius: 18px 4px 18px 18px;
         }

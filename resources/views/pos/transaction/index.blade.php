@@ -24,7 +24,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </span>
                             <input type="text" x-model="search" placeholder="Cari nama barang..." 
-                                   class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#0ea5e9] transition bg-gray-50 focus:bg-white text-sm">
+                                   class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#F56C3E] transition bg-gray-50 focus:bg-white text-sm">
                         </div>
                     </div>
 
@@ -32,9 +32,9 @@
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                             <template x-for="item in filteredItems" :key="item.id">
                                 <div @click="addToCart(item)" 
-                                     class="group bg-white p-3 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-[#0ea5e9] cursor-pointer transition-all relative overflow-hidden active:scale-[0.98] flex flex-col h-full">
-                                    <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-1 bg-gray-100 text-gray-600 rounded-md group-hover:bg-[#0ea5e9] group-hover:text-white transition" x-text="item.category"></span>
-                                    <div class="w-full aspect-square bg-blue-50 text-[#0ea5e9] rounded-lg flex items-center justify-center mb-2 group-hover:scale-105 transition overflow-hidden">
+                                     class="group bg-white p-3 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-[#F56C3E] cursor-pointer transition-all relative overflow-hidden active:scale-[0.98] flex flex-col h-full">
+                                    <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-1 bg-white text-[#171717] border border-[#EDEDED] shadow-sm rounded-md group-hover:bg-[#F56C3E] group-hover:text-white transition" x-text="item.category"></span>
+                                    <div class="w-full aspect-square bg-blue-50 text-[#F56C3E] rounded-lg flex items-center justify-center mb-2 group-hover:scale-105 transition overflow-hidden">
                                         <template x-if="item.image">
                                             <img :src="'/storage/' + item.image" class="w-full h-full object-cover rounded-lg">
                                         </template>
@@ -45,7 +45,7 @@
                                     <h3 class="font-semibold text-gray-800 text-xs md:text-sm mb-1 line-clamp-2" x-text="item.name"></h3>
                                     <div class="mt-auto pt-2 border-t border-gray-100">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-[#0ea5e9] font-bold text-xs md:text-sm" x-text="formatRupiah(item.price)"></span>
+                                            <span class="text-[#F56C3E] font-bold text-xs md:text-sm" x-text="formatRupiah(item.price)"></span>
                                             <span class="text-[10px] text-gray-500">Stok: <span class="font-medium" x-text="item.stock"></span></span>
                                         </div>
                                     </div>
@@ -66,7 +66,7 @@
                     
                     <div class="p-4 md:p-5 border-b border-gray-100 bg-white flex justify-between items-center">
                         <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
-                            <svg class="w-5 h-5 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             Keranjang
                         </h3>
                         <button @click="resetCart()" x-show="cart.length > 0" class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition border border-red-100">HAPUS SEMUA</button>
@@ -74,20 +74,20 @@
 
                     <div class="flex-1 overflow-y-auto p-4 space-y-3 min-h-[250px] lg:max-h-[calc(100vh-450px)]">
                         <template x-for="(item, index) in cart" :key="index">
-                            <div class="flex flex-col p-3 bg-white border border-gray-200 rounded-lg hover:border-[#0ea5e9] transition relative group">
+                            <div class="flex flex-col p-3 bg-white border border-gray-200 rounded-lg hover:border-[#F56C3E] transition relative group">
                                 <div class="flex justify-between items-start mb-2 gap-2">
                                     <h4 class="text-sm font-semibold text-gray-800 line-clamp-2 flex-1" x-text="item.name"></h4>
-                                    <div class="text-sm text-[#0ea5e9] font-bold whitespace-nowrap" x-text="formatRupiah(item.price * item.qty)"></div>
+                                    <div class="text-sm text-[#F56C3E] font-bold whitespace-nowrap" x-text="formatRupiah(item.price * item.qty)"></div>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <div class="text-xs text-gray-500">@ <span x-text="formatRupiah(item.price)"></span></div>
                                     <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-300">
-                                        <button @click="updateQty(index, -1)" class="w-6 h-6 rounded bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-red-500 font-bold transition hover:bg-red-50">-</button>
+                                        <button @click="updateQty(index, -1)" class="w-6 h-6 rounded bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-[#F56C3E] font-bold transition hover:bg-red-50">-</button>
                                         <span class="font-bold text-sm w-5 text-center" x-text="item.qty"></span>
-                                        <button @click="updateQty(index, 1)" class="w-6 h-6 rounded bg-[#0ea5e9] text-white shadow-sm flex items-center justify-center hover:bg-sky-600 font-bold transition">+</button>
+                                        <button @click="updateQty(index, 1)" class="w-6 h-6 rounded bg-[#F56C3E] text-white shadow-sm flex items-center justify-center hover:bg-sky-600 font-bold transition">+</button>
                                     </div>
                                 </div>
-                                <button @click="removeItem(index)" class="absolute -top-2 -right-2 bg-white border border-gray-200 text-gray-500 hover:text-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-red-50 hover:border-red-200">
+                                <button @click="removeItem(index)" class="absolute -top-2 -right-2 bg-white border border-gray-200 text-gray-500 hover:text-[#F56C3E] rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-red-50 hover:border-red-200">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
@@ -109,7 +109,7 @@
 
                         <div class="flex bg-gray-100 p-1 rounded-lg mb-4">
                             <button @click="setPaymentMode('cash')" 
-                                    :class="paymentMode === 'cash' ? 'bg-white text-[#0ea5e9] shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+                                    :class="paymentMode === 'cash' ? 'bg-white text-[#F56C3E] shadow-sm' : 'text-gray-500 hover:text-gray-700'"
                                     class="flex-1 py-2 text-sm font-bold rounded-md transition duration-200 flex items-center justify-center gap-2">
                                 💵 Tunai
                             </button>
@@ -155,7 +155,7 @@
                         <div x-show="paymentMode === 'cash'" x-transition class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Uang Diterima (Rp)</label>
                             <input type="number" x-model="payAmount" placeholder="0" 
-                                   class="w-full pl-3 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0ea5e9] font-semibold text-right text-gray-800 text-lg">
+                                   class="w-full pl-3 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F56C3E] font-semibold text-right text-gray-800 text-lg">
                             
                             <div x-show="payAmount >= totalAmount && payAmount > 0" class="mt-3 p-3 bg-green-50 border border-green-100 rounded-lg animate-fade-in-up">
                                 <div class="flex justify-between items-center">
@@ -169,7 +169,7 @@
                                 :disabled="cart.length === 0"
                                 :class="{
                                     'opacity-50 cursor-not-allowed bg-gray-300': cart.length === 0,
-                                    'bg-gradient-to-r from-[#0ea5e9] to-blue-600 shadow-blue-200': paymentMode === 'cash',
+                                    'bg-gradient-to-r from-[#F56C3E] to-blue-600 shadow-blue-200': paymentMode === 'cash',
                                     'bg-gradient-to-r from-purple-500 to-indigo-600 shadow-purple-200': paymentMode === 'online'
                                 }"
                                 class="w-full text-white font-bold py-3.5 rounded-lg transition-all flex justify-center items-center gap-2 shadow-lg active:scale-[0.98]">

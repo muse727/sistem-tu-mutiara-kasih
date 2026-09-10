@@ -7,8 +7,8 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
             <div class="flex items-center gap-3 mb-2">
-                <div class="p-2 bg-gradient-to-br from-[#0284c7]/10 to-[#0ea5e9]/10 rounded-xl">
-                    <svg class="w-7 h-7 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 bg-gradient-to-br from-[#F56C3E]/10 to-[#F56C3E]/10 rounded-xl">
+                    <svg class="w-7 h-7 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
@@ -16,20 +16,20 @@
             </div>
             <p class="text-gray-600 ml-12">
                 Kelompok belajar per tahun ajaran. &nbsp;
-                <a href="{{ route('tahun-ajaran.index') }}" class="text-[#0284c7] hover:underline font-medium">Kelola Tahun Ajaran →</a>
+                <a href="{{ route('tahun-ajaran.index') }}" class="text-[#F56C3E] hover:underline font-medium">Kelola Tahun Ajaran →</a>
             </p>
         </div>
 
         <div class="flex items-center gap-2">
             <a href="{{ route('tahun-ajaran.index') }}"
-               class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl hover:border-[#0284c7]/50 hover:shadow-md transition-all duration-300 font-medium shadow-sm text-sm">
-                <svg class="w-4 h-4 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               class="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl hover:border-[#F56C3E]/50 hover:shadow-md transition-all duration-300 font-medium shadow-sm text-sm">
+                <svg class="w-4 h-4 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <span>Tahun Ajaran</span>
             </a>
             <button onclick="openModal('modalCreate')"
-                    class="flex items-center gap-2 bg-[#0284c7] text-white px-4 py-2.5 rounded-xl hover:bg-[#0369a1] transition-all duration-300 font-medium shadow-sm text-sm">
+                    class="flex items-center gap-2 bg-[#F56C3E] text-white px-4 py-2.5 rounded-xl hover:bg-[#e45322] transition-all duration-300 font-medium shadow-sm text-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -41,14 +41,14 @@
     {{-- ── Stat Cards ──────────────────────────────────────────────────────── --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {{-- Total Rombel --}}
-        <div class="bg-gradient-to-br from-sky-50 to-sky-100 border border-sky-200 rounded-xl p-4">
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100 border border-gray-200 rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-sky-800 font-medium">Total Rombel</p>
-                    <p class="text-2xl font-bold text-sky-600 mt-1">{{ $rombels->count() }}</p>
+                    <p class="text-2xl font-bold text-[#171717] mt-1">{{ $rombels->count() }}</p>
                 </div>
-                <div class="p-3 bg-sky-500/10 rounded-lg">
-                    <svg class="w-6 h-6 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-3 bg-[#F56C3E]/10 rounded-lg">
+                    <svg class="w-6 h-6 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
@@ -60,10 +60,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-emerald-800 font-medium">Rombel Aktif</p>
-                    <p class="text-2xl font-bold text-emerald-600 mt-1">{{ $rombels->where('is_aktif', true)->count() }}</p>
+                    <p class="text-2xl font-bold text-[#171717] mt-1">{{ $rombels->where('is_aktif', true)->count() }}</p>
                 </div>
-                <div class="p-3 bg-emerald-500/10 rounded-lg">
-                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-3 bg-[#F56C3E]/10 rounded-lg">
+                    <svg class="w-6 h-6 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
@@ -124,7 +124,7 @@
                 <label for="tahun_ajaran_id" class="text-sm font-medium text-gray-600 whitespace-nowrap">Tahun Ajaran:</label>
             </div>
             <select id="tahun_ajaran_id" name="tahun_ajaran_id" onchange="this.form.submit()"
-                    class="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#0284c7]/30 focus:border-[#0284c7] transition bg-white shadow-sm">
+                    class="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#F56C3E]/30 focus:border-[#F56C3E] transition bg-white shadow-sm">
                 <option value="">— Semua Tahun Ajaran —</option>
                 @foreach($semuaTahunAjaran as $ta)
                     <option value="{{ $ta->id }}" {{ $tahunAjaranId == $ta->id ? 'selected' : '' }}>
@@ -172,7 +172,7 @@
                             <td class="py-3 pr-4 text-slate-600">{{ $rombel->student_rombels_count }}</td>
                             <td class="py-3 pr-4">
                                 @if($rombel->is_aktif)
-                                    <span class="bg-green-100 text-green-700 rounded-full px-2 py-0.5 text-xs font-medium">Aktif</span>
+                                    <span class="bg-[#F56C3E] text-white shadow-sm rounded-full px-2 py-0.5 text-xs font-medium">Aktif</span>
                                 @else
                                     <span class="bg-slate-100 text-slate-500 rounded-full px-2 py-0.5 text-xs font-medium">Nonaktif</span>
                                 @endif
@@ -180,15 +180,15 @@
                             <td class="py-3 text-right">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="{{ route('rombel.show', $rombel) }}"
-                                       class="flex items-center gap-1 bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:shadow-sm">
+                                       class="flex items-center gap-1 bg-sky-50 hover:bg-white text-[#171717] border border-[#EDEDED] shadow-sm px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:shadow-sm">
                                         Lihat
                                     </a>
                                     <button onclick="fetchAndEditRombel({{ $rombel->id }})"
-                                            class="flex items-center gap-1 bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:shadow-sm border border-amber-200">
+                                            class="flex items-center gap-1 bg-amber-50 hover:bg-white text-[#171717] border border-[#EDEDED] shadow-sm px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:shadow-sm border border-amber-200">
                                         Edit
                                     </button>
                                     <button onclick="confirmDeleteRombel('{{ route('rombel.destroy', $rombel) }}', '{{ $rombel->nama_rombel }}')"
-                                            class="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:shadow-sm border border-red-200">
+                                            class="flex items-center gap-1 bg-red-50 hover:bg-[#171717] text-white shadow-sm px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:shadow-sm border border-red-200">
                                         Hapus
                                     </button>
                                 </div>
@@ -222,21 +222,21 @@ const rombelKelasData       = @json($kelasAktif->map(fn($k) => ['id' => $k->id, 
         <form id="formCreate" class="p-6 space-y-4">
             @csrf
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Tahun Ajaran <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Tahun Ajaran <span class="text-[#F56C3E]">*</span></label>
                 <select name="tahun_ajaran_id" id="createTahunAjaran"
                         class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition">
                     <option value="">-- Pilih Tahun Ajaran --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Kelas <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Kelas <span class="text-[#F56C3E]">*</span></label>
                 <select name="kelas_id" id="createKelas"
                         class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition">
                     <option value="">-- Pilih Kelas --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Rombel <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Rombel <span class="text-[#F56C3E]">*</span></label>
                 <input type="text" name="nama_rombel" placeholder="X IPA 1 - A"
                        class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition">
             </div>
@@ -283,21 +283,21 @@ const rombelKelasData       = @json($kelasAktif->map(fn($k) => ['id' => $k->id, 
         <form id="formEdit" class="p-6 space-y-4">
             @csrf
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Tahun Ajaran <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Tahun Ajaran <span class="text-[#F56C3E]">*</span></label>
                 <select name="tahun_ajaran_id" id="editTahunAjaran"
                         class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition">
                     <option value="">-- Pilih Tahun Ajaran --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Kelas <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Kelas <span class="text-[#F56C3E]">*</span></label>
                 <select name="kelas_id" id="editKelas"
                         class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition">
                     <option value="">-- Pilih Kelas --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Rombel <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Nama Rombel <span class="text-[#F56C3E]">*</span></label>
                 <input type="text" name="nama_rombel" id="editNamaRombel"
                        class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition">
             </div>
@@ -478,7 +478,7 @@ function confirmDeleteRombel(url, nama) {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
+        cancelButtonColor: '#777777',
         confirmButtonText: 'Ya, Hapus!',
         cancelButtonText: 'Batal'
     }).then(result => {

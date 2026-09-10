@@ -14,7 +14,7 @@
         integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2"
         crossorigin="anonymous"></script>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0ea5e9">
+    <meta name="theme-color" content="#F56C3E">
     <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js')}</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -45,7 +45,7 @@
 
         // Palet warna — [bg utama, bg header/footer (lebih gelap), warna aktif text, label]
         $palettes = [
-            'blue'   => ['#0ea5e9', '#0284c7', '#0ea5e9', 'Sky Blue'],
+            'blue'   => ['#F56C3E', '#F56C3E', '#F56C3E', 'Accent'],
             'indigo' => ['#6366f1', '#4f46e5', '#6366f1', 'Indigo'],
             'violet' => ['#8b5cf6', '#7c3aed', '#8b5cf6', 'Violet'],
             'pink'   => ['#ec4899', '#db2777', '#ec4899', 'Pink'],
@@ -55,8 +55,8 @@
             'green'  => ['#10b981', '#059669', '#10b981', 'Emerald'],
             'teal'   => ['#14b8a6', '#0d9488', '#14b8a6', 'Teal'],
             'brown'  => ['#92400e', '#78350f', '#92400e', 'Brown'],
-            'slate'  => ['#475569', '#334155', '#475569', 'Slate Gray'],
-            'black'  => ['#1e293b', '#0f172a', '#1e293b', 'Dark/Black'],
+            'slate'  => ['#333333', '#333333', '#333333', 'Slate Gray'],
+            'black'  => ['#171717', '#171717', '#171717', 'Dark/Black'],
         ];
 
         $palette = $palettes[$sidebarColor] ?? $palettes['blue'];
@@ -72,8 +72,8 @@
 
         /* Area konten utama */
         html.dark #main-content-area {
-            background-color: #0f172a !important;
-            color: #e2e8f0 !important;
+            background-color: #171717 !important;
+            color: #EDEDED !important;
         }
         /* Semua div/section/article/main di dalam konten */
         html.dark #main-content-area div,
@@ -82,14 +82,14 @@
         html.dark #main-content-area aside {
             background-color: inherit;
             color: inherit;
-            border-color: #334155;
+            border-color: #333333;
         }
         /* Card — element dengan background putih */
         html.dark #main-content-area [class*="bg-white"],
         html.dark #main-content-area [class*="bg-gray-50"],
         html.dark #main-content-area [class*="bg-gray-100"] {
-            background-color: #1e293b !important;
-            color: #e2e8f0 !important;
+            background-color: #171717 !important;
+            color: #EDEDED !important;
         }
         /* Teks */
         html.dark #main-content-area [class*="text-gray-"],
@@ -103,78 +103,78 @@
         html.dark #main-content-area h4,
         html.dark #main-content-area h5,
         html.dark #main-content-area h6 {
-            color: #e2e8f0 !important;
+            color: #EDEDED !important;
         }
         /* Border */
         html.dark #main-content-area [class*="border-gray-"],
         html.dark #main-content-area [class*="border-slate-"],
         html.dark #main-content-area [class*="divide-gray-"] > * {
-            border-color: #334155 !important;
+            border-color: #333333 !important;
         }
         /* Input, select, textarea */
         html.dark #main-content-area input,
         html.dark #main-content-area textarea,
         html.dark #main-content-area select {
-            background-color: #1e293b !important;
-            color: #e2e8f0 !important;
-            border-color: #475569 !important;
+            background-color: #171717 !important;
+            color: #EDEDED !important;
+            border-color: #333333 !important;
         }
         /* Table */
-        html.dark #main-content-area table { border-color: #334155 !important; }
+        html.dark #main-content-area table { border-color: #333333 !important; }
         html.dark #main-content-area thead,
         html.dark #main-content-area thead tr,
         html.dark #main-content-area thead th {
-            background-color: #0f172a !important;
-            color: #94a3b8 !important;
-            border-color: #334155 !important;
+            background-color: #171717 !important;
+            color: #777777 !important;
+            border-color: #333333 !important;
         }
         html.dark #main-content-area tbody tr {
-            border-color: #334155 !important;
+            border-color: #333333 !important;
         }
         html.dark #main-content-area tbody tr:hover {
-            background-color: #1e293b !important;
+            background-color: #171717 !important;
         }
         html.dark #main-content-area td, html.dark #main-content-area th {
-            border-color: #334155 !important;
+            border-color: #333333 !important;
         }
         /* Hover states */
         html.dark #main-content-area [class*="hover:bg-gray-"]:hover,
         html.dark #main-content-area [class*="hover:bg-white"]:hover {
-            background-color: #334155 !important;
+            background-color: #333333 !important;
         }
         /* Muted/secondary text */
         html.dark #main-content-area [class*="text-gray-4"],
         html.dark #main-content-area [class*="text-gray-5"],
         html.dark #main-content-area [class*="text-slate-4"],
         html.dark #main-content-area [class*="text-slate-5"] {
-            color: #94a3b8 !important;
+            color: #777777 !important;
         }
         /* Header navbar */
         html.dark header.dm-header {
-            background-color: #1e293b !important;
-            border-color: #334155 !important;
+            background-color: #171717 !important;
+            border-color: #333333 !important;
         }
         html.dark header.dm-header [class*="text-gray-"] {
-            color: #e2e8f0 !important;
+            color: #EDEDED !important;
         }
         html.dark header.dm-header button:not(#darkModeToggle) {
-            color: #94a3b8 !important;
+            color: #777777 !important;
         }
         html.dark header.dm-header button:hover {
-            background-color: #334155 !important;
+            background-color: #333333 !important;
         }
         /* Footer */
         html.dark footer.dm-text-muted {
-            background-color: #0f172a !important;
-            color: #64748b !important;
+            background-color: #171717 !important;
+            color: #777777 !important;
         }
         /* Toggle button state */
         html.dark #darkModeToggle { color: #f59e0b !important; }
-        html.dark #darkModeToggle:hover { background-color: #334155 !important; }
+        html.dark #darkModeToggle:hover { background-color: #333333 !important; }
 
         /* Gradient cards — ganti ke warna gelap, teks tetap berwarna aslinya */
         html.dark #main-content-area [class*="bg-gradient-to"] {
-            background: #1e293b !important;
+            background: #171717 !important;
         }
         /* Jangan override teks berwarna (blue, emerald, red, yellow, amber, green, purple, etc) di dark mode */
         html.dark #main-content-area [class*="text-blue-"],

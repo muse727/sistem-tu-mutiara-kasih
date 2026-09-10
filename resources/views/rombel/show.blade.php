@@ -16,7 +16,7 @@
                 <div class="flex items-center gap-2 flex-wrap">
                     <h1 class="text-xl font-semibold text-slate-800">{{ $rombel->nama_rombel }}</h1>
                     @if($rombel->is_aktif)
-                        <span class="bg-green-100 text-green-700 rounded-full px-2 py-0.5 text-xs font-medium">Aktif</span>
+                        <span class="bg-[#F56C3E] text-white shadow-sm rounded-full px-2 py-0.5 text-xs font-medium">Aktif</span>
                     @else
                         <span class="bg-slate-100 text-slate-500 rounded-full px-2 py-0.5 text-xs font-medium">Nonaktif</span>
                     @endif
@@ -78,7 +78,7 @@
     <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <h2 class="font-semibold text-slate-800">Daftar Siswa</h2>
-            <span class="bg-sky-100 text-sky-700 text-xs font-bold px-2.5 py-1 rounded-full">{{ $jumlahSiswa }} Siswa</span>
+            <span class="bg-white text-[#171717] border border-[#EDEDED] shadow-sm text-xs font-bold px-2.5 py-1 rounded-full">{{ $jumlahSiswa }} Siswa</span>
         </div>
 
         {{-- FIX #2/#5: studentRombels sudah di-filter whereNull('tanggal_keluar') dari controller --}}
@@ -119,7 +119,7 @@
                             <td class="px-6 py-3 text-slate-500 font-mono text-xs">{{ $sr->student->nisn ?? '-' }}</td>
                             <td class="px-6 py-3 text-center">
                                 <button onclick="confirmRemove('{{ route('rombel.remove-siswa', [$rombel, $sr->student]) }}', '{{ $sr->student->name }}')"
-                                        class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors">
+                                        class="text-xs text-[#F56C3E] hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors">
                                     Keluarkan
                                 </button>
                             </td>
@@ -305,7 +305,7 @@
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
+            cancelButtonColor: '#777777',
             confirmButtonText: 'Ya, Keluarkan',
             cancelButtonText: 'Batal'
         }).then(result => {

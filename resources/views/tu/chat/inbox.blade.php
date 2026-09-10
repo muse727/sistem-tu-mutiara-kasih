@@ -40,7 +40,7 @@
             <div class="space-y-2">
                 @foreach($threads as $thread)
                     <a href="{{ route('chat.room', $thread['student_id']) }}"
-                       class="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 border border-gray-100 hover:border-sky-200 hover:shadow-sm transition-all">
+                       class="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all">
 
                         {{-- Avatar --}}
                         <div class="w-11 h-11 rounded-2xl bg-sky-100 flex items-center justify-center text-sky-600 font-bold text-base shrink-0">

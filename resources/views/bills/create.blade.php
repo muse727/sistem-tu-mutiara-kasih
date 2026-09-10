@@ -11,7 +11,7 @@
                     <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">📝 Generator Tagihan</h2>
                     <p class="text-sm text-gray-500 mt-1">Buat tagihan SPP Bulanan atau Tagihan Barang/Jasa dengan mudah.</p>
                 </div>
-                <a href="{{ route('bills.index') }}" class="group flex items-center gap-2 text-gray-500 hover:text-[#0284c7] font-bold text-sm transition bg-gray-50 hover:bg-blue-50 px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-200">
+                <a href="{{ route('bills.index') }}" class="group flex items-center gap-2 text-gray-500 hover:text-[#F56C3E] font-bold text-sm transition bg-gray-50 hover:bg-blue-50 px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-200">
                     <svg class="w-4 h-4 group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     Kembali
                 </a>
@@ -20,9 +20,9 @@
             <form action="{{ route('bills.store') }}" method="POST" id="billForm">
                 @csrf
                 
-                <div class="bg-blue-50/50 p-6 rounded-xl border border-blue-100 mb-8">
+                <div class="bg-blue-50/50 p-6 rounded-xl border border-gray-200 mb-8">
                     <div class="flex items-center gap-2 mb-4">
-                        <div class="p-1.5 bg-blue-100 rounded-lg text-[#0284c7]">
+                        <div class="p-1.5 bg-blue-100 rounded-lg text-[#F56C3E]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         </div>
                         <h3 class="font-bold text-gray-800">Target Penerima Tagihan</h3>
@@ -31,9 +31,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <label class="cursor-pointer relative">
                             <input type="radio" name="target_type" value="student" class="peer sr-only" checked onclick="toggleTarget('student')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#0284c7] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
+                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#0284c7] peer-checked:border-[#0284c7] block"></span>
+                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#F56C3E] peer-checked:border-[#F56C3E] block"></span>
                                     Per Siswa
                                 </span>
                                 <p class="text-xs text-gray-400 mt-1 pl-6">Kasus khusus (Denda/Susulan)</p>
@@ -42,9 +42,9 @@
 
                         <label class="cursor-pointer relative">
                             <input type="radio" name="target_type" value="class" class="peer sr-only" onclick="toggleTarget('class')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#0284c7] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
+                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#0284c7] peer-checked:border-[#0284c7] block"></span>
+                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#F56C3E] peer-checked:border-[#F56C3E] block"></span>
                                     Satu Kelas
                                 </span>
                                 <p class="text-xs text-gray-400 mt-1 pl-6">Tagihan rutin (SPP/Gedung)</p>
@@ -53,9 +53,9 @@
 
                         <label class="cursor-pointer relative">
                             <input type="radio" name="target_type" value="all" class="peer sr-only" onclick="toggleTarget('all')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#0284c7] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
+                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#0284c7] peer-checked:border-[#0284c7] block"></span>
+                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#F56C3E] peer-checked:border-[#F56C3E] block"></span>
                                     Semua Siswa
                                 </span>
                                 <p class="text-xs text-gray-400 mt-1 pl-6">Massal satu sekolah</p>
@@ -66,7 +66,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
                         <div id="input-student" class="w-full">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pilih Nama Siswa</label>
-                            <select name="student_id" class="w-full rounded-lg border-gray-300 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                            <select name="student_id" class="w-full rounded-lg border-gray-300 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
                                 <option value="">-- Cari Nama Siswa --</option>
                                 @foreach($students as $student)
                                     <option value="{{ $student->id }}">{{ $student->name }} - {{ optional($student->kelas)->nama_kelas ?? '-' }}</option>
@@ -76,7 +76,7 @@
 
                         <div id="input-class" class="w-full hidden">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pilih Kelas</label>
-                            <select name="kelas_id" class="w-full rounded-lg border-gray-300 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                            <select name="kelas_id" class="w-full rounded-lg border-gray-300 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
                                 <option value="">-- Pilih Kelas --</option>
                                 @foreach($kelasList as $kelas)
                                     <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
@@ -88,7 +88,7 @@
 
                 <div class="mb-8">
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Jenis Tagihan</label>
-                    <select name="type" id="typeSelector" class="w-full rounded-lg border-gray-300 font-bold text-gray-800 shadow-sm focus:ring-[#0284c7] focus:border-[#0284c7] text-lg py-3" onchange="toggleFormType()">
+                    <select name="type" id="typeSelector" class="w-full rounded-lg border-gray-300 font-bold text-gray-800 shadow-sm focus:ring-[#F56C3E] focus:border-[#F56C3E] text-lg py-3" onchange="toggleFormType()">
                         <option value="SPP">📅 SPP Bulanan (Rutin)</option>
                         <option value="GEDUNG">🏢 Uang Gedung</option>
                         <option value="DAFTAR_ULANG">📚 Daftar Ulang</option>
@@ -108,7 +108,7 @@
                     <div class="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-blue-200 rounded-full opacity-20"></div>
                     
                     <div class="flex items-center gap-3 mb-6 relative z-10">
-                        <div class="p-2 bg-[#0284c7] text-white rounded-lg shadow-lg shadow-blue-200">
+                        <div class="p-2 bg-[#F56C3E] text-white rounded-lg shadow-lg shadow-blue-200">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
                         <div>
@@ -120,7 +120,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 relative z-10">
                         <div>
                             <label class="block text-xs font-bold text-blue-700 uppercase mb-2">Bulan Tagihan</label>
-                            <select name="spp_month" class="w-full rounded-lg border-blue-300 focus:border-[#0284c7] focus:ring-[#0284c7] bg-white shadow-sm">
+                            <select name="spp_month" class="w-full rounded-lg border-blue-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] bg-white shadow-sm">
                                 @foreach(range(1,12) as $m)
                                     <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
                                         {{ date('F', mktime(0, 0, 0, $m, 1)) }}
@@ -130,7 +130,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-blue-700 uppercase mb-2">Tahun Tagihan</label>
-                            <select name="spp_year" class="w-full rounded-lg border-blue-300 focus:border-[#0284c7] focus:ring-[#0284c7] bg-white shadow-sm">
+                            <select name="spp_year" class="w-full rounded-lg border-blue-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] bg-white shadow-sm">
                                 <option value="{{ date('Y') }}">{{ date('Y') }}</option>
                                 <option value="{{ date('Y')+1 }}">{{ date('Y')+1 }}</option>
                             </select>
@@ -141,14 +141,14 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 font-bold sm:text-sm">Rp</span>
                                 </div>
-                                <input type="number" name="spp_amount" placeholder="0" class="w-full rounded-lg border-blue-300 focus:border-[#0284c7] focus:ring-[#0284c7] pl-10 font-bold text-gray-800 shadow-sm text-lg">
+                                <input type="number" name="spp_amount" placeholder="0" class="w-full rounded-lg border-blue-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] pl-10 font-bold text-gray-800 shadow-sm text-lg">
                             </div>
-                            <p class="text-[10px] text-blue-600 mt-1">*Anda bisa input harga berbeda untuk setiap kelas.</p>
+                            <p class="text-[10px] text-[#171717] mt-1">*Anda bisa input harga berbeda untuk setiap kelas.</p>
                         </div>
                     </div>
 
-                    <div class="flex items-start gap-3 bg-white/50 p-4 rounded-lg border border-blue-100">
-                        <svg class="w-5 h-5 text-[#0284c7] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="flex items-start gap-3 bg-white/50 p-4 rounded-lg border border-gray-200">
+                        <svg class="w-5 h-5 text-[#F56C3E] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <p class="text-sm text-blue-800">
                             <b>Sistem Otomatis:</b> Judul tagihan akan digenerate menjadi (contoh) <b>"SPP Agustus 2026"</b>. Tanggal jatuh tempo otomatis diset ke <b>tanggal 10</b> bulan tersebut sebagai informasi batas bayar.
                         </p>
@@ -158,17 +158,17 @@
                 <div id="form-regular" class="hidden">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Judul Tagihan <span class="text-red-500">*</span></label>
-                            <input type="text" name="name" placeholder="Contoh: Uang Gedung 2026/2027" class="w-full rounded-lg border-gray-300 focus:ring-[#0284c7] focus:border-[#0284c7] shadow-sm">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Judul Tagihan <span class="text-[#F56C3E]">*</span></label>
+                            <input type="text" name="name" placeholder="Contoh: Uang Gedung 2026/2027" class="w-full rounded-lg border-gray-300 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
                             <p class="text-[10px] text-gray-400 mt-1">Judul ini akan muncul di kwitansi siswa.</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nominal (Rp) <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nominal (Rp) <span class="text-[#F56C3E]">*</span></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500 font-bold sm:text-sm">Rp</span>
                                 </div>
-                                <input type="number" name="regular_amount" placeholder="0" min="1" class="w-full rounded-lg border-gray-300 focus:border-[#0284c7] focus:ring-[#0284c7] pl-10 font-bold text-gray-800 shadow-sm text-lg">
+                                <input type="number" name="regular_amount" placeholder="0" min="1" class="w-full rounded-lg border-gray-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] pl-10 font-bold text-gray-800 shadow-sm text-lg">
                             </div>
                             <p class="text-[10px] text-gray-400 mt-1">*Nominal sama untuk semua siswa yang dipilih.</p>
                         </div>
@@ -176,7 +176,7 @@
                 </div>
 
                 <div class="flex justify-end pt-6 border-t border-gray-100">
-                    <button type="submit" class="bg-gradient-to-r from-[#0284c7] to-[#0369a1] hover:from-[#0369a1] hover:to-[#0284c7] text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-200 transition transform hover:-translate-y-1 flex items-center gap-2">
+                    <button type="submit" class="bg-gradient-to-r from-[#F56C3E] to-[#e45322] hover:from-[#e45322] hover:to-[#F56C3E] text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-200 transition transform hover:-translate-y-1 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         Proses Tagihan
                     </button>
@@ -292,7 +292,7 @@
                             icon: 'warning',
                             title: 'Tidak Bisa Dihapus',
                             text: 'Minimal harus ada satu item dalam tagihan!',
-                            confirmButtonColor: '#0284c7'
+                            confirmButtonColor: '#F56C3E'
                         });
                         return;
                     }
@@ -303,7 +303,7 @@
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#9ca3af',
+                        cancelButtonColor: '#777777',
                         confirmButtonText: 'Ya, Hapus!',
                         cancelButtonText: 'Batal'
                     }).then((result) => {

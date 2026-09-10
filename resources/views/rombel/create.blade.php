@@ -39,7 +39,7 @@
             {{-- Tahun Ajaran --}}
             <div class="mb-5">
                 <label for="tahun_ajaran_id" class="block text-sm font-medium text-slate-700 mb-1.5">
-                    Tahun Ajaran <span class="text-red-500">*</span>
+                    Tahun Ajaran <span class="text-[#F56C3E]">*</span>
                 </label>
                 <select
                     id="tahun_ajaran_id"
@@ -62,7 +62,7 @@
             {{-- Kelas --}}
             <div class="mb-5">
                 <label for="kelas_id" class="block text-sm font-medium text-slate-700 mb-1.5">
-                    Kelas <span class="text-red-500">*</span>
+                    Kelas <span class="text-[#F56C3E]">*</span>
                 </label>
                 <select
                     id="kelas_id"
@@ -84,7 +84,7 @@
             {{-- Nama Rombel --}}
             <div class="mb-5">
                 <label for="nama_rombel" class="block text-sm font-medium text-slate-700 mb-1.5">
-                    Nama Rombel <span class="text-red-500">*</span>
+                    Nama Rombel <span class="text-[#F56C3E]">*</span>
                 </label>
                 <input
                     type="text"

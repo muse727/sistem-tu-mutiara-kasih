@@ -6,7 +6,7 @@
         {{-- ===== HEADER ===== --}}
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div class="flex items-center gap-4">
-                <div class="p-3 bg-gradient-to-br from-sky-500/10 to-blue-600/10 rounded-2xl border border-sky-200/50">
+                <div class="p-3 bg-gradient-to-br from-sky-500/10 to-blue-600/10 rounded-2xl border border-gray-200/50">
                     <svg class="w-7 h-7 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -29,7 +29,7 @@
                     Export XLSX
                 </a>
                 <a href="{{ route('audit.export', array_merge(request()->query(), ['format' => 'csv'])) }}"
-                   class="flex items-center gap-2 bg-white border border-gray-200 hover:border-sky-400 hover:bg-sky-50 text-gray-700 hover:text-sky-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm">
+                   class="flex items-center gap-2 bg-white border border-gray-200 hover:border-sky-400 hover:bg-white text-[#171717] border border-[#EDEDED] shadow-sm hover:text-sky-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -114,7 +114,7 @@
                 </svg>
                 <span class="text-sm font-semibold text-gray-700">Filter & Rentang Tanggal</span>
                 @if(request()->hasAny(['search','action','module','start_date','end_date']))
-                    <span class="ml-auto text-xs bg-sky-100 text-sky-700 font-semibold px-2 py-0.5 rounded-full">Filter aktif</span>
+                    <span class="ml-auto text-xs bg-white text-[#171717] border border-[#EDEDED] shadow-sm font-semibold px-2 py-0.5 rounded-full">Filter aktif</span>
                 @endif
             </div>
 
@@ -190,7 +190,7 @@
 
                 <div class="flex items-center gap-2 mt-4">
                     <button type="submit"
-                            class="flex items-center gap-2 bg-[#0284c7] hover:bg-sky-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm shadow-sky-200">
+                            class="flex items-center gap-2 bg-[#F56C3E] hover:bg-sky-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm shadow-sky-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
@@ -279,16 +279,16 @@
                                 @php
                                     $badgeClass = match(true) {
                                         str_contains($log->action, 'PAYMENT') || str_contains($log->action, 'PAID')
-                                            => 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+                                            => 'bg-[#F56C3E] text-white shadow-sm',
                                         str_contains($log->action, 'CREATE') || str_contains($log->action, 'CREATED')
-                                            => 'bg-sky-100 text-sky-700 border border-sky-200',
+                                            => 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm',
                                         str_contains($log->action, 'DELETE') || str_contains($log->action, 'DELETED')
-                                            => 'bg-red-100 text-red-700 border border-red-200',
+                                            => 'bg-[#171717] text-white shadow-sm',
                                         str_contains($log->action, 'UPDATE') || str_contains($log->action, 'UPDATED')
-                                            => 'bg-amber-100 text-amber-700 border border-amber-200',
+                                            => 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm',
                                         str_contains($log->action, 'LOGIN') || str_contains($log->action, 'LOGOUT')
                                             => 'bg-violet-100 text-violet-700 border border-violet-200',
-                                        default => 'bg-gray-100 text-gray-600 border border-gray-200',
+                                        default => 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm',
                                     };
                                 @endphp
                                 <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg {{ $badgeClass }}">
@@ -337,7 +337,7 @@
                                     </div>
                                     <p class="text-gray-400 text-sm font-medium">Belum ada log audit</p>
                                     @if(request()->hasAny(['search','action','module','start_date','end_date']))
-                                        <a href="{{ route('audit.index') }}" class="text-sky-500 text-xs hover:underline">Reset filter</a>
+                                        <a href="{{ route('audit.index') }}" class="text-[#F56C3E] text-xs hover:underline">Reset filter</a>
                                     @endif
                                 </div>
                             </td>

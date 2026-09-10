@@ -51,7 +51,7 @@
                     @endif
                 </div>
                 {{-- Status badge --}}
-                <span class="shrink-0 inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                <span class="shrink-0 inline-flex items-center gap-1 bg-[#F56C3E] text-white shadow-sm text-xs font-semibold px-2.5 py-1 rounded-full">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                     Aktif
                 </span>
@@ -169,7 +169,7 @@
                                placeholder="Contoh: 08123456789"
                                class="w-full bg-gray-50 border @error('parent_phone') border-red-300 @else border-gray-200 @enderror rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition">
                         @error('parent_phone')
-                        <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        <p class="text-xs text-[#F56C3E] mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -181,7 +181,7 @@
                                   placeholder="Masukkan alamat lengkap..."
                                   class="w-full bg-gray-50 border @error('address') border-red-300 @else border-gray-200 @enderror rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition resize-none">{{ old('address', $student->address) }}</textarea>
                         @error('address')
-                        <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        <p class="text-xs text-[#F56C3E] mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -220,7 +220,7 @@
                                placeholder="{{ $student->custom_password ? 'Masukkan password saat ini' : 'Contoh: 270708 (tanggal lahir ddmmyy)' }}"
                                class="w-full bg-gray-50 border @error('current_password') border-red-300 @else border-gray-200 @enderror rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition">
                         @error('current_password')
-                        <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        <p class="text-xs text-[#F56C3E] mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -232,7 +232,7 @@
                                placeholder="Minimal 6 karakter"
                                class="w-full bg-gray-50 border @error('new_password') border-red-300 @else border-gray-200 @enderror rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition">
                         @error('new_password')
-                        <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        <p class="text-xs text-[#F56C3E] mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
 

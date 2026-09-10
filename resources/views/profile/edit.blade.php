@@ -1,6 +1,6 @@
 <x-app-layout>
     
-    <div class="relative bg-gradient-to-r from-[#0284c7] via-[#0ea5e9] to-[#38bdf8] h-48 sm:h-56"></div>
+    <div class="relative bg-gradient-to-r from-[#F56C3E] via-[#F56C3E] to-[#f9c4b3] h-48 sm:h-56"></div>
         <div class="absolute inset-0 bg-black/10"></div>
         <div class="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-gray-100 to-transparent"></div>
     </>
@@ -41,7 +41,7 @@
                     <p class="text-sm text-gray-500">{{ Auth::user()->email }}</p>
 
                     <div class="mt-4 flex justify-center gap-2">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-white text-[#171717] border border-[#EDEDED] shadow-sm">
                             Administrator
                         </span>
                     </div>

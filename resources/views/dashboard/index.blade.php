@@ -10,7 +10,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 
-                <div class="bg-[#0ea5e9] p-6 rounded-2xl text-white shadow-lg shadow-sky-200 relative overflow-hidden">
+                <div class="bg-[#F56C3E] p-6 rounded-2xl text-white shadow-lg shadow-sky-200 relative overflow-hidden">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="p-2 bg-white/20 rounded-lg">
@@ -24,7 +24,7 @@
                     <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full"></div>
                 </div>
 
-                <div class="bg-[#0ea5e9] p-6 rounded-2xl text-white shadow-lg shadow-sky-200 relative overflow-hidden">
+                <div class="bg-[#F56C3E] p-6 rounded-2xl text-white shadow-lg shadow-sky-200 relative overflow-hidden">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="p-2 bg-white/20 rounded-lg">
@@ -37,7 +37,7 @@
                     </div>
                 </div>
 
-                <div class="bg-[#0ea5e9] p-6 rounded-2xl text-white shadow-lg shadow-sky-200 relative overflow-hidden">
+                <div class="bg-[#F56C3E] p-6 rounded-2xl text-white shadow-lg shadow-sky-200 relative overflow-hidden">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="p-2 bg-white/20 rounded-lg">
@@ -64,28 +64,28 @@
                         </div>
                         <div class="h-64 flex items-end justify-between gap-2 px-4">
                             <div class="w-full bg-blue-50 rounded-t-lg h-[40%] relative group cursor-pointer">
-                                <div class="absolute bottom-0 w-full bg-[#0ea5e9] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
+                                <div class="absolute bottom-0 w-full bg-[#F56C3E] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
                             </div>
                             <div class="w-full bg-blue-50 rounded-t-lg h-[60%] relative group cursor-pointer">
-                                <div class="absolute bottom-0 w-full bg-[#0ea5e9] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
+                                <div class="absolute bottom-0 w-full bg-[#F56C3E] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
                             </div>
                             <div class="w-full bg-blue-50 rounded-t-lg h-[30%] relative group cursor-pointer">
-                                <div class="absolute bottom-0 w-full bg-[#0ea5e9] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
+                                <div class="absolute bottom-0 w-full bg-[#F56C3E] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
                             </div>
                             <div class="w-full bg-blue-50 rounded-t-lg h-[80%] relative group cursor-pointer">
-                                <div class="absolute bottom-0 w-full bg-[#0ea5e9] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
+                                <div class="absolute bottom-0 w-full bg-[#F56C3E] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
                             </div>
                             <div class="w-full bg-blue-50 rounded-t-lg h-[50%] relative group cursor-pointer">
-                                <div class="absolute bottom-0 w-full bg-[#0ea5e9] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
+                                <div class="absolute bottom-0 w-full bg-[#F56C3E] rounded-t-lg h-[0%] group-hover:h-full transition-all duration-500"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-[#0ea5e9] rounded-2xl shadow-lg shadow-sky-200 overflow-hidden">
+                    <div class="bg-[#F56C3E] rounded-2xl shadow-lg shadow-sky-200 overflow-hidden">
                         <div class="p-6 flex justify-between items-center text-white">
                             <h3 class="font-bold text-lg">Log Aktivitas Terbaru</h3>
                             <div class="flex bg-white/20 rounded-lg p-1">
-                                <button class="px-3 py-1 text-xs font-medium bg-white text-[#0ea5e9] rounded shadow-sm">Masuk</button>
+                                <button class="px-3 py-1 text-xs font-medium bg-white text-[#F56C3E] rounded shadow-sm">Masuk</button>
                                 <button class="px-3 py-1 text-xs font-medium text-blue-100 hover:text-white">Keluar</button>
                             </div>
                         </div>
@@ -122,7 +122,7 @@
 
                 <div class="space-y-6">
                     
-                    <div class="bg-[#0ea5e9] p-6 rounded-2xl text-white shadow-lg">
+                    <div class="bg-[#F56C3E] p-6 rounded-2xl text-white shadow-lg">
                         <div class="flex justify-between items-end mb-4">
                             <h3 class="font-bold text-lg">Kalender</h3>
                             <span class="text-xs text-blue-100">{{ now()->format('F Y') }}</span>
@@ -130,7 +130,7 @@
                         <div class="grid grid-cols-4 gap-2 text-center text-sm">
                             <div class="p-2 rounded-lg bg-white/10">Sn</div>
                             <div class="p-2 rounded-lg bg-white/10">Sl</div>
-                            <div class="p-2 rounded-lg bg-white text-[#0ea5e9] font-bold shadow-lg">Rb</div>
+                            <div class="p-2 rounded-lg bg-white text-[#F56C3E] font-bold shadow-lg">Rb</div>
                             <div class="p-2 rounded-lg bg-white/10">Km</div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@
                         <div class="space-y-3">
                             @if(isset($lowStockItems) && $lowStockItems->count() > 0)
                                 @foreach($lowStockItems as $item)
-                                    <div class="flex items-center gap-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+                                    <div class="flex items-center gap-3 p-3 bg-[#171717] text-white shadow-sm rounded-lg text-sm">
                                         <div class="w-2 h-2 rounded-full bg-red-500"></div>
                                         <span class="flex-1">{{ $item->name }}</span>
                                         <span class="font-bold">{{ $item->stock }} pcs</span>

@@ -137,10 +137,10 @@
                     </p>
                     @php
                         $typeLabel = match($bill->type) {
-                            'SPP'          => ['label' => 'SPP', 'class' => 'bg-sky-100 text-sky-700'],
+                            'SPP'          => ['label' => 'SPP', 'class' => 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm'],
                             'GEDUNG'       => ['label' => 'Gedung', 'class' => 'bg-violet-100 text-violet-700'],
-                            'DAFTAR_ULANG' => ['label' => 'Daftar Ulang', 'class' => 'bg-amber-100 text-amber-700'],
-                            'KOMITE'       => ['label' => 'Komite', 'class' => 'bg-emerald-100 text-emerald-700'],
+                            'DAFTAR_ULANG' => ['label' => 'Daftar Ulang', 'class' => 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm'],
+                            'KOMITE'       => ['label' => 'Komite', 'class' => 'bg-[#F56C3E] text-white shadow-sm'],
                             default        => ['label' => $bill->type, 'class' => 'bg-gray-100 text-gray-500'],
                         };
                     @endphp
@@ -241,7 +241,7 @@
 
         {{-- Back link --}}
         <div class="text-center mt-6">
-            <a href="{{ route('siswa.dashboard') }}" class="text-sm text-gray-400 hover:text-sky-500 transition-colors">
+            <a href="{{ route('siswa.dashboard') }}" class="text-sm text-gray-400 hover:text-[#F56C3E] transition-colors">
                 ← Kembali ke Dashboard
             </a>
         </div>

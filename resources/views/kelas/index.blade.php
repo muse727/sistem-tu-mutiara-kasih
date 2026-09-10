@@ -31,7 +31,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #F5F5F5;
     flex-shrink: 0;
 }
 .modal-body {
@@ -46,7 +46,7 @@
     display: flex;
     gap: 0.75rem;
     padding: 1rem 1.5rem;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid #F5F5F5;
     flex-shrink: 0;
     background: #fff;
     border-radius: 0 0 1.25rem 1.25rem;
@@ -55,25 +55,25 @@
     display: block;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #475569;
+    color: #333333;
     margin-bottom: 0.375rem;
 }
 .field-input {
     width: 100%;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid #EDEDED;
     border-radius: 0.625rem;
     padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
-    background: #f8fafc;
+    background: #F5F5F5;
     transition: all 0.15s;
     outline: none;
     box-sizing: border-box;
 }
-.field-input:focus { background: #fff; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,0.15); }
+.field-input:focus { background: #fff; border-color: #f9c4b3; box-shadow: 0 0 0 3px rgba(56,189,248,0.15); }
 .btn-primary {
     flex: 1;
     padding: 0.625rem 1rem;
-    background: #0ea5e9;
+    background: #F56C3E;
     color: #fff;
     border: none;
     border-radius: 0.625rem;
@@ -82,7 +82,7 @@
     cursor: pointer;
     transition: background 0.15s;
 }
-.btn-primary:hover { background: #0284c7; }
+.btn-primary:hover { background: #F56C3E; }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-warning {
     flex: 1;
@@ -102,27 +102,27 @@
     flex: 1;
     padding: 0.625rem 1rem;
     background: #fff;
-    color: #64748b;
-    border: 1.5px solid #e2e8f0;
+    color: #777777;
+    border: 1.5px solid #EDEDED;
     border-radius: 0.625rem;
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s;
 }
-.btn-cancel:hover { background: #f8fafc; }
+.btn-cancel:hover { background: #F5F5F5; }
 
 /* Light mode defaults */
 .kelas-topbar { background: #fff; }
-.kelas-topbar-title { color: #1e293b; }
-.kelas-topbar-sub { color: #475569; }
+.kelas-topbar-title { color: #171717; }
+.kelas-topbar-sub { color: #333333; }
 
 /* Dark mode overrides */
-html.dark .kelas-topbar { background: #1e293b !important; border-color: #334155 !important; }
-html.dark .kelas-topbar-title { color: #f1f5f9 !important; }
-html.dark .kelas-topbar-sub { color: #94a3b8 !important; }
-html.dark .bg-white.rounded-2xl { background: #1e293b !important; border-color: #334155 !important; }
-html.dark .text-slate-600 { color: #94a3b8 !important; }
+html.dark .kelas-topbar { background: #171717 !important; border-color: #333333 !important; }
+html.dark .kelas-topbar-title { color: #F5F5F5 !important; }
+html.dark .kelas-topbar-sub { color: #777777 !important; }
+html.dark .bg-white.rounded-2xl { background: #171717 !important; border-color: #333333 !important; }
+html.dark .text-slate-600 { color: #777777 !important; }
 html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600, html.dark .text-amber-600 { filter: brightness(1.3); }
 .error-box {
     background: #fef2f2;
@@ -137,19 +137,19 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
     align-items: center;
     gap: 0.75rem;
     padding: 0.875rem;
-    background: #f8fafc;
+    background: #F5F5F5;
     border-radius: 0.625rem;
     cursor: pointer;
     border: 1.5px solid transparent;
     transition: all 0.15s;
 }
-.checkbox-row:hover { background: #f0f9ff; border-color: #bae6fd; }
+.checkbox-row:hover { background: #fef0eb; border-color: #f9c4b3; }
 </style>
 
 <div class="p-4 md:p-6 space-y-5">
 
     {{-- ===== TOP BAR ===== --}}
-    <div class="kelas-topbar" style="border-radius:1rem;border:1px solid #f1f5f9;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+    <div class="kelas-topbar" style="border-radius:1rem;border:1px solid #F5F5F5;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
         <div>
             <h1 class="kelas-topbar-title" style="font-size:1.125rem;font-weight:700;margin:0;">Master Kelas</h1>
             <p class="kelas-topbar-sub" style="font-size:0.875rem;margin:0.25rem 0 0;">{{ $kelas->count() }} kelas terdaftar di {{ $jenjang }}</p>
@@ -157,8 +157,8 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
         <button
             type="button"
             onclick="openModal('modalCreate')"
-            style="display:inline-flex;align-items:center;gap:0.5rem;background:#0ea5e9;color:#fff;font-size:0.875rem;font-weight:600;padding:0.625rem 1.25rem;border-radius:0.75rem;border:none;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.1);flex-shrink:0;"
-            onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'"
+            style="display:inline-flex;align-items:center;gap:0.5rem;background:#F56C3E;color:#fff;font-size:0.875rem;font-weight:600;padding:0.625rem 1.25rem;border-radius:0.75rem;border:none;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.1);flex-shrink:0;"
+            onmouseover="this.style.background='#F56C3E'" onmouseout="this.style.background='#F56C3E'"
         >
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
@@ -171,7 +171,7 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
             </div>
@@ -182,7 +182,7 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
         </div>
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
@@ -226,7 +226,7 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
                         <p class="text-xs text-slate-400 mt-0.5">Tingkat {{ $k->tingkat }}{{ $k->jurusan ? ' · '.$k->jurusan : '' }}</p>
                     </div>
                     @if($k->is_aktif)
-                        <span class="shrink-0 ml-2 inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                        <span class="shrink-0 ml-2 inline-flex items-center gap-1 bg-[#F56C3E] text-white shadow-sm text-xs font-bold px-2.5 py-1 rounded-full">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif
                         </span>
                     @else
@@ -298,7 +298,7 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
                     </td>
                     <td class="px-5 py-3.5 text-center">
                         @if($k->is_aktif)
-                            <span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <span class="inline-flex items-center gap-1.5 bg-[#F56C3E] text-white shadow-sm text-xs font-bold px-2.5 py-1 rounded-full">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif
                             </span>
                         @else
@@ -310,14 +310,14 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
                     <td class="px-5 py-3.5">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="fetchAndEdit({{ $k->id }})"
-                                    class="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+                                    class="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-white text-[#171717] border border-[#EDEDED] shadow-sm px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                                 Edit
                             </button>
                             <button onclick="confirmDelete('{{ route('kelas.destroy', $k) }}', '{{ $k->nama_kelas }}')"
-                                    class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+                                    class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-[#171717] text-white shadow-sm px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
@@ -363,11 +363,11 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
             @csrf
             <div class="modal-body">
                 <div>
-                    <label class="field-label">Nama Kelas <span class="text-red-500">*</span></label>
+                    <label class="field-label">Nama Kelas <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" name="nama_kelas" placeholder="Contoh: X RPL 1" class="field-input">
                 </div>
                 <div>
-                    <label class="field-label">Tingkat <span class="text-red-500">*</span></label>
+                    <label class="field-label">Tingkat <span class="text-[#F56C3E]">*</span></label>
                     <input type="number" name="tingkat" min="{{ $tingkatMin }}" max="{{ $tingkatMax }}" placeholder="{{ $tingkatMin }}" class="field-input">
                     <p class="text-xs text-slate-400 mt-1">Nilai antara {{ $tingkatMin }}–{{ $tingkatMax }}</p>
                 </div>
@@ -381,7 +381,7 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
                 </div>
                 <label class="checkbox-row">
                     <input type="checkbox" name="is_aktif" id="createIsAktif" value="1" checked
-                           style="width:1rem;height:1rem;border-radius:0.25rem;accent-color:#0ea5e9;">
+                           style="width:1rem;height:1rem;border-radius:0.25rem;accent-color:#F56C3E;">
                     <div>
                         <span class="text-sm font-semibold text-slate-700">Kelas Aktif</span>
                         <p class="text-xs text-slate-400">Centang jika kelas sedang digunakan</p>
@@ -426,11 +426,11 @@ html.dark .text-sky-600, html.dark .text-emerald-600, html.dark .text-violet-600
             @csrf
             <div class="modal-body">
                 <div>
-                    <label class="field-label">Nama Kelas <span class="text-red-500">*</span></label>
+                    <label class="field-label">Nama Kelas <span class="text-[#F56C3E]">*</span></label>
                     <input type="text" id="editNamaKelas" name="nama_kelas" placeholder="Contoh: X RPL 1" class="field-input">
                 </div>
                 <div>
-                    <label class="field-label">Tingkat <span class="text-red-500">*</span></label>
+                    <label class="field-label">Tingkat <span class="text-[#F56C3E]">*</span></label>
                     <input type="number" id="editTingkat" name="tingkat" min="{{ $tingkatMin }}" max="{{ $tingkatMax }}" class="field-input">
                     <p class="text-xs text-slate-400 mt-1">Nilai antara {{ $tingkatMin }}–{{ $tingkatMax }}</p>
                 </div>
@@ -588,7 +588,7 @@ function confirmDelete(url, nama) {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#64748b',
+        cancelButtonColor: '#777777',
         confirmButtonText: 'Ya, Hapus!',
         cancelButtonText: 'Batal',
         reverseButtons: true,

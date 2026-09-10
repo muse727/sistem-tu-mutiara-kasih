@@ -4,8 +4,8 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-gradient-to-br from-[#0284c7]/10 to-[#0ea5e9]/10 rounded-xl">
-                        <svg class="w-7 h-7 text-[#0284c7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-gradient-to-br from-[#F56C3E]/10 to-[#F56C3E]/10 rounded-xl">
+                        <svg class="w-7 h-7 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                         </svg>
                     </div>
@@ -14,10 +14,10 @@
                         <p class="text-gray-500 text-sm mt-0.5">NIS: {{ $student->nis }}</p>
                     </div>
                 </div>
-                <p class="text-gray-600 ml-12">Perubahan status siswa <span class="font-semibold text-[#0284c7]">{{ $student->name }}</span> akan dicatat dalam riwayat.</p>
+                <p class="text-gray-600 ml-12">Perubahan status siswa <span class="font-semibold text-[#F56C3E]">{{ $student->name }}</span> akan dicatat dalam riwayat.</p>
             </div>
             <a href="{{ route('students.index') }}"
-               class="flex items-center gap-2 bg-gradient-to-r from-white to-gray-50 border border-gray-200 text-gray-700 px-5 py-3 rounded-xl hover:border-[#0284c7]/50 hover:shadow-md transition-all duration-300 font-medium shadow-sm">
+               class="flex items-center gap-2 bg-gradient-to-r from-white to-gray-50 border border-gray-200 text-gray-700 px-5 py-3 rounded-xl hover:border-[#F56C3E]/50 hover:shadow-md transition-all duration-300 font-medium shadow-sm">
                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -29,7 +29,7 @@
         @if($errors->any())
         <div class="bg-red-50 border border-red-200 rounded-xl px-5 py-4 mb-6">
             <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <span class="font-bold text-red-700">Terdapat kesalahan pada input:</span>
@@ -51,15 +51,15 @@
                 <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
                         <div class="flex items-center gap-2">
-                            <div class="w-1 h-5 bg-[#0284c7] rounded-full"></div>
+                            <div class="w-1 h-5 bg-[#F56C3E] rounded-full"></div>
                             <h3 class="font-bold text-gray-900">Info Siswa</h3>
                         </div>
                     </div>
                     <div class="p-6">
                         <!-- Avatar & Name -->
                         <div class="flex items-center gap-4 mb-5 pb-5 border-b border-gray-100">
-                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[#0284c7]/20 to-[#0ea5e9]/20 flex items-center justify-center flex-shrink-0">
-                                <span class="text-xl font-bold text-[#0284c7]">{{ mb_substr($student->name, 0, 1) }}</span>
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[#F56C3E]/20 to-[#F56C3E]/20 flex items-center justify-center flex-shrink-0">
+                                <span class="text-xl font-bold text-[#F56C3E]">{{ mb_substr($student->name, 0, 1) }}</span>
                             </div>
                             <div>
                                 <p class="font-bold text-gray-900 text-lg leading-tight">{{ $student->name }}</p>
@@ -109,12 +109,12 @@
                             <!-- Status Select -->
                             <div class="mb-5">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">
-                                    Status Baru <span class="text-red-500">*</span>
+                                    Status Baru <span class="text-[#F56C3E]">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="status"
                                             required
-                                            class="w-full px-4 py-3 rounded-xl border {{ $errors->has('status') ? 'border-red-400 bg-red-50' : 'border-gray-200' }} focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 bg-white appearance-none transition-all duration-300">
+                                            class="w-full px-4 py-3 rounded-xl border {{ $errors->has('status') ? 'border-red-400 bg-red-50' : 'border-gray-200' }} focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E]/20 bg-white appearance-none transition-all duration-300">
                                         <option value="">-- Pilih Status Baru --</option>
                                         @foreach($statuses as $key => $label)
                                             <option value="{{ $key }}"
@@ -143,7 +143,7 @@
                                 <textarea name="catatan"
                                           rows="4"
                                           placeholder="Tuliskan alasan perubahan status, misal: siswa mengundurkan diri karena pindah sekolah..."
-                                          class="w-full px-4 py-3 rounded-xl border {{ $errors->has('catatan') ? 'border-red-400 bg-red-50' : 'border-gray-200' }} focus:border-[#0284c7] focus:ring-2 focus:ring-[#0284c7]/20 bg-white transition-all duration-300 resize-none">{{ old('catatan') }}</textarea>
+                                          class="w-full px-4 py-3 rounded-xl border {{ $errors->has('catatan') ? 'border-red-400 bg-red-50' : 'border-gray-200' }} focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E]/20 bg-white transition-all duration-300 resize-none">{{ old('catatan') }}</textarea>
                                 @error('catatan')
                                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
@@ -170,7 +170,7 @@
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <div class="w-1 h-5 bg-[#0284c7] rounded-full"></div>
+                                <div class="w-1 h-5 bg-[#F56C3E] rounded-full"></div>
                                 <h3 class="font-bold text-gray-900">Riwayat Perubahan Status</h3>
                             </div>
                             <span class="text-sm text-gray-500 font-medium">{{ $logs->count() }} entri</span>
@@ -204,13 +204,13 @@
                                     <!-- Status change column -->
                                     <td class="px-5 py-4">
                                         <div class="flex items-center gap-2 flex-wrap">
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-[#171717] text-white shadow-sm">
                                                 {{ $statuses[$log->status_lama] ?? $log->status_lama }}
                                             </span>
                                             <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                             </svg>
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-[#F56C3E] text-white shadow-sm">
                                                 {{ $statuses[$log->status_baru] ?? $log->status_baru }}
                                             </span>
                                         </div>
@@ -226,8 +226,8 @@
                                     <!-- Changed by column -->
                                     <td class="px-5 py-4">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#0284c7]/20 to-[#0ea5e9]/20 flex items-center justify-center flex-shrink-0">
-                                                <span class="text-xs font-bold text-[#0284c7]">
+                                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#F56C3E]/20 to-[#F56C3E]/20 flex items-center justify-center flex-shrink-0">
+                                                <span class="text-xs font-bold text-[#F56C3E]">
                                                     {{ mb_substr($log->diubah_oleh ?? 'S', 0, 1) }}
                                                 </span>
                                             </div>

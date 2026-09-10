@@ -95,7 +95,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // 2. MANAJEMEN SISWA
     // Read: all staff + kepala_sekolah. Write: admin,tu,staf. Delete: admin,tu only.
     Route::prefix('students')->name('students.')->group(function () {
-        Route::get('/', [StudentController::class, 'index'])->name('index');
+        // Read operations - admin, tu, staf, kepala_sekolah
+        Route::middleware('role:admin,tu,staf,kepala_sekolah')->group(function () {
+            Route::get('/', [StudentController::class, 'index'])->name('index');
+        });
 
         // Static routes MUST come before /{id} wildcard to avoid shadowing
         // Write operations — admin, tu, staf
@@ -117,9 +120,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // Wildcard routes last — after all static routes
-        Route::get('/{id}', [StudentController::class, 'show'])->name('show');
-        Route::get('/{id}/finance', [StudentController::class, 'show'])->name('finance');
-        Route::get('/{id}/status', [StudentController::class, 'formUbahStatus'])->name('ubah-status');
+        // Read operations - admin, tu, staf, kepala_sekolah
+        Route::middleware('role:admin,tu,staf,kepala_sekolah')->group(function () {
+            Route::get('/{id}', [StudentController::class, 'show'])->name('show');
+            Route::get('/{id}/finance', [StudentController::class, 'show'])->name('finance');
+            Route::get('/{id}/status', [StudentController::class, 'formUbahStatus'])->name('ubah-status');
+        });
     });
 
     // NAIK KELAS MASSAL — admin + tu only
@@ -227,8 +233,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // 8. PROFILE USER
+    Route::get('/panduan', [\App\Http\Controllers\PanduanController::class, 'index'])->name('panduan.index');
+
     Route::controller(ProfileController::class)->group(function () {
-        Route::get('/panduan', [\App\Http\Controllers\PanduanController::class, 'index'])->name('panduan.index');
         Route::get('/profile', 'edit')->name('profile.edit');
         Route::patch('/profile', 'update')->name('profile.update');
         Route::post('/profile/avatar', 'uploadAvatar')->name('profile.avatar');
