@@ -101,8 +101,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // Static routes MUST come before /{id} wildcard to avoid shadowing
-        // Write operations — admin, tu, staf
-        Route::middleware('role:admin,tu,staf')->group(function () {
+        // Write operations — admin, tu only (Staf POS should not edit students)
+        Route::middleware('role:admin,tu')->group(function () {
             Route::get('/create', [StudentController::class, 'create'])->name('create');
             Route::post('/', [StudentController::class, 'store'])->name('store');
             Route::get('/import', [StudentController::class, 'importForm'])->name('import');
@@ -124,6 +124,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware('role:admin,tu,staf,kepala_sekolah')->group(function () {
             Route::get('/{id}', [StudentController::class, 'show'])->name('show');
             Route::get('/{id}/finance', [StudentController::class, 'show'])->name('finance');
+        });
+
+        // Ubah status form - admin, tu only
+        Route::middleware('role:admin,tu')->group(function () {
             Route::get('/{id}/status', [StudentController::class, 'formUbahStatus'])->name('ubah-status');
         });
     });

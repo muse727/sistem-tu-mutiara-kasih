@@ -37,6 +37,7 @@
                     <span>Tambah Siswa</span>
                 </button>
             </div>
+            @endif
         </div>
 
         <!-- Stats -->
@@ -205,6 +206,7 @@
                                        class="bg-white hover:bg-gray-50 text-[#171717] shadow-sm px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border border-gray-200">
                                         Detail
                                     </a>
+                                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'tu')
                                     <button onclick="fetchAndEditStudent({{ $student->id }})"
                                             class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
                                         Edit
@@ -213,6 +215,7 @@
                                             class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
                                         Hapus
                                     </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -227,6 +230,7 @@
                                     </svg>
                                     Tambah Siswa Pertama
                                 </button>
+                                @endif
                             </td>
                         </tr>
                         @endforelse
