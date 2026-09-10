@@ -269,6 +269,7 @@
                                         </a>
 
                                         @if($trx->payment_status == 'UNPAID')
+                                            @if(Auth::user()->role === 'admin' || Auth::user()->role === 'tu')
                                             <button onclick="confirmRepay('{{ $trx->id }}', '{{ optional($trx->student)->name ?? 'Siswa' }}', '{{ number_format($trx->total_amount, 0,',','.') }}', {{ $trx->total_amount }})"
                                                     class="group bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,6 +277,7 @@
                                                 </svg>
                                                 Bayar
                                             </button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

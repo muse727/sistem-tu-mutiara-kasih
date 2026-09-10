@@ -207,6 +207,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // D. Laporan & Riwayat — admin,tu,kepala_sekolah
         Route::middleware('role:admin,tu,kepala_sekolah')->controller(PosReportController::class)->prefix('history')->name('history.')->group(function () {
             Route::get('/', 'index')->name('index');
+        });
+
+        // Repay/Void Transaksi — admin, tu only
+        Route::middleware('role:admin,tu')->controller(PosReportController::class)->prefix('history')->name('history.')->group(function () {
             Route::post('/{id}/repay', 'repay')->name('repay');
         });
     });
