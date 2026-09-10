@@ -31,9 +31,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <label class="cursor-pointer relative">
                             <input type="radio" name="target_type" value="student" class="peer sr-only" checked onclick="toggleTarget('student')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
+                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-1 peer-checked:ring-[#F56C3E] peer-checked:bg-orange-50 peer-checked:[&_.indicator]:border-[#F56C3E] peer-checked:[&_.indicator]:bg-white peer-checked:[&_.indicator]:border-[5px]">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#F56C3E] peer-checked:border-[#F56C3E] block"></span>
+                                    <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
                                     Per Siswa
                                 </span>
                                 <p class="text-xs text-gray-400 mt-1 pl-6">Kasus khusus (Denda/Susulan)</p>
@@ -42,9 +42,9 @@
 
                         <label class="cursor-pointer relative">
                             <input type="radio" name="target_type" value="class" class="peer sr-only" onclick="toggleTarget('class')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
+                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-1 peer-checked:ring-[#F56C3E] peer-checked:bg-orange-50 peer-checked:[&_.indicator]:border-[#F56C3E] peer-checked:[&_.indicator]:bg-white peer-checked:[&_.indicator]:border-[5px]">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#F56C3E] peer-checked:border-[#F56C3E] block"></span>
+                                    <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
                                     Satu Kelas
                                 </span>
                                 <p class="text-xs text-gray-400 mt-1 pl-6">Tagihan rutin (SPP/Gedung)</p>
@@ -53,9 +53,9 @@
 
                         <label class="cursor-pointer relative">
                             <input type="radio" name="target_type" value="all" class="peer sr-only" onclick="toggleTarget('all')">
-                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-2 peer-checked:ring-blue-200 peer-checked:bg-white">
+                            <div class="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition peer-checked:border-[#F56C3E] peer-checked:ring-1 peer-checked:ring-[#F56C3E] peer-checked:bg-orange-50 peer-checked:[&_.indicator]:border-[#F56C3E] peer-checked:[&_.indicator]:bg-white peer-checked:[&_.indicator]:border-[5px]">
                                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="w-4 h-4 rounded-full border border-gray-300 peer-checked:bg-[#F56C3E] peer-checked:border-[#F56C3E] block"></span>
+                                    <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
                                     Semua Siswa
                                 </span>
                                 <p class="text-xs text-gray-400 mt-1 pl-6">Massal satu sekolah</p>
