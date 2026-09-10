@@ -37,8 +37,41 @@ class NaikKelasController extends Controller
             ?? DB::table('school_settings')->where('key', 'school_name')->value('value')
             ?? 'Sekolah';
 
+        $tingkatMax = Kelas::tingkatMaksimal();
+        $totalSiswa = 0;
+        $totalLulus = 0;
+        $mappings   = collect();
+
+        foreach ($kelasAktif as $kelas) {
+            $isTingkatAkhir = $kelas->tingkat >= $tingkatMax;
+            $kelasTujuan = null;
+
+            if (!$isTingkatAkhir) {
+                $kelasTujuan = Kelas::aktif()
+                    ->where('tingkat', $kelas->tingkat + 1)
+                    ->where(function ($q) use ($kelas) {
+                        if ($kelas->jurusan) {
+                            $q->where('jurusan', $kelas->jurusan);
+                        } else {
+                            $q->whereNull('jurusan');
+                        }
+                    })
+                    ->first();
+                $totalSiswa += $kelas->active_students_count;
+            } else {
+                $totalLulus += $kelas->active_students_count;
+            }
+
+            $mappings->push([
+                'kelas_asal'         => $kelas,
+                'is_tingkat_akhir'   => $isTingkatAkhir,
+                'kelas_tujuan'       => $kelasTujuan,
+                'jumlah_siswa_aktif' => $kelas->active_students_count,
+            ]);
+        }
+
         return view('students.naik-kelas.index', compact(
-            'kelasAktif', 'semuaKelas', 'jenjang'
+            'kelasAktif', 'semuaKelas', 'jenjang', 'totalSiswa', 'totalLulus', 'mappings'
         ));
     }
 
@@ -66,7 +99,7 @@ class NaikKelasController extends Controller
             $kelasAktif = Kelas::aktif()
                 ->withCount(['activeStudents'])
                 ->having('active_students_count', '>', 0)
-                ->orderBy('tingkat')
+                ->orderBy('tingkat', 'desc')
                 ->get();
 
             foreach ($kelasAktif as $kelas) {
