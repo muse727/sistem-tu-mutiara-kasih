@@ -14,12 +14,27 @@ class MidtransController extends Controller
     public function callback(Request $request)
     {
         $serverKey = config('services.midtrans.server_key');
-        $hashed    = hash('sha512',
+        
+        if (empty($serverKey)) {
+            Log::error('MidtransController callback: MIDTRANS_SERVER_KEY is not configured', [
+                'order_id' => $request->order_id,
+                'ip'       => $request->ip(),
+            ]);
+            return response()->json(['message' => 'OK'], 200);
+        }
+
+        $expectedSig = hash('sha512',
             $request->order_id . $request->status_code . $request->gross_amount . $serverKey
         );
 
-        if ($hashed !== $request->signature_key) {
-            return response()->json(['message' => 'Invalid Signature'], 403);
+        $receivedSig = (string) $request->signature_key;
+
+        if (! hash_equals($expectedSig, $receivedSig)) {
+            Log::warning('MidtransController callback: invalid signature', [
+                'order_id' => $request->order_id,
+                'ip'       => $request->ip(),
+            ]);
+            return response()->json(['message' => 'OK'], 200); // Return 200 so Midtrans won't keep retrying
         }
 
         $transactionStatus = $request->transaction_status;

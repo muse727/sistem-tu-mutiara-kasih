@@ -14,6 +14,7 @@
                 <p class="text-gray-600 ml-12">Pusat data tagihan SPP, Uang Gedung, dan Transaksi Siswa.</p>
             </div>
 
+            @if(Auth::user()->role === 'admin' || Auth::user()->role === 'tu')
             <div class="flex items-center gap-2">
                 <a href="{{ route('naik-kelas.index') }}"
                    class="flex items-center gap-2 bg-white border border-amber-300 text-amber-700 px-4 py-2.5 rounded-xl hover:border-amber-400 hover:shadow-md transition-all duration-300 font-medium shadow-sm text-sm">

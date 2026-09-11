@@ -592,8 +592,7 @@ class FinancialAuditLogger
                 'action' => $data['action'] ?? 'unknown',
                 'error'  => $e->getMessage(),
             ]);
-            // Re-throw so the caller's transaction rolls back if needed.
-            throw $e;
+            // Do not re-throw; we don't want audit log failure to rollback main transaction
         }
     }
 }

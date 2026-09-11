@@ -27,7 +27,7 @@ class Student extends Authenticatable
      */
     public function getAuthPassword(): string
     {
-        return \Carbon\Carbon::parse($this->birth_date)->format('dmy');
+        return $this->custom_password ?: \Carbon\Carbon::parse($this->birth_date)->format('dmy');
     }
 
     protected $table = 'students';

@@ -1,0 +1,1 @@
+ERROR: Attempt to read property "role" on null (View: /var/www/sistem-tu/resources/views/layouts/app.blade.php) (View: /var/www/sistem-tu/resources/views/layouts/app.blade.php) at /var/www/sistem-tu/storage/framework/views/c6cb4f6f81cabb8efdf80966f4d51ba9.php:270

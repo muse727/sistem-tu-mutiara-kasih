@@ -93,6 +93,12 @@ class AuthSiswaController extends Controller
                 ->withInput();
         }
 
+        // Transparent password hashing: Jika password valid dan belum di-hash di DB, lakukan sekarang
+        if (empty($student->custom_password)) {
+            $student->custom_password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $student->save();
+        }
+
         // Login manual via guard siswa (tanpa attempt() karena password tidak di-hash)
         Auth::guard('siswa')->login($student, $request->boolean('remember'));
         $request->session()->regenerate();
