@@ -52,17 +52,12 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Verifikasi Cloudflare Turnstile
-        $turnstileResponse = \Illuminate\Support\Facades\Http::asForm()->post(
-            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-            [
-                'secret'   => config('services.turnstile.secret_key'),
-                'response' => $this->input('cf-turnstile-response'),
-                'remoteip' => $this->ip(),
-            ]
-        );
+        // Verifikasi Cloudflare Turnstile (via injectable boundary so tests
+        // can fake the HTTP call without disabling verification).
+        $verified = app(\App\Services\Security\TurnstileVerifier::class)
+            ->verify($this->input('cf-turnstile-response'), $this->ip());
 
-        if (! $turnstileResponse->json('success')) {
+        if (! $verified) {
             throw ValidationException::withMessages([
                 'cf-turnstile-response' => 'Verifikasi captcha gagal. Silakan coba lagi.',
             ]);

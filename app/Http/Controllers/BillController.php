@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kelas;
 use App\Models\Student;
 use App\Models\StudentBill;
+use App\Models\AuditLog;
 use App\Models\BillItem;
 use App\Models\PosBundle;
 use App\Models\PosItem;

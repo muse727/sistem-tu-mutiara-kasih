@@ -1,0 +1,29 @@
+{
+  "event_id": "11111111-1111-4111-8111-111111111111",
+  "event_type": "spp.payment",
+  "event_version": "1.0",
+  "contract_version": "1.0",
+  "source_system": "TU",
+  "source_record_id": "5012",
+  "idempotency_key": "TU:spp.payment:5012",
+  "occurred_at": "2026-09-13T10:24:31+07:00",
+  "payload": {
+    "student": {
+      "student_uuid": "5f3b0c2a-9a3f-4c3d-9e2f-7c1a2b3d4e5f",
+      "nis": "2024001",
+      "nisn": "1234567890",
+      "name": "Ahmad Siswa"
+    },
+    "bill_id": 5012,
+    "bill_type": "SPP",
+    "bill_month": 9,
+    "bill_year": 2026,
+    "amount": "150000.00",
+    "currency": "IDR",
+    "paid_at": "2026-09-13T10:24:31+07:00",
+    "provider": "midtrans",
+    "provider_reference": "BILL-5012-aB3xYz-1757772271",
+    "payment_method": "MIDTRANS",
+    "description": "SPP September 2026"
+  }
+}

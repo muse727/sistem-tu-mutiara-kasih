@@ -8,8 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Detail Tagihan — {{ $bill->name ?? 'Tagihan' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js"
-            data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+    {{-- Phase E.3 — pembayaran kini via Flip hosted page (redirect), Snap.js tidak dipakai. --}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -233,7 +232,7 @@
                             class="block w-full text-center bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-sky-200">
                         Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ',', '.') }}
                     </button>
-                    <p class="text-center text-xs text-gray-400 mt-2">Pembayaran aman via Midtrans</p>
+                    <p class="text-center text-xs text-gray-400 mt-2">Pembayaran aman via Flip</p>
                 @endif
 
             </div>
@@ -258,10 +257,13 @@
             btn.textContent = 'Memproses...';
 
             try {
-                const res = await fetch(`/siswa/tagihan/${billId}/pay`, {
+                // Phase E.3 — gunakan endpoint Flip (pay-flip), redirect ke payment_url.
+                // Backend TETAP authoritative: settlement hanya lewat Flip callback.
+                const res = await fetch(`/siswa/tagihan/${billId}/pay-flip`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept':        'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
                 });
@@ -273,30 +275,24 @@
 
                 const data = await res.json();
 
-                if (data.error) {
-                    alert(data.error);
+                if (!res.ok || data.error) {
+                    alert(data.error || 'Terjadi kesalahan, coba lagi.');
                     btn.disabled = false;
                     btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}';
                     return;
                 }
 
-                window.snap.pay(data.snap_token, {
-                    onSuccess: function(result) {
-                        window.location.href = '{{ route("siswa.payment.success") }}?order_id=' + result.order_id;
-                    },
-                    onPending: function(result) {
-                        window.location.reload();
-                    },
-                    onError: function(result) {
-                        alert('Pembayaran gagal. Silakan coba lagi.');
-                        btn.disabled = false;
-                        btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}';
-                    },
-                    onClose: function() {
-                        btn.disabled = false;
-                        btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}';
-                    }
-                });
+                // Wajib ada payment_url; jangan redirect tanpa itu.
+                if (!data.payment_url) {
+                    alert('Tautan pembayaran tidak tersedia. Coba lagi.');
+                    btn.disabled = false;
+                    btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}';
+                    return;
+                }
+
+                const url = data.payment_url.startsWith('http') ? data.payment_url : 'https://' + data.payment_url;
+                window.location.href = url;
+                // Tombol tidak di-restore — halaman berpindah ke Flip.
 
             } catch (e) {
                 alert('Gagal menghubungi server. Coba lagi.');

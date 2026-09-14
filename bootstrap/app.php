@@ -21,7 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'midtrans-callback',
             'api/midtrans-callback',
             'midtrans/webhook',
-            'siswa/payment/callback',  // Midtrans server-to-server callback
+            'siswa/payment/callback',        // Midtrans server-to-server callback
+            'siswa/payment/flip-callback',   // Flip Accept Payment V2 server-to-server callback (token-authenticated in controller)
         ]);
 
         // Middleware alias
@@ -29,6 +30,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.siswa' => \App\Http\Middleware\AuthSiswa::class,
             'role'       => \App\Http\Middleware\EnsureRole::class,
         ]);
+
+        // Phase E.2-CLOSE (LOCAL DEV ONLY, non-production): observe inbound Flip
+        // callback requests to prove real Flip origin. Logs only SAFE metadata
+        // (method, ip, user-agent, host, presence of fields) — never the token
+        // value, secrets, or full payload.
+        // Phase E.2B — TEMPORARY local-only Flip callback observation (REMOVE AFTER E2E).
+        if (env('APP_ENV') === 'local') {
+            $middleware->append(\App\Http\Middleware\LogFlipCallbackInbound::class);
+        }
 
     })
     ->withExceptions(function (Exceptions $exceptions) {

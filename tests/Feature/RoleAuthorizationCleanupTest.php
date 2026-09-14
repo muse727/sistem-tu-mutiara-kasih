@@ -91,9 +91,22 @@ test('staf can access students index', function () {
     $this->actingAs($staf)->get('/students')->assertOk();
 });
 
-test('staf can create a student', function () {
+// Staf is intentionally NOT allowed to create/edit students. See the route
+// group "Write operations — admin, tu only (Staf POS should not edit students)"
+// in routes/web.php (Refactor(Auth) 21358dc — strict staf/cashier segregation).
+test('staf cannot access student create form and gets 403', function () {
     $staf = makeRole('staf');
-    $this->actingAs($staf)->get('/students/create')->assertOk();
+    $this->actingAs($staf)->get('/students/create')->assertForbidden();
+});
+
+test('staf cannot store a new student and gets 403', function () {
+    $staf = makeRole('staf');
+    $this->actingAs($staf)->post('/students', [
+        'name'       => 'Blocked Student',
+        'birth_date' => '2009-01-01',
+        'gender'     => 'L',
+    ])->assertForbidden();
+    $this->assertDatabaseMissing('students', ['name' => 'Blocked Student']);
 });
 
 test('staf can access pos transaction (kasir)', function () {
@@ -177,41 +190,45 @@ test('kepala_sekolah cannot access kasir/transaksi and gets 403', function () {
 
 // ── 18. seeder accounts login ─────────────────────────────────────────────────
 test('seeder admin account can log in', function () {
+    fakeTurnstileSuccess();
     User::firstOrCreate(
         ['email' => 'admin@sekolah.com'],
         ['name' => 'Admin TU', 'password' => Hash::make('password'), 'role' => 'admin', 'email_verified_at' => now()]
     );
-    $this->post('/login', ['email' => 'admin@sekolah.com', 'password' => 'password'])
+    $this->post('/login', ['email' => 'admin@sekolah.com', 'password' => 'password', 'cf-turnstile-response' => 'valid-token'])
          ->assertRedirect();
     $this->assertAuthenticated();
 });
 
 test('seeder tu account can log in', function () {
+    fakeTurnstileSuccess();
     User::firstOrCreate(
         ['email' => 'tu@sekolah.com'],
         ['name' => 'Staff TU', 'password' => Hash::make('password'), 'role' => 'tu', 'email_verified_at' => now()]
     );
-    $this->post('/login', ['email' => 'tu@sekolah.com', 'password' => 'password'])
+    $this->post('/login', ['email' => 'tu@sekolah.com', 'password' => 'password', 'cf-turnstile-response' => 'valid-token'])
          ->assertRedirect();
     $this->assertAuthenticated();
 });
 
 test('seeder staf account can log in', function () {
+    fakeTurnstileSuccess();
     User::firstOrCreate(
         ['email' => 'staf@sekolah.com'],
         ['name' => 'Staff Sekolah', 'password' => Hash::make('password'), 'role' => 'staf', 'email_verified_at' => now()]
     );
-    $this->post('/login', ['email' => 'staf@sekolah.com', 'password' => 'password'])
+    $this->post('/login', ['email' => 'staf@sekolah.com', 'password' => 'password', 'cf-turnstile-response' => 'valid-token'])
          ->assertRedirect();
     $this->assertAuthenticated();
 });
 
 test('seeder kepsek account can log in', function () {
+    fakeTurnstileSuccess();
     User::firstOrCreate(
         ['email' => 'kepsek@sekolah.com'],
         ['name' => 'Kepala Sekolah', 'password' => Hash::make('password'), 'role' => 'kepala_sekolah', 'email_verified_at' => now()]
     );
-    $this->post('/login', ['email' => 'kepsek@sekolah.com', 'password' => 'password'])
+    $this->post('/login', ['email' => 'kepsek@sekolah.com', 'password' => 'password', 'cf-turnstile-response' => 'valid-token'])
          ->assertRedirect();
     $this->assertAuthenticated();
 });

@@ -31,7 +31,10 @@ class Student extends Authenticatable
     }
 
     protected $table = 'students';
-    protected $guarded = ['id'];
+
+    // student_uuid is the immutable external identity — never client-assignable
+    // via mass assignment. It is generated once in the creating() hook.
+    protected $guarded = ['id', 'student_uuid'];
 
     protected $casts = [
         'birth_date'         => 'date',
@@ -39,6 +42,24 @@ class Student extends Authenticatable
         'created_at'         => 'datetime',
         'updated_at'         => 'datetime',
     ];
+
+    /**
+     * Generate the stable external identity exactly once, on creation.
+     *
+     * Generation lives in the model (not a service/controller) so that EVERY
+     * creation path — web store, CSV import, seeders, factories, future APIs —
+     * receives an identifier consistently, and so re-saves/updates can never
+     * regenerate it. The DB UNIQUE constraint remains the final authority
+     * against duplicates under concurrency.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Student $student) {
+            if (empty($student->student_uuid)) {
+                $student->student_uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 
     // Status yang tersedia
     const STATUSES = [

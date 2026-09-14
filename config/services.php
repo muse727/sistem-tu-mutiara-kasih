@@ -48,6 +48,23 @@ return [
         'is_3ds'         => env('MIDTRANS_IS_3DS', true),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Flip Accept Payment V2 Configuration (SANDBOX ONLY)
+    |--------------------------------------------------------------------------
+    | api_url        : sandbox base URL (https://bigflip.id/big_sandbox_api)
+    | secret_key     : Flip API Secret Key — used as HTTP Basic username with
+    |                  an EMPTY password. Environment only. Never logged/committed.
+    | callback_token : Flip dashboard Accept-Payment validation token. Used to
+    |                  authenticate inbound callbacks via constant-time compare.
+    |                  Environment only. Never logged/committed/returned.
+    */
+    'flip' => [
+        'api_url'        => env('FLIP_API_URL', 'https://bigflip.id/big_sandbox_api'),
+        'secret_key'     => env('FLIP_SECRET_KEY'),
+        'callback_token' => env('FLIP_CALLBACK_TOKEN'),
+    ],
+
     'turnstile' => [
         'site_key'   => env('TURNSTILE_SITE_KEY'),
         'secret_key' => env('TURNSTILE_SECRET_KEY'),

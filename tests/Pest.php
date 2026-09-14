@@ -45,3 +45,36 @@ function something()
 {
     // ..
 }
+
+/*
+|--------------------------------------------------------------------------
+| Turnstile Fake Helpers
+|--------------------------------------------------------------------------
+|
+| Cloudflare Turnstile is always verified in production via an HTTP call to
+| challenges.cloudflare.com. Tests must never perform that real network call,
+| so these helpers fake the Http facade for the siteverify endpoint only.
+|
+*/
+
+/**
+ * Fake Cloudflare Turnstile to report the token as VALID.
+ */
+function fakeTurnstileSuccess(): void
+{
+    \Illuminate\Support\Facades\Http::fake([
+        'challenges.cloudflare.com/turnstile/*' =>
+            \Illuminate\Support\Facades\Http::response(['success' => true], 200),
+    ]);
+}
+
+/**
+ * Fake Cloudflare Turnstile to report the token as INVALID.
+ */
+function fakeTurnstileFailure(): void
+{
+    \Illuminate\Support\Facades\Http::fake([
+        'challenges.cloudflare.com/turnstile/*' =>
+            \Illuminate\Support\Facades\Http::response(['success' => false], 200),
+    ]);
+}

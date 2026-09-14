@@ -12,6 +12,10 @@ class PosOrder extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
+        // Money is integer IDR (pos_items.price and total_amount are ints).
+        // payment_amount / change_amount are decimal(12,2) columns but always hold
+        // whole-rupiah values — casting to integer keeps arithmetic consistent.
+        // NOTE: there is no `paid_amount` column; do not cast a phantom field.
         'total_amount'   => 'integer',
         'payment_amount' => 'integer',
         'change_amount'  => 'integer',

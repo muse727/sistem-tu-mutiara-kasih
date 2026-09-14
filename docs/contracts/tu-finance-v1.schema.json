@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tu.local/contracts/tu-finance-v1.schema.json",
+  "title": "TU → Finance Integration Contract v1",
+  "description": "Event envelope + payloads for TU operational facts consumed by the future Finance accounting system. CONTRACT DESIGN ONLY — no Finance integration is implemented.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "event_version",
+    "contract_version",
+    "source_system",
+    "source_record_id",
+    "idempotency_key",
+    "occurred_at",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Stable identity of this event instance. Regenerated identically for the same operational fact on replay (deterministic by source)."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "spp.payment",
+        "pos.cash_sale"
+      ]
+    },
+    "event_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "source_system": {
+      "type": "string",
+      "const": "TU"
+    },
+    "source_record_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Authoritative TU record id for the event (student_bills.id or pos_orders.id, as string)."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "pattern": "^TU:(spp\\.payment|pos\\.cash_sale):.+$",
+      "description": "{source_system}:{event_type}:{source_record_id}. Unique per event type + source record."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Authoritative event timestamp (ISO-8601, Asia/Jakarta +07:00)."
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "spp.payment"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/sppPayment"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "pos.cash_sale"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/posCashSale"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "studentRef": {
+      "type": "object",
+      "required": [
+        "student_uuid"
+      ],
+      "properties": {
+        "student_uuid": {
+          "type": "string",
+          "format": "uuid",
+          "description": "IDENTITY — stable external student identity."
+        },
+        "nis": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "snapshot — operational identifier."
+        },
+        "nisn": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "snapshot — supporting attribute."
+        },
+        "name": {
+          "type": "string",
+          "description": "snapshot — descriptive only, NEVER identity."
+        }
+      },
+      "additionalProperties": false
+    },
+    "moneyIdrDecimal": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]{2}$",
+      "description": "SPP decimal money, 2dp string (e.g. \"150000.00\"). > 0 for payment events."
+    },
+    "moneyIdrInt": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "POS integer IDR (e.g. 15000)."
+    },
+    "providerInfo": {
+      "type": "object",
+      "required": [
+        "provider",
+        "provider_reference",
+        "payment_method"
+      ],
+      "properties": {
+        "provider": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "midtrans",
+            null
+          ],
+          "description": "Gateway. 'midtrans' today; 'flip' in a later phase. null for CASH."
+        },
+        "provider_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Provider order/correlation id (midtrans_order_id). null for CASH."
+        },
+        "payment_method": {
+          "type": "string",
+          "enum": [
+            "CASH",
+            "MIDTRANS"
+          ],
+          "description": "How it was paid. CASH → provider/provider_reference are null."
+        }
+      },
+      "additionalProperties": false,
+      "description": "payment_channel / provider_event_reference: NOT CURRENTLY AVAILABLE (omitted, not fabricated)."
+    },
+    "sppPayment": {
+      "type": "object",
+      "required": [
+        "student",
+        "bill_id",
+        "bill_type",
+        "amount",
+        "paid_at",
+        "provider",
+        "provider_reference",
+        "payment_method",
+        "description"
+      ],
+      "properties": {
+        "student": {
+          "$ref": "#/$defs/studentRef"
+        },
+        "bill_id": {
+          "type": "integer",
+          "description": "student_bills.id"
+        },
+        "bill_type": {
+          "type": "string",
+          "description": "student_bills.type — SPP | PAKET | other opaque operational type. KANTIN bills exist in TU but are OUT OF Finance integration scope (09D.6-FIX)."
+        },
+        "bill_month": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 12
+        },
+        "bill_year": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "amount": {
+          "$ref": "#/$defs/moneyIdrDecimal"
+        },
+        "currency": {
+          "type": "string",
+          "const": "IDR"
+        },
+        "paid_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Canonical accounting-input timestamp (app clock)."
+        },
+        "provider": {},
+        "provider_reference": {},
+        "payment_method": {},
+        "description": {
+          "type": "string",
+          "description": "student_bills.name (descriptive)."
+        },
+        "payment_attempt_id": {
+          "description": "NOT CURRENTLY AVAILABLE — no FK from bill to settling attempt. Omitted."
+        }
+      },
+      "additionalProperties": false
+    },
+    "posCashSale": {
+      "type": "object",
+      "required": [
+        "transaction_code",
+        "amount",
+        "payment_amount",
+        "change_amount",
+        "payment_method",
+        "payment_status",
+        "provider",
+        "provider_reference"
+      ],
+      "properties": {
+        "transaction_code": {
+          "type": "string",
+          "description": "pos_orders.transaction_code — operational reference."
+        },
+        "amount": {
+          "$ref": "#/$defs/moneyIdrInt",
+          "description": "pos_orders.total_amount (integer IDR)."
+        },
+        "payment_amount": {
+          "$ref": "#/$defs/moneyIdrInt"
+        },
+        "change_amount": {
+          "$ref": "#/$defs/moneyIdrInt"
+        },
+        "payment_method": {
+          "type": "string",
+          "const": "CASH"
+        },
+        "payment_status": {
+          "type": "string",
+          "const": "PAID"
+        },
+        "currency": {
+          "type": "string",
+          "const": "IDR"
+        },
+        "cashier_id": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "pos_orders.user_id (nullable)."
+        },
+        "student": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/studentRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "OPTIONAL — cash sale may be anonymous."
+        },
+        "provider": {
+          "type": "null",
+          "description": "null for cash."
+        },
+        "provider_reference": {
+          "type": "null",
+          "description": "null for cash."
+        },
+        "items": {
+          "description": "OPEN QUESTION — item-level vs summarized. Not emitted in v1."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

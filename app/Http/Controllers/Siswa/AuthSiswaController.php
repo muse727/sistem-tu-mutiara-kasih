@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 
 class AuthSiswaController extends Controller
 {
@@ -53,14 +52,12 @@ class AuthSiswaController extends Controller
             'cf-turnstile-response.required' => 'Captcha wajib diselesaikan.',
         ]);
 
-        // Verifikasi Cloudflare Turnstile
-        $turnstileResponse = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-            'secret'   => config('services.turnstile.secret_key'),
-            'response' => $request->input('cf-turnstile-response'),
-            'remoteip' => $request->ip(),
-        ]);
+        // Verifikasi Cloudflare Turnstile (via injectable boundary so tests
+        // can fake the HTTP call without disabling verification).
+        $verified = app(\App\Services\Security\TurnstileVerifier::class)
+            ->verify($request->input('cf-turnstile-response'), $request->ip());
 
-        if (! $turnstileResponse->json('success')) {
+        if (! $verified) {
             return back()
                 ->withErrors(['cf-turnstile-response' => 'Verifikasi captcha gagal. Coba lagi.'])
                 ->withInput();

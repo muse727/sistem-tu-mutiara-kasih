@@ -13,7 +13,12 @@
  *   7. DB FK RESTRICT prevents cascade deletion of student_bills
  *   8. Soft-deleted student excluded from normal queries
  *   9. Financial history remains accessible after soft delete
- *  10. PPDBController::destroy() rejects calon_siswa with bills
+ *
+ * NOTE (Phase 09B): the former tests #10/#11 verified PPDBController::destroy()
+ * via the removed /ppdb/* routes. The PPDB module is permanently out of scope
+ * for the current TU architecture, so those tests were removed as obsolete.
+ * Equivalent deletion-protection behaviour is still covered above by tests
+ * #1 and #2 against the current StudentController::destroy() route.
  */
 
 use App\Models\Student;
@@ -202,28 +207,3 @@ test('student bills remain accessible after student is soft deleted', function (
     expect($loadedBill->student_id)->toBe($student->id);
 });
 
-// ── 10. PPDBController rejects calon_siswa with bills ────────────────────────
-test('PPDB destroy rejects calon_siswa that already has a bill', function () {
-    $admin   = User::factory()->create(['role' => 'admin']);
-    $student = Student::factory()->calon()->create();
-    StudentBill::factory()->create(['student_id' => $student->id]);
-
-    $response = $this->actingAs($admin)
-                     ->delete("/ppdb/{$student->id}");
-
-    $response->assertStatus(302);
-    $this->assertDatabaseHas('students', ['id' => $student->id, 'deleted_at' => null]);
-    $this->assertDatabaseHas('student_bills', ['student_id' => $student->id]);
-});
-
-// ── 11. PPDB destroy allows calon_siswa without bills ────────────────────────
-test('PPDB destroy allows calon_siswa without bills', function () {
-    $admin   = User::factory()->create(['role' => 'admin']);
-    $student = Student::factory()->calon()->create();
-
-    $response = $this->actingAs($admin)
-                     ->delete("/ppdb/{$student->id}");
-
-    $response->assertRedirect(route('ppdb.index'));
-    $this->assertSoftDeleted('students', ['id' => $student->id]);
-});

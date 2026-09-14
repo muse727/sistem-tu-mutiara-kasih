@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" x-data="{ tab: 'unpaid', selectedBills: [], selectedItems: [], selectedTotal: 0, multiSheetOpen: false, multiLoading: false, toggleBill(id, name, amount) { const idx = this.selectedBills.indexOf(id); if (idx === -1) { this.selectedBills.push(id); this.selectedItems.push({id, name, amount}); } else { this.selectedBills.splice(idx, 1); this.selectedItems.splice(idx, 1); } this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); }, togglePilihSemua() { const allIds = {{ $unpaidBills->pluck('id') }}; const allItems = {{ $unpaidBills->map(fn($b) => ['id' => $b->id, 'name' => $b->name ?? 'Tagihan '.$b->bill_month.'/'.$b->bill_year, 'amount' => (int)$b->amount]) }}; if (this.selectedBills.length === allIds.length) { this.selectedBills = []; this.selectedItems = []; this.selectedTotal = 0; } else { this.selectedBills = allIds; this.selectedItems = allItems; this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); } }, openMultiSheet() { this.multiSheetOpen = true; }, ...chatWidget() }">
+<html lang="id" x-data="{ tab: 'unpaid', selectedBills: [], selectedItems: [], selectedTotal: 0, multiSheetOpen: false, multiLoading: false, toggleBill(id, name, amount) { const idx = this.selectedBills.indexOf(id); if (idx === -1) { this.selectedBills.push(id); this.selectedItems.push({id, name, amount}); } else { this.selectedBills.splice(idx, 1); this.selectedItems.splice(idx, 1); } this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); }, togglePilihSemua() { const allIds = {{ $unpaidBills->pluck('id') }}; const allItems = {{ $unpaidBills->map(fn($b) => ['id' => $b->id, 'name' => $b->name ?? 'Tagihan '.$b->bill_month.'/'.$b->bill_year, 'amount' => (int)$b->amount]) }}; if (this.selectedBills.length === allIds.length) { this.selectedBills = []; this.selectedItems = []; this.selectedTotal = 0; } else { this.selectedBills = allIds; this.selectedItems = allItems; this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); } }, openMultiSheet() { if (this.selectedBills.length === 1) { const item = this.selectedItems[0]; window.dispatchEvent(new CustomEvent('open-payment', { detail: { id: item.id, name: item.name, amount: item.amount } })); } else { this.multiSheetOpen = true; } }, ...chatWidget() }">
 
 <head>
     <meta charset="UTF-8">
@@ -11,11 +11,7 @@
     <title>Portal Siswa — {{ $student->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    {{-- Midtrans Snap.js Sandbox --}}
-    <script
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="{{ config('services.midtrans.client_key') }}">
-    </script>
+    {{-- Phase E.3 — pembayaran siswa kini via Flip hosted page (redirect), Snap.js tidak dipakai lagi di sini. --}
     <style>
         [x-cloak] { display: none !important; }
         .bill-card { transition: box-shadow 0.15s ease, transform 0.15s ease; }
@@ -335,8 +331,9 @@
                 <button
                     @click="openMultiSheet()"
                     class="bg-[#F56C3E] hover:bg-[#e45322] active:bg-[#be3e15] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors shrink-0 shadow-md shadow-[#F56C3E]/30"
+                    x-text="selectedBills.length === 1 ? 'Bayar' : 'Bayar Dipilih'"
                 >
-                    Bayar Dipilih
+                    Bayar
                 </button>
             </div>
         </div>
@@ -385,22 +382,19 @@
                 <p class="text-xl font-extrabold text-[#963316]" x-text="'Rp ' + selectedTotal.toLocaleString('id-ID')"></p>
             </div>
 
-            <p class="text-xs text-gray-400 mb-5 text-center">Pembayaran diproses melalui Midtrans. Mendukung transfer bank, kartu kredit, QRIS, dan e-wallet.</p>
+            <p class="text-xs text-gray-400 mb-5 text-center">Pembayaran diproses melalui Flip. Mendukung transfer bank, QRIS, dan e-wallet.</p>
 
             <div class="space-y-3">
+                {{-- Phase E.3 — pembayaran multi-tagihan belum didukung Flip (satu tagihan per bill). Dinonaktifkan; bayar satu per satu. --}}
                 <button
-                    @click="multiLoading = true; prosesMultiPayment(() => { multiLoading = false; multiSheetOpen = false; })"
-                    :disabled="multiLoading"
-                    class="w-full bg-[#F56C3E] hover:bg-[#e45322] disabled:bg-[#F56C3E]/50 text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+                    type="button"
+                    disabled
+                    title="Pembayaran sekaligus belum tersedia — silakan bayar satu tagihan per satu"
+                    class="w-full bg-gray-200 text-gray-400 font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
                 >
-                    <template x-if="multiLoading">
-                        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                        </svg>
-                    </template>
-                    <span x-text="multiLoading ? 'Memproses...' : 'Bayar Sekarang'"></span>
+                    <span>Bayar Sekarang</span>
                 </button>
+                <p class="text-xs text-gray-400 text-center">Pembayaran sekaligus belum tersedia. Silakan bayar satu tagihan per satu.</p>
                 <button @click="multiSheetOpen = false" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl transition-colors text-sm">Batal</button>
             </div>
         </div>
@@ -438,7 +432,7 @@
             </div>
 
             <p class="text-xs text-gray-400 mb-5 text-center">
-                Pembayaran diproses melalui Midtrans. Mendukung transfer bank, kartu kredit, QRIS, dan e-wallet.
+                Pembayaran diproses melalui Flip. Mendukung transfer bank, QRIS, dan e-wallet.
             </p>
 
             <div class="space-y-3">
@@ -475,10 +469,12 @@
             }));
         }
 
-        // Dipanggil saat tombol "Bayar Sekarang" diklik di bottom sheet SINGLE
+        // Dipanggil saat tombol "Bayar Sekarang" diklik di bottom sheet SINGLE.
+        // Phase E.3 — gunakan endpoint Flip (pay-flip) dan redirect ke payment_url.
+        // Backend TETAP authoritative: settlement hanya lewat Flip callback.
         async function prosesPayment(billId, onDone) {
             try {
-                const res = await fetch(`/siswa/tagihan/${billId}/pay`, {
+                const res = await fetch(`/siswa/tagihan/${billId}/pay-flip`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -491,28 +487,21 @@
 
                 if (!res.ok) {
                     alert('Gagal: ' + (data.error || 'Terjadi kesalahan, coba lagi.'));
+                    onDone(); // pulihkan tombol agar bisa coba lagi
+                    return;
+                }
+
+                // Wajib ada payment_url dari backend. Jangan redirect tanpa itu.
+                if (!data.payment_url) {
+                    alert('Gagal: tautan pembayaran tidak tersedia. Coba lagi.');
                     onDone();
                     return;
                 }
 
-                onDone(); // tutup sheet sebelum Snap terbuka
-
-                snap.pay(data.snap_token, {
-                    onSuccess: function(result) {
-                        window.location.href = '/siswa/payment/success';
-                    },
-                    onPending: function(result) {
-                        alert('Pembayaran pending. Selesaikan pembayaran sesuai instruksi yang diberikan.');
-                        window.location.reload();
-                    },
-                    onError: function(result) {
-                        alert('Pembayaran gagal: ' + (result.status_message || 'Terjadi kesalahan.'));
-                        window.location.reload();
-                    },
-                    onClose: function() {
-                        // Pengguna tutup popup tanpa bayar — tidak perlu action
-                    }
-                });
+                // Redirect ke halaman pembayaran hosted Flip (bukan popup).
+                const url = data.payment_url.startsWith('http') ? data.payment_url : 'https://' + data.payment_url;
+                window.location.href = url;
+                // onDone sengaja TIDAK dipanggil — halaman berpindah ke Flip.
 
             } catch (e) {
                 alert('Error jaringan: ' + e.message);
@@ -520,59 +509,9 @@
             }
         }
 
-        // Dipanggil saat tombol "Bayar Sekarang" diklik di bottom sheet MULTI
-        async function prosesMultiPayment(onDone) {
-            // Ambil selectedBills dari Alpine
-            const alpineEl = document.querySelector('[x-data]');
-            const alpine   = Alpine.evaluate(alpineEl, 'selectedBills');
-
-            if (!alpine || alpine.length === 0) {
-                alert('Pilih minimal 1 tagihan.');
-                onDone();
-                return;
-            }
-
-            try {
-                const res = await fetch('/siswa/payment/multi', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept':        'application/json',
-                        'Content-Type':  'application/json',
-                    },
-                    body: JSON.stringify({ bill_ids: alpine }),
-                });
-
-                const data = await res.json();
-
-                if (!res.ok) {
-                    alert('Gagal: ' + (data.error || 'Terjadi kesalahan, coba lagi.'));
-                    onDone();
-                    return;
-                }
-
-                onDone(); // tutup sheet sebelum Snap terbuka
-
-                snap.pay(data.snap_token, {
-                    onSuccess: function(result) {
-                        window.location.href = '/siswa/payment/success';
-                    },
-                    onPending: function(result) {
-                        alert('Pembayaran pending. Selesaikan pembayaran sesuai instruksi yang diberikan.');
-                        window.location.reload();
-                    },
-                    onError: function(result) {
-                        alert('Pembayaran gagal: ' + (result.status_message || 'Terjadi kesalahan.'));
-                        window.location.reload();
-                    },
-                    onClose: function() {}
-                });
-
-            } catch (e) {
-                alert('Error jaringan: ' + e.message);
-                onDone();
-            }
-        }
+        // Phase E.3 — pembayaran multi-tagihan via Snap dinonaktifkan (belum didukung Flip).
+        // Backend /siswa/payment/multi (Midtrans) dibiarkan utuh sebagai dukungan historis,
+        // tetapi UI multi-pay tidak lagi memanggilnya.
     </script>
 
     {{-- ===== FLOATING CHAT WIDGET ===== --}}

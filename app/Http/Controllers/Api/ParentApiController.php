@@ -48,9 +48,10 @@ class ParentApiController extends Controller
             'message' => 'Login Berhasil',
             'token'   => $token,
             'student' => [
-                'id'         => $student->id,
-                'name'       => $student->name,
-                'nis'        => $student->nis,
+                'id'           => $student->id,
+                'student_uuid' => $student->student_uuid, // stable external identity (Phase 09B.1)
+                'name'         => $student->name,
+                'nis'          => $student->nis,
                 // kelas via relation (canonical since Phase 9.3)
                 'class_name' => optional($student->kelas)->nama_kelas ?? '-',
                 'kelas'      => $student->kelas_id ? [
@@ -138,10 +139,11 @@ class ParentApiController extends Controller
             'class_name'   => optional($student->kelas)->nama_kelas ?? '-', // compat field
             // v1 enriched student object
             'student'      => [
-                'id'     => $student->id,
-                'nis'    => $student->nis,
-                'name'   => $student->name,
-                'status' => $student->status,
+                'id'           => $student->id,
+                'student_uuid' => $student->student_uuid, // stable external identity (Phase 09B.1)
+                'nis'          => $student->nis,
+                'name'         => $student->name,
+                'status'       => $student->status,
                 'kelas'  => $student->kelas_id ? [
                     'id'         => $student->kelas_id,
                     'nama_kelas' => optional($student->kelas)->nama_kelas ?? '-',
@@ -704,12 +706,17 @@ class ParentApiController extends Controller
         if (in_array($transactionStatus, ['settlement', 'capture']) && $fraudStatus === 'accept') {
 
             DB::transaction(function () use ($pos, $orderId) {
-                // Update pos_orders sebagai ledger kasir
+                // Phase 09B.3 — write only the authoritative columns that exist.
+                // pos_orders has payment_status / payment_amount / change_amount.
+                // There is NO paid_amount or payment_method column — writing those
+                // previously caused a SQL error that rolled back the settlement.
+                // payment_status is the payment truth; MIDTRANS settlement is a
+                // full exact-amount payment, so payment_amount = total, change = 0.
                 $pos->update([
-                    'payment_status' => 'PAID',
-                    'payment_method' => 'MIDTRANS',
-                    'paid_amount'    => $pos->total_amount,
-                    'change_amount'  => 0,
+                    'payment_status'   => 'PAID',
+                    'payment_amount'   => $pos->total_amount,
+                    'change_amount'    => 0,
+                    'midtrans_order_id' => $orderId,
                 ]);
 
                 // Opsi C: sync StudentBill type KANTIN yang terhubung

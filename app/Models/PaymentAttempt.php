@@ -74,6 +74,27 @@ class PaymentAttempt extends Model
     const SOURCE_API    = 'API';
     const SOURCE_SYSTEM = 'SYSTEM';
 
+    // ── Provider constants (Phase E.1) ───────────────────────────────────────
+
+    const PROVIDER_MIDTRANS = 'MIDTRANS';
+    const PROVIDER_FLIP     = 'FLIP';
+
+    // Flip V2 canonical provider statuses (verified contract).
+    const FLIP_STATUS_SUCCESSFUL = 'SUCCESSFUL';
+    const FLIP_STATUS_PENDING    = 'PENDING';
+    const FLIP_STATUS_FAILED     = 'FAILED';
+    const FLIP_STATUS_CANCELLED  = 'CANCELLED';
+    const FLIP_STATUS_EXPIRED    = 'EXPIRED';
+
+    /** Only SUCCESSFUL may settle a bill as PAID. */
+    const FLIP_SUCCESS_STATUSES = [self::FLIP_STATUS_SUCCESSFUL];
+
+    const FLIP_FAILED_STATUSES = [
+        self::FLIP_STATUS_FAILED,
+        self::FLIP_STATUS_CANCELLED,
+        self::FLIP_STATUS_EXPIRED,
+    ];
+
     // ── Relationships ─────────────────────────────────────────────────────────
 
     public function bill()
@@ -96,5 +117,51 @@ class PaymentAttempt extends Model
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    // ── Provider helpers (Phase E.1) ──────────────────────────────────────────
+
+    public function isFlip(): bool
+    {
+        return $this->provider === self::PROVIDER_FLIP;
+    }
+
+    /**
+     * Does this attempt currently hold an open/awaiting-payment provider session?
+     * Midtrans: status 'pending'. Flip: provider_status 'PENDING' / status 'pending'.
+     */
+    public function hasOpenProviderSession(): bool
+    {
+        if ($this->isFlip()) {
+            return $this->isPending()
+                && ! in_array($this->provider_status, self::FLIP_FAILED_STATUSES, true)
+                && ! in_array($this->provider_status, self::FLIP_SUCCESS_STATUSES, true);
+        }
+        return $this->isPending();
+    }
+
+    /**
+     * Settle this attempt from a verified Flip SUCCESSFUL callback.
+     * Maps the provider status into the local ledger without touching StudentBill
+     * (the BillingPaymentService owns bill state).
+     */
+    public function markFlipSettled(string $providerStatus, ?string $paymentChannel = null): void
+    {
+        $this->update(array_filter([
+            'status'          => self::STATUS_SETTLEMENT,
+            'provider_status' => $providerStatus,
+            'payment_channel' => $paymentChannel,
+            'settled_at'      => now(),
+        ], static fn ($v) => $v !== null));
+    }
+
+    /** Mark this attempt terminally failed from a Flip failed/cancelled/expired status. */
+    public function markFlipFailed(string $providerStatus): void
+    {
+        $this->update([
+            'status'          => self::STATUS_EXPIRE,
+            'provider_status' => $providerStatus,
+            'expired_at'      => now(),
+        ]);
     }
 }

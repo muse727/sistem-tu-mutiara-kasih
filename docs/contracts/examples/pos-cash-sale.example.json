@@ -1,0 +1,23 @@
+{
+  "event_id": "22222222-2222-4222-8222-222222222222",
+  "event_type": "pos.cash_sale",
+  "event_version": "1.0",
+  "contract_version": "1.0",
+  "source_system": "TU",
+  "source_record_id": "8821",
+  "idempotency_key": "TU:pos.cash_sale:8821",
+  "occurred_at": "2026-09-13T09:05:12+07:00",
+  "payload": {
+    "transaction_code": "TRX-1757772311-AB1",
+    "amount": 15000,
+    "payment_amount": 20000,
+    "change_amount": 5000,
+    "payment_method": "CASH",
+    "payment_status": "PAID",
+    "currency": "IDR",
+    "cashier_id": 7,
+    "student": null,
+    "provider": null,
+    "provider_reference": null
+  }
+}

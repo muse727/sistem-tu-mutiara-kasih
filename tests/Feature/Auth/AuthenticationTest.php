@@ -9,11 +9,13 @@ test('login screen can be rendered', function () {
 });
 
 test('users can authenticate using the login screen', function () {
+    fakeTurnstileSuccess();
     $user = User::factory()->create();
 
     $response = $this->post('/login', [
         'email' => $user->email,
         'password' => 'password',
+        'cf-turnstile-response' => 'valid-token',
     ]);
 
     $this->assertAuthenticated();
@@ -21,11 +23,13 @@ test('users can authenticate using the login screen', function () {
 });
 
 test('users can not authenticate with invalid password', function () {
+    fakeTurnstileSuccess();
     $user = User::factory()->create();
 
     $this->post('/login', [
         'email' => $user->email,
         'password' => 'wrong-password',
+        'cf-turnstile-response' => 'valid-token',
     ]);
 
     $this->assertGuest();

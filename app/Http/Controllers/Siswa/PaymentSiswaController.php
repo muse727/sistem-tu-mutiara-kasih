@@ -488,17 +488,15 @@ class PaymentSiswaController extends Controller
                     ]);
                 }
 
-                // Build human-readable payment method label from Midtrans payload.
-                // payment_type examples: 'bank_transfer', 'gopay', 'qris', 'cstore', 'akulaku', 'shopeepay'
-                // bank examples: 'bca', 'bni', 'bri', 'mandiri', 'permata'
-                $paymentType = $payload['payment_type'] ?? null;
-                $bank        = $payload['bank'] ?? ($payload['va_numbers'][0]['bank'] ?? null);
-                $paymentMethodLabel = self::resolvePaymentMethodLabel($paymentType, $bank);
-
+                // Canonical gateway source recorded on the bill. The specific
+                // payment channel (VA BCA, GoPay, QRIS, ...) is preserved on the
+                // PaymentAttempt.payment_method / bank columns, not on the bill —
+                // the bill's payment_method uses the canonical value 'MIDTRANS'
+                // consistent with BillingPaymentService and ParentApiController.
                 $bill->update([
                     'status'            => 'PAID',
                     'paid_at'           => now(),   // application clock — intentionally differs from settled_at
-                    'payment_method'    => $paymentMethodLabel,
+                    'payment_method'    => 'MIDTRANS',
                     'confirmed_by'      => null,    // Phase 2.3: gateway-confirmed, no operator
                     'midtrans_order_id' => $orderId,
                     'payment_token'     => null,
@@ -654,12 +652,29 @@ class PaymentSiswaController extends Controller
             return response()->json(['message' => 'OK'], 200);
         }
 
-        if (in_array($transactionStatus, ['settlement', 'capture']) && $fraudStatus === 'accept') {
-            $paymentType = $payload['payment_type'] ?? null;
-            $bank        = $payload['bank'] ?? ($payload['va_numbers'][0]['bank'] ?? null);
-            $methodLabel = self::resolvePaymentMethodLabel($paymentType, $bank);
+        // ── Amount integrity (Phase 09B.2) ───────────────────────────────────
+        // The provider gross_amount must equal the SUM of the authoritative
+        // bill amounts for this MULTI order. A callback amount must never be
+        // trusted merely because the order_id exists. Mismatch → reject, no
+        // financial state is mutated. (Mirrors the single-bill amount guard.)
+        $receivedAmount = (int) round((float) ($payload['gross_amount'] ?? 0));
+        $expectedAmount = (int) round((float) $bills->sum('amount'));
 
-            DB::transaction(function () use ($bills, $orderId, $transactionStatus, $payload, $methodLabel, $request) {
+        if ($receivedAmount !== $expectedAmount) {
+            Log::error('Midtrans callback: MULTI amount mismatch — bills NOT marked PAID', [
+                'order_id'        => $orderId,
+                'bill_ids'        => $bills->pluck('id')->all(),
+                'expected_amount' => $expectedAmount,
+                'received_amount' => $receivedAmount,
+                'ip'              => $request->ip(),
+            ]);
+            return response()->json(['message' => 'OK'], 200);
+        }
+        // ── End Amount integrity ─────────────────────────────────────────────
+
+        if (in_array($transactionStatus, ['settlement', 'capture']) && $fraudStatus === 'accept') {
+
+            DB::transaction(function () use ($bills, $orderId, $transactionStatus, $payload, $request) {
                 foreach ($bills as $bill) {
                     if ($bill->status === 'PAID') {
                         continue; // Idempotent — skip jika sudah paid
@@ -688,7 +703,7 @@ class PaymentSiswaController extends Controller
                     $bill->update([
                         'status'            => 'PAID',
                         'paid_at'           => now(),
-                        'payment_method'    => $methodLabel,
+                        'payment_method'    => 'MIDTRANS',
                         'confirmed_by'      => null,
                         'midtrans_order_id' => $orderId,
                         'payment_token'     => null,

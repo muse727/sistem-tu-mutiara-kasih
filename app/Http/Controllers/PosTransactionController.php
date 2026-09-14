@@ -9,6 +9,7 @@ use App\Models\PosOrderItem;
 use App\Models\Student;
 use App\Models\StudentBill;
 use App\Services\FinancialAuditLogger;
+use App\Services\Integration\IntegrationOutboxService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -145,6 +146,13 @@ class PosTransactionController extends Controller
                 }
 
                 FinancialAuditLogger::billCreated($bill);
+            }
+
+            // Phase 09D.2 — atomic POS cash sale outbox event in the SAME
+            // transaction (only for settled cash sales; debt orders emit no
+            // event — their event comes from KANTIN bill settlement).
+            if ($isCash) {
+                app(IntegrationOutboxService::class)->recordPosCashSale($order);
             }
 
             DB::commit();

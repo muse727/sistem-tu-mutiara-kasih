@@ -23,6 +23,8 @@ use App\Http\Controllers\KelasController;           // Master Kelas
 use App\Http\Controllers\Siswa\AuthSiswaController;
 use App\Http\Controllers\Siswa\DashboardSiswaController;
 use App\Http\Controllers\Siswa\PaymentSiswaController;
+use App\Http\Controllers\Siswa\FlipPaymentController;
+use App\Http\Controllers\FlipCallbackController;
 use App\Http\Controllers\Siswa\ChatSiswaController;
 use App\Http\Controllers\ChatTuController;
 
@@ -59,6 +61,10 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
     // Midtrans webhook — tidak butuh auth, Midtrans yang hit ini
     Route::post('/payment/callback', [PaymentSiswaController::class, 'callback'])->name('payment.callback');
 
+    // Flip Accept Payment V2 webhook — tidak butuh auth, Flip yang hit ini.
+    // Token-validated inside the controller (constant-time). Always returns 200.
+    Route::post('/payment/flip-callback', [FlipCallbackController::class, 'handle'])->name('payment.flip.callback');
+
     // Verifikasi struk publik — tidak butuh login
     Route::get('/verify/{token}', [\App\Http\Controllers\Siswa\VerifyPaymentController::class, 'show'])->name('verify');
 
@@ -67,6 +73,7 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard',            [DashboardSiswaController::class, 'index'])->name('dashboard');
         Route::get('/tagihan/{bill}',        [DashboardSiswaController::class, 'detail'])->name('bill.detail');
         Route::post('/tagihan/{bill}/pay',   [PaymentSiswaController::class, 'createToken'])->name('payment.token');
+        Route::post('/tagihan/{bill}/pay-flip', [FlipPaymentController::class, 'createBill'])->name('payment.flip');
         Route::post('/payment/multi',          [PaymentSiswaController::class, 'createMultiToken'])->name('payment.multi');
         Route::get('/tagihan/{bill}/struk',  [PaymentSiswaController::class, 'struk'])->name('tagihan.struk');
         Route::get('/profil',                  [\App\Http\Controllers\Siswa\ProfilSiswaController::class, 'show'])->name('profil');
@@ -263,5 +270,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:admin,tu,kepala_sekolah')
         ->name('reports.monthly');
 });
+
 
 
