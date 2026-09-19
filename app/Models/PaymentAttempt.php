@@ -33,10 +33,10 @@ class PaymentAttempt extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'gross_amount' => 'decimal:2',
-        'initiated_at' => 'datetime',
-        'settled_at'   => 'datetime',
-        'expired_at'   => 'datetime',
+        'gross_amount'  => 'decimal:2',
+        'initiated_at'  => 'datetime',
+        'settled_at'    => 'datetime',
+        'expired_at'    => 'datetime',
     ];
 
     // ── Status constants ──────────────────────────────────────────────────────

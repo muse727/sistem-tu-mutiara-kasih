@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" x-data="{ tab: 'unpaid', selectedBills: [], selectedItems: [], selectedTotal: 0, multiSheetOpen: false, multiLoading: false, toggleBill(id, name, amount) { const idx = this.selectedBills.indexOf(id); if (idx === -1) { this.selectedBills.push(id); this.selectedItems.push({id, name, amount}); } else { this.selectedBills.splice(idx, 1); this.selectedItems.splice(idx, 1); } this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); }, togglePilihSemua() { const allIds = {{ $unpaidBills->pluck('id') }}; const allItems = {{ $unpaidBills->map(fn($b) => ['id' => $b->id, 'name' => $b->name ?? 'Tagihan '.$b->bill_month.'/'.$b->bill_year, 'amount' => (int)$b->amount]) }}; if (this.selectedBills.length === allIds.length) { this.selectedBills = []; this.selectedItems = []; this.selectedTotal = 0; } else { this.selectedBills = allIds; this.selectedItems = allItems; this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); } }, openMultiSheet() { if (this.selectedBills.length === 1) { const item = this.selectedItems[0]; window.dispatchEvent(new CustomEvent('open-payment', { detail: { id: item.id, name: item.name, amount: item.amount } })); } else { this.multiSheetOpen = true; } }, ...chatWidget() }">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,17 @@
     <title>Portal Siswa — {{ $student->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    {{-- Phase E.3 — pembayaran siswa kini via Flip hosted page (redirect), Snap.js tidak dipakai lagi di sini. --}
+    {{-- Payment provider aktif (selector Task 1). Reversible via STUDENT_PAYMENT_PROVIDER. --}}
+    <script>
+        window.STUDENT_PAYMENT = {
+            provider:  @json(config('services.student_payment.provider', 'midtrans')),
+            clientKey: @json(config('services.midtrans.client_key')),
+        };
+    </script>
+    {{-- Snap.js sandbox hanya dimuat saat provider aktif = midtrans (conditional, tidak duplikat). --}}
+    @if (config('services.student_payment.provider', 'midtrans') === 'midtrans')
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+    @endif
     <style>
         [x-cloak] { display: none !important; }
         .bill-card { transition: box-shadow 0.15s ease, transform 0.15s ease; }
@@ -25,101 +35,91 @@
         #chat-messages   { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen pb-8">
+<body class="min-h-screen pb-32 bg-gray-50" x-data="{ tab: 'unpaid', selectedBills: [], selectedItems: [], selectedTotal: 0, multiSheetOpen: false, multiLoading: false, chatOpen: false, toggleBill(id, name, amount) { const idx = this.selectedBills.indexOf(id); if (idx === -1) { this.selectedBills.push(id); this.selectedItems.push({id, name, amount}); } else { this.selectedBills.splice(idx, 1); this.selectedItems.splice(idx, 1); } this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); }, togglePilihSemua() { const allIds = {{ $unpaidBills->pluck('id') }}; const allItems = {{ $unpaidBills->map(fn($b) => ['id' => $b->id, 'name' => $b->name ?? 'Tagihan '.$b->bill_month.'/'.$b->bill_year, 'amount' => (int)$b->amount]) }}; if (this.selectedBills.length === allIds.length) { this.selectedBills = []; this.selectedItems = []; this.selectedTotal = 0; } else { this.selectedBills = allIds; this.selectedItems = allItems; this.selectedTotal = this.selectedItems.reduce((s, i) => s + i.amount, 0); } }, openMultiSheet() { if (this.selectedBills.length === 1) { const item = this.selectedItems[0]; window.dispatchEvent(new CustomEvent('open-payment', { detail: { id: item.id, name: item.name, amount: item.amount } })); } else { this.multiSheetOpen = true; } }, ...chatWidget() }">
 
     {{-- ===== HEADER ===== --}}
-    <div class="bg-gradient-to-r from-[#F56C3E] to-[#e45322] px-4 pt-12 pb-20">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
+    <div class="bg-[#F56C3E] px-4 pt-10 pb-16">
+        <div class="flex items-center justify-between max-w-md gap-3 mx-auto">
+            <div class="flex items-center min-w-0 gap-3">
                 {{-- Avatar + link ke profil --}}
-                <a href="{{ route('siswa.profil') }}" class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold text-lg shadow-inner hover:bg-white/30 transition-colors shrink-0">
+                <a href="{{ route('siswa.profil') }}" class="flex items-center justify-center w-12 h-12 text-lg font-bold text-white transition-colors shadow-inner rounded-2xl bg-white/20 backdrop-blur hover:bg-white/30 shrink-0">
                     {{ strtoupper(substr($student->name, 0, 1)) }}
                 </a>
-                <div>
+                <div class="min-w-0">
                     <a href="{{ route('siswa.profil') }}" class="hover:underline decoration-white/50">
-                        <p class="text-white font-bold text-base leading-tight">{{ $student->name }}</p>
+                        <p class="text-base font-bold leading-tight text-white truncate">{{ $student->name }}</p>
                     </a>
-                    <p class="text-white/80 text-xs mt-0.5">NIS: {{ $student->nis }}</p>
-                    <p class="text-white/90 text-xs">{{ optional($student->kelas)->nama_kelas ?? $schoolName }}</p>
+                    <p class="mt-1 text-xs text-white/80">NIS: {{ $student->nis }}</p>
+                    <p class="text-white/70 text-xs mt-0.5 truncate">{{ optional($student->kelas)->nama_kelas ?? $schoolName }}</p>
                 </div>
             </div>
-            <form method="POST" action="{{ route('siswa.logout') }}">
-                @csrf
-                <button type="submit"
-                        class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-3 py-2 rounded-xl transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                    Keluar
-                </button>
-            </form>
         </div>
     </div>
 
-    <div class="max-w-md mx-auto px-4">
+    <div class="max-w-md px-4 mx-auto">
 
         {{-- Flash Messages --}}
         @if (session('success'))
-            <div class="mt-4 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex items-start gap-2">
+            <div class="flex items-start gap-2 px-4 py-3 mt-4 border border-green-200 bg-green-50 rounded-2xl">
                 <svg class="w-5 h-5 text-[#F56C3E] shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-                <p class="text-green-700 text-sm font-medium">{{ session('success') }}</p>
+                <p class="text-sm font-medium text-green-700">{{ session('success') }}</p>
             </div>
         @endif
 
         {{-- ===== SUMMARY CARDS ===== --}}
-        <div class="grid grid-cols-2 gap-3 -mt-12 mb-5">
+        <div class="grid grid-cols-2 gap-3 mb-6 -mt-10">
             {{-- Belum Bayar --}}
-            <div class="bg-white rounded-2xl p-4 shadow-xl border border-gray-100">
-                <div class="flex items-center gap-1.5 mb-2">
-                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
-                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Belum Bayar</p>
+            <div class="p-4 bg-white border border-gray-100 shadow-md rounded-2xl">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-2 h-2 bg-[#F56C3E] rounded-full"></div>
+                    <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Belum Bayar</p>
                 </div>
-                <p class="text-lg font-extrabold text-red-600 leading-tight">
+                <p class="text-xl font-extrabold leading-tight text-[#171717] truncate">
                     Rp {{ number_format($totalUnpaid, 0, ',', '.') }}
                 </p>
-                <p class="text-xs text-gray-400 mt-1">{{ $unpaidBills->count() }} tagihan</p>
+                <p class="mt-1.5 text-xs text-gray-400">{{ $unpaidBills->count() }} tagihan</p>
             </div>
             {{-- Sudah Bayar --}}
-            <div class="bg-white rounded-2xl p-4 shadow-xl border border-gray-100">
-                <div class="flex items-center gap-1.5 mb-2">
-                    <div class="w-2 h-2 rounded-full bg-green-400"></div>
-                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Sudah Bayar</p>
+            <div class="p-4 bg-white border border-gray-100 shadow-md rounded-2xl">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Sudah Bayar</p>
                 </div>
-                <p class="text-lg font-extrabold text-green-600 leading-tight">
+                <p class="text-xl font-extrabold leading-tight text-[#171717] truncate">
                     Rp {{ number_format($totalPaid, 0, ',', '.') }}
                 </p>
-                <p class="text-xs text-gray-400 mt-1">{{ $paidBills->count() }} tagihan</p>
+                <p class="mt-1.5 text-xs text-gray-400">{{ $paidBills->count() }} tagihan</p>
             </div>
         </div>
 
         {{-- ===== TAGIHAN BULAN INI ===== --}}
-        <div class="mt-5">
-            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <div class="mt-6">
+            <h2 class="mb-3 text-sm font-semibold tracking-wide text-gray-500 uppercase">
                 Tagihan {{ \Carbon\Carbon::now()->locale('id')->isoFormat('MMMM YYYY') }}
             </h2>
             @if($thisMonthBills->isEmpty())
-                <div class="bg-white rounded-2xl px-4 py-3 text-sm text-gray-400 text-center border border-gray-100">
+                <div class="px-4 py-3.5 text-sm text-center text-gray-400 bg-white border border-gray-100 rounded-2xl">
                     Tidak ada tagihan bulan ini
                 </div>
             @elseif($thisMonthBills->where('status', '!=', 'PAID')->isEmpty())
-                <div class="bg-green-50 border border-green-100 rounded-2xl px-4 py-3 flex items-center gap-2">
+                <div class="flex items-center gap-2 px-4 py-3.5 border border-green-100 bg-green-50 rounded-2xl">
                     <span class="text-[#F56C3E] text-lg">✅</span>
                     <span class="text-sm font-medium text-green-700">Semua tagihan bulan ini sudah lunas!</span>
                 </div>
             @else
-                <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden divide-y divide-gray-50">
+                <div class="overflow-hidden bg-white border border-gray-100 divide-y rounded-2xl divide-gray-50">
                     @foreach($thisMonthBills as $mb)
-                    <div class="flex items-center justify-between px-4 py-3">
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">{{ $mb->name }}</p>
-                            <p class="text-xs text-gray-400">Rp {{ number_format($mb->amount, 0, ',', '.') }}</p>
+                    <div class="flex items-center justify-between gap-3 px-4 py-3.5">
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ $mb->name }}</p>
+                            <p class="mt-0.5 text-sm font-bold text-[#171717]">Rp {{ number_format($mb->amount, 0, ',', '.') }}</p>
                         </div>
                         @if($mb->status === 'PAID')
-                            <span class="text-xs font-semibold bg-[#F56C3E] text-white shadow-sm px-2.5 py-1 rounded-full">Lunas</span>
+                            <span class="shrink-0 text-xs font-semibold bg-[#F56C3E] text-white shadow-sm px-2.5 py-1 rounded-full">Lunas</span>
                         @else
-                            <span class="text-xs font-semibold bg-[#171717] text-white shadow-sm px-2.5 py-1 rounded-full">Belum Bayar</span>
+                            <span class="shrink-0 text-xs font-semibold bg-[#171717] text-white shadow-sm px-2.5 py-1 rounded-full">Belum Bayar</span>
                         @endif
                     </div>
                     @endforeach
@@ -128,27 +128,24 @@
         </div>
 
         {{-- ===== TABS ===== --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="mt-6 overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
             <div class="flex border-b border-gray-100">
                 <button
                     @click="tab = 'unpaid'"
                     :class="tab === 'unpaid'
-                        ? 'border-b-2 border-[#F56C3E] text-[#F56C3E] font-bold bg-[#F56C3E]/10'
-                        : 'text-gray-400 hover:text-gray-600'"
-                    class="flex-1 py-3.5 text-sm transition-all duration-150"
+                        ? 'border-b-2 border-[#F56C3E] text-[#F56C3E] font-bold'
+                        : 'border-b-2 border-transparent text-gray-400 hover:text-gray-600 font-medium'"
+                    class="flex-1 px-4 py-3.5 text-sm transition-colors duration-150"
                 >
                     Belum Lunas
-                    <span class="ml-1 text-xs">({{ $unpaidBills->count() }})</span>
+                    <span class="ml-1 text-xs font-medium">({{ $unpaidBills->count() }})</span>
                 </button>
                 <button
-                    @click="tab = 'paid'"
-                    :class="tab === 'paid'
-                        ? 'border-b-2 border-[#F56C3E] text-[#F56C3E] font-bold bg-[#F56C3E]/10'
-                        : 'text-gray-400 hover:text-gray-600'"
-                    class="flex-1 py-3.5 text-sm transition-all duration-150"
+                    @click="window.location.href = '{{ route('siswa.history') }}'"
+                    class="flex-1 px-4 py-3.5 text-sm font-medium text-gray-400 border-b-2 border-transparent transition-colors duration-150 hover:text-gray-600"
                 >
                     Lunas
-                    <span class="ml-1 text-xs">({{ $paidBills->count() }})</span>
+                    <span class="ml-1 text-xs font-medium">({{ $paidBills->count() }})</span>
                 </button>
             </div>
 
@@ -159,7 +156,7 @@
                 @if($unpaidBills->count() > 1)
                 <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/60">
                     <label class="flex items-center gap-2 cursor-pointer select-none" @click.prevent="togglePilihSemua()">
-                        <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors"
+                        <div class="flex items-center justify-center w-5 h-5 transition-colors border-2 rounded-md"
                              :class="selectedBills.length === {{ $unpaidBills->count() }} ? 'bg-[#F56C3E] border-[#F56C3E]' : 'border-gray-300 bg-white'">
                             <svg x-show="selectedBills.length === {{ $unpaidBills->count() }}" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -173,24 +170,24 @@
 
                 @php $unpaidGrouped = $unpaidBills->groupBy('bill_year'); @endphp
                 @forelse($unpaidGrouped as $year => $yearBills)
-                    <div class="px-4 pt-3 pb-1">
-                        <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">{{ $year }}</p>
+                    <div class="px-4 pt-4 pb-1.5">
+                        <p class="text-xs font-semibold tracking-widest text-gray-400 uppercase">{{ $year }}</p>
                     </div>
                     @foreach($yearBills as $bill)
                         <div
-                            class="bill-card flex items-center px-4 py-4 gap-3 cursor-pointer hover:bg-[#F56C3E]/10 active:bg-[#F56C3E]/20"
-                            :class="selectedBills.includes({{ $bill->id }}) ? 'bg-[#F56C3E]/10' : ''"
+                            class="bill-card flex items-center px-4 py-3.5 gap-3 cursor-pointer hover:bg-[#F56C3E]/5 active:bg-[#F56C3E]/10"
+                            :class="selectedBills.includes({{ $bill->id }}) ? 'bg-[#F56C3E]/5' : ''"
                             @click="toggleBill({{ $bill->id }}, '{{ addslashes($bill->name ?? 'Tagihan') }}', {{ (int)$bill->amount }})"
                         >
                             {{-- Left: checkbox + icon --}}
-                            <div class="shrink-0 flex items-center">
-                                <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mr-3"
+                            <div class="flex items-center shrink-0">
+                                <div class="flex items-center justify-center w-5 h-5 mr-3 transition-colors border-2 rounded-md"
                                      :class="selectedBills.includes({{ $bill->id }}) ? 'bg-[#F56C3E] border-[#F56C3E]' : 'border-gray-300 bg-white'">
                                     <svg x-show="selectedBills.includes({{ $bill->id }})" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
-                                <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-[#F56C3E]/10">
                                     <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                     </svg>
@@ -198,8 +195,8 @@
                             </div>
                             {{-- Center: info --}}
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-gray-900 text-sm truncate">{{ $bill->name ?? 'Tagihan ' . $bill->bill_month . '/' . $bill->bill_year }}</p>
-                                <p class="text-xs text-gray-400 mt-0.5">
+                                <p class="text-sm font-semibold text-gray-900 truncate">{{ $bill->name ?? 'Tagihan ' . $bill->bill_month . '/' . $bill->bill_year }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5 truncate">
                                     @if($bill->due_date)
                                         Jatuh tempo {{ \Carbon\Carbon::parse($bill->due_date)->isoFormat('D MMM Y') }}
                                     @elseif($bill->bill_month && $bill->bill_year)
@@ -210,14 +207,14 @@
                                 </p>
                                 @php
                                     $typeLabel = match($bill->type) {
-                                        'SPP'          => ['label' => 'SPP', 'class' => 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm'],
-                                        'PAKET'        => ['label' => 'Paket', 'class' => 'bg-purple-100 text-purple-600'],
-                                        'KANTIN'       => ['label' => 'Kantin', 'class' => 'bg-white text-[#171717] border border-[#EDEDED] shadow-sm'],
-                                        'DAFTAR_ULANG' => ['label' => 'Daftar Ulang', 'class' => 'bg-[#F56C3E] text-white shadow-sm'],
+                                        'SPP'          => ['label' => 'SPP', 'class' => 'bg-white text-[#171717] border border-[#EDEDED]'],
+                                        'PAKET'        => ['label' => 'Paket', 'class' => 'bg-white text-[#171717] border border-[#EDEDED]'],
+                                        'KANTIN'       => ['label' => 'Kantin', 'class' => 'bg-white text-[#171717] border border-[#EDEDED]'],
+                                        'DAFTAR_ULANG' => ['label' => 'Daftar Ulang', 'class' => 'bg-[#F56C3E] text-white'],
                                         default        => ['label' => $bill->type, 'class' => 'bg-gray-100 text-gray-500'],
                                     };
                                 @endphp
-                                <span class="inline-block mt-1 {{ $typeLabel['class'] }} text-xs px-1.5 py-0.5 rounded font-medium">
+                                <span class="inline-block mt-1.5 {{ $typeLabel['class'] }} text-xs px-2 py-0.5 rounded-md font-medium">
                                     {{ $typeLabel['label'] }}
                                 </span>
                             </div>
@@ -226,75 +223,79 @@
                                 @if($bill->original_amount && $bill->original_amount != $bill->amount)
                                     <p class="text-xs text-gray-400 line-through">Rp {{ number_format($bill->original_amount, 0, ',', '.') }}</p>
                                 @endif
-                                <p class="font-bold text-gray-900 text-sm">Rp {{ number_format($bill->amount, 0, ',', '.') }}</p>
-                                <span class="inline-block mt-1 bg-[#171717] text-white shadow-sm text-xs px-2 py-0.5 rounded-full font-semibold">
+                                <p class="text-sm font-bold text-[#171717]">Rp {{ number_format($bill->amount, 0, ',', '.') }}</p>
+                                <span class="inline-block mt-1.5 bg-[#171717] text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                                     {{ $bill->status === 'PARTIAL' ? 'Sebagian' : 'Belum Bayar' }}
                                 </span>
                             </div>
-                            <svg class="w-4 h-4 text-[#F56C3E] shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg class="self-center w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                             </svg>
                         </div>
                     @endforeach
                 @empty
-                    <div class="text-center py-16 px-4">
-                        <p class="text-5xl mb-3">🎉</p>
-                        <p class="text-gray-700 font-bold text-base">Semua tagihan lunas!</p>
-                        <p class="text-gray-400 text-sm mt-1">Tidak ada tagihan yang perlu dibayar.</p>
+                    <div class="px-4 py-16 text-center">
+                        <p class="mb-3 text-5xl">🎉</p>
+                        <p class="text-base font-bold text-gray-700">Semua tagihan lunas!</p>
+                        <p class="mt-1 text-sm text-gray-400">Tidak ada tagihan yang perlu dibayar.</p>
                     </div>
                 @endforelse
             </div>
 
-            {{-- ===== LUNAS ===== --}}
-            <div x-show="tab === 'paid'" class="divide-y divide-gray-50">
-                @php $paidGrouped = $paidBills->groupBy('bill_year'); @endphp
-                @forelse($paidGrouped as $year => $yearBills)
-                    <div class="px-4 pt-3 pb-1">
-                        <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">{{ $year }}</p>
-                    </div>
-                    @foreach($yearBills as $bill)
-                        <div class="flex items-center px-4 py-4 gap-3">
+            {{-- ===== LUNAS (ringkasan terbaru + tautan riwayat) ===== --}}
+            @if($paidBills->count() > 0)
+            <div>
+                <div class="px-4 pt-4 pb-1.5">
+                    <p class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Terbaru</p>
+                </div>
+                @foreach($paidBills->take(3) as $bill)
+                        <div class="flex items-center gap-3 px-4 py-3.5 border-t border-gray-50 first:border-t-0">
                             {{-- Left: icon --}}
-                            <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-[#F56C3E]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-xl shrink-0">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                             </div>
                             {{-- Center: info --}}
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-gray-900 text-sm truncate">{{ $bill->name ?? 'Tagihan ' . $bill->bill_month . '/' . $bill->bill_year }}</p>
-                                <p class="text-xs text-gray-400 mt-0.5">
-                                    {{-- Phase 2.4: use paid_at as canonical payment date --}}
-                        @if($bill->paid_at)
-                            Dibayar {{ $bill->paid_at->isoFormat('D MMM Y') }}
-                        @else
-                            Tanggal pembayaran tidak tersedia
-                        @endif
+                                <p class="text-sm font-semibold text-gray-900 truncate">{{ $bill->name ?? 'Tagihan ' . $bill->bill_month . '/' . $bill->bill_year }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5 truncate">
+                                    @if($bill->paid_at)
+                                        Dibayar {{ $bill->paid_at->isoFormat('D MMM Y') }}
+                                    @else
+                                        Tanggal pembayaran tidak tersedia
+                                    @endif
                                     @if($bill->payment_method)
                                         · <span class="capitalize">{{ $bill->payment_method }}</span>
                                     @endif
                                 </p>
-                                <a href="{{ route('siswa.tagihan.struk', $bill->id) }}" class="text-xs text-[#F56C3E] font-medium mt-0.5 block">Lihat Struk →</a>
                             </div>
                             {{-- Right: amount + badge --}}
                             <div class="text-right shrink-0">
-                                <p class="font-bold text-gray-900 text-sm">Rp {{ number_format($bill->amount, 0, ',', '.') }}</p>
-                                <span class="inline-block mt-1 bg-[#F56C3E] text-white shadow-sm text-xs px-2 py-0.5 rounded-full font-semibold">
+                                <p class="text-sm font-bold text-[#171717]">Rp {{ number_format($bill->amount, 0, ',', '.') }}</p>
+                                <span class="inline-block mt-1.5 bg-[#F56C3E] text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                                     Lunas
                                 </span>
                             </div>
                         </div>
-                    @endforeach
-                @empty
-                    <div class="text-center py-16 px-4">
-                        <p class="text-gray-400 text-sm">Belum ada riwayat pembayaran.</p>
-                    </div>
-                @endforelse
+                @endforeach
+                <a href="{{ route('siswa.history') }}"
+                   class="flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold text-[#F56C3E] border-t border-gray-50 hover:bg-[#F56C3E]/5 transition-colors">
+                    Lihat Semua Riwayat
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
             </div>
+            @else
+            <div class="px-4 py-12 text-center">
+                <p class="text-sm text-gray-400">Belum ada riwayat pembayaran.</p>
+            </div>
+            @endif
         </div>
 
         {{-- ===== INFO FOOTER ===== --}}
-        <p class="text-center text-gray-400 text-xs mt-6">
+        <p class="mt-8 text-xs text-center text-gray-400">
             {{ $schoolName }} &middot; Portal Siswa
         </p>
 
@@ -311,10 +312,11 @@
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="translate-y-0 opacity-100"
         x-transition:leave-end="translate-y-full opacity-0"
-        class="fixed bottom-0 left-0 right-0 z-40 no-print"
+        class="fixed left-0 right-0 z-40 no-print"
+        style="bottom:calc(72px + env(safe-area-inset-bottom));"
     >
-        <div class="max-w-md mx-auto px-4 pb-4">
-            <div class="bg-white rounded-2xl shadow-2xl shadow-gray-300/60 border border-gray-100 px-4 py-3 flex items-center gap-3">
+        <div class="max-w-md px-4 pb-2 mx-auto">
+            <div class="flex items-center gap-3 px-4 py-3 bg-white border border-gray-100 shadow-xl rounded-2xl">
                 {{-- Info --}}
                 <div class="flex-1 min-w-0">
                     <p class="text-xs text-gray-400" x-text="selectedBills.length + ' tagihan dipilih'"></p>
@@ -323,7 +325,7 @@
                 {{-- Batalkan --}}
                 <button
                     @click="selectedBills = []; selectedItems = []"
-                    class="text-xs text-gray-400 font-medium px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors shrink-0"
+                    class="px-3 py-2 text-xs font-medium text-gray-400 transition-colors rounded-xl hover:bg-gray-100 shrink-0"
                 >
                     Batal
                 </button>
@@ -351,20 +353,20 @@
 
         {{-- Sheet --}}
         <div
-            class="relative w-full bg-white rounded-t-3xl shadow-2xl px-5 py-6 max-w-md mx-auto"
+            class="relative w-full max-w-md px-5 py-6 mx-auto bg-white shadow-2xl rounded-t-3xl"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="translate-y-full"
             x-transition:enter-end="translate-y-0"
         >
-            <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
+            <div class="w-10 h-1 mx-auto mb-5 bg-gray-200 rounded-full"></div>
 
-            <h3 class="text-base font-bold text-gray-900 mb-4">Konfirmasi Pembayaran</h3>
+            <h3 class="mb-4 text-base font-bold text-gray-900">Konfirmasi Pembayaran</h3>
 
             {{-- List tagihan dipilih --}}
-            <div class="space-y-2 mb-4 max-h-48 overflow-y-auto">
+            <div class="mb-4 space-y-2 overflow-y-auto max-h-48">
                 <template x-for="item in selectedItems" :key="item.id">
                     <div class="flex items-center justify-between gap-3 py-2 border-b border-gray-50 last:border-0">
-                        <div class="flex items-center gap-2 min-w-0">
+                        <div class="flex items-center min-w-0 gap-2">
                             <div class="w-1.5 h-1.5 rounded-full bg-[#F56C3E] shrink-0"></div>
                             <p class="text-sm text-gray-700 truncate" x-text="item.name"></p>
                         </div>
@@ -382,7 +384,7 @@
                 <p class="text-xl font-extrabold text-[#963316]" x-text="'Rp ' + selectedTotal.toLocaleString('id-ID')"></p>
             </div>
 
-            <p class="text-xs text-gray-400 mb-5 text-center">Pembayaran diproses melalui Flip. Mendukung transfer bank, QRIS, dan e-wallet.</p>
+            <p class="mb-5 text-xs text-center text-gray-400">Pembayaran diproses melalui Flip. Mendukung transfer bank, QRIS, dan e-wallet.</p>
 
             <div class="space-y-3">
                 {{-- Phase E.3 — pembayaran multi-tagihan belum didukung Flip (satu tagihan per bill). Dinonaktifkan; bayar satu per satu. --}}
@@ -394,7 +396,7 @@
                 >
                     <span>Bayar Sekarang</span>
                 </button>
-                <p class="text-xs text-gray-400 text-center">Pembayaran sekaligus belum tersedia. Silakan bayar satu tagihan per satu.</p>
+                <p class="text-xs text-center text-gray-400">Pembayaran sekaligus belum tersedia. Silakan bayar satu tagihan per satu.</p>
                 <button @click="multiSheetOpen = false" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl transition-colors text-sm">Batal</button>
             </div>
         </div>
@@ -416,22 +418,22 @@
 
         {{-- Sheet --}}
         <div
-            class="relative w-full bg-white rounded-t-3xl shadow-2xl px-6 py-6 max-w-md mx-auto"
+            class="relative w-full max-w-md px-6 py-6 mx-auto bg-white shadow-2xl rounded-t-3xl"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="translate-y-full"
             x-transition:enter-end="translate-y-0"
         >
-            <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5"></div>
+            <div class="w-10 h-1 mx-auto mb-5 bg-gray-200 rounded-full"></div>
 
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Konfirmasi Pembayaran</h3>
-            <p class="text-gray-500 text-sm mb-5" x-text="billName"></p>
+            <h3 class="mb-1 text-lg font-bold text-gray-900">Konfirmasi Pembayaran</h3>
+            <p class="mb-5 text-sm text-gray-500" x-text="billName"></p>
 
             <div class="bg-[#F56C3E]/10 rounded-2xl p-4 mb-5 flex items-center justify-between">
                 <p class="text-sm text-[#963316] font-medium">Total Tagihan</p>
                 <p class="text-xl font-extrabold text-[#963316]" x-text="'Rp ' + amount.toLocaleString('id-ID')"></p>
             </div>
 
-            <p class="text-xs text-gray-400 mb-5 text-center">
+            <p class="mb-5 text-xs text-center text-gray-400">
                 Pembayaran diproses melalui Flip. Mendukung transfer bank, QRIS, dan e-wallet.
             </p>
 
@@ -451,7 +453,7 @@
                 </button>
                 <button
                     @click="open = false"
-                    class="w-full border border-gray-200 text-gray-500 font-medium py-3 rounded-xl hover:bg-gray-50 transition-colors text-sm"
+                    class="w-full py-3 text-sm font-medium text-gray-500 transition-colors border border-gray-200 rounded-xl hover:bg-gray-50"
                 >
                     Batal
                 </button>
@@ -470,9 +472,56 @@
         }
 
         // Dipanggil saat tombol "Bayar Sekarang" diklik di bottom sheet SINGLE.
-        // Phase E.3 — gunakan endpoint Flip (pay-flip) dan redirect ke payment_url.
-        // Backend TETAP authoritative: settlement hanya lewat Flip callback.
+        // Provider dispatch (selector Task 1): midtrans → Snap; flip → hosted page.
+        // Backend TETAP authoritative: settlement hanya lewat callback masing-masing provider.
+        const PAY_PROVIDER = (window.STUDENT_PAYMENT && window.STUDENT_PAYMENT.provider) || 'midtrans';
+
         async function prosesPayment(billId, onDone) {
+            if (PAY_PROVIDER === 'flip') return prosesPaymentFlip(billId, onDone);
+            return prosesPaymentMidtrans(billId, onDone);
+        }
+
+        // ── MIDTRANS — existing createToken() → Snap.js ──────────────────────
+        async function prosesPaymentMidtrans(billId, onDone) {
+            try {
+                const res = await fetch(`/siswa/tagihan/${billId}/pay`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept':        'application/json',
+                        'Content-Type':  'application/json',
+                    },
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.snap_token) {
+                    alert('Gagal: ' + (data.error || 'Token pembayaran tidak tersedia, coba lagi.'));
+                    onDone();
+                    return;
+                }
+
+                if (typeof window.snap === 'undefined') {
+                    alert('Gagal: modul pembayaran belum termuat. Muat ulang halaman.');
+                    onDone();
+                    return;
+                }
+
+                // Buka Snap modal. Settlement TIDAK dari sini — hanya via Midtrans callback.
+                window.snap.pay(data.snap_token, {
+                    onSuccess: function () { window.location.reload(); },
+                    onPending: function () { window.location.reload(); },
+                    onError:   function () { alert('Pembayaran gagal. Coba lagi.'); onDone(); },
+                    onClose:   function () { onDone(); },
+                });
+            } catch (e) {
+                alert('Error jaringan: ' + e.message);
+                onDone();
+            }
+        }
+
+        // ── FLIP — existing pay-flip → redirect ke hosted page ───────────────
+        async function prosesPaymentFlip(billId, onDone) {
             try {
                 const res = await fetch(`/siswa/tagihan/${billId}/pay-flip`, {
                     method: 'POST',
@@ -514,234 +563,21 @@
         // tetapi UI multi-pay tidak lagi memanggilnya.
     </script>
 
-    {{-- ===== FLOATING CHAT WIDGET ===== --}}
-    <div id="chat-fab-wrapper" style="position:fixed; bottom:24px; right:24px; z-index:9999;">
-
-        {{-- Bubble tombol chat --}}
-        <div id="chat-fab"
-             @click="chatOpen = !chatOpen"
-             class="relative w-14 h-14 bg-[#F56C3E]/100 hover:bg-[#F56C3E] rounded-full shadow-2xl flex items-center justify-center transition-colors select-none">
-            {{-- Ikon chat --}}
-            <svg x-show="!chatOpen" class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
-            </svg>
-            {{-- Ikon close --}}
-            <svg x-show="chatOpen" x-cloak class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-            {{-- Badge unread --}}
-            <span x-show="chatUnread > 0 && !chatOpen" x-cloak
-                  x-text="chatUnread"
-                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
-            </span>
-        </div>
-
-        {{-- Panel chat --}}
-        <div x-show="chatOpen" x-cloak
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-             x-transition:leave-end="opacity-0 scale-95 translate-y-4"
-             class="absolute bottom-16 right-0 w-80 bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
-             style="height:420px;">
-
-            {{-- Header panel --}}
-            <div class="bg-gradient-to-r from-[#F56C3E] to-[#e45322] px-4 py-3 flex items-center gap-2 shrink-0">
-                <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-white text-sm font-semibold leading-tight">Hubungi TU</p>
-                    <p class="text-white/80 text-xs">Tata Usaha siap membantu</p>
-                </div>
-            </div>
-
-            {{-- Messages area --}}
-            <div id="chat-messages" class="flex-1 overflow-y-auto px-3 py-3 space-y-2">
-                {{-- Loading state --}}
-                <template x-if="chatLoading">
-                    <div class="flex justify-center py-4">
-                        <div class="w-5 h-5 border-2 border-[#F56C3E] border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                </template>
-
-                {{-- Empty state --}}
-                <template x-if="!chatLoading && chatMessages.length === 0">
-                    <div class="flex flex-col items-center justify-center h-full py-8 text-center">
-                        <svg class="w-10 h-10 text-gray-200 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
-                        </svg>
-                        <p class="text-xs text-gray-400">Belum ada pesan.</p>
-                        <p class="text-xs text-gray-400">Mulai chat dengan TU di sini.</p>
-                    </div>
-                </template>
-
-                {{-- Pesan --}}
-                <template x-for="(msg, index) in chatMessages" :key="msg.id">
-                    <div>
-                        {{-- Pemisah tanggal --}}
-                        <template x-if="index === 0 || chatMessages[index-1].date !== msg.date">
-                            <div class="flex justify-center my-2">
-                                <span class="bg-gray-100 text-gray-400 text-xs px-2 py-0.5 rounded-full" x-text="msg.date"></span>
-                            </div>
-                        </template>
-
-                        {{-- Pesan dari siswa --}}
-                        <template x-if="msg.sender === 'student'">
-                            <div class="flex justify-end">
-                                <div class="max-w-[80%]">
-                                    <div class="chat-bubble-out px-3 py-2 text-xs" x-text="msg.message"></div>
-                                    <p class="text-xs text-gray-400 mt-0.5 text-right" x-text="msg.created_at"></p>
-                                </div>
-                            </div>
-                        </template>
-
-                        {{-- Pesan dari TU --}}
-                        <template x-if="msg.sender === 'tu'">
-                            <div class="flex justify-start">
-                                <div class="max-w-[80%]">
-                                    <p class="text-xs text-gray-400 mb-0.5 ml-1">TU</p>
-                                    <div class="chat-bubble-in px-3 py-2 text-xs text-gray-800" x-text="msg.message"></div>
-                                    <p class="text-xs text-gray-400 mt-0.5 ml-1" x-text="msg.created_at"></p>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </template>
-            </div>
-
-            {{-- Input --}}
-            <div class="border-t border-gray-100 px-3 py-2 shrink-0">
-                <form @submit.prevent="chatSend" class="flex items-end gap-2">
-                    <textarea
-                        x-model="chatText"
-                        @keydown.enter.prevent="!$event.shiftKey && chatSend()"
-                        placeholder="Ketik pesan..."
-                        rows="1"
-                        class="flex-1 resize-none text-xs rounded-xl border border-gray-200 px-3 py-2 focus:outline-none focus:border-[#F56C3E] focus:ring-1 focus:ring-[#F56C3E] transition-colors"
-                        :disabled="chatSending"
-                    ></textarea>
-                    <button
-                        type="submit"
-                        :disabled="!chatText.trim() || chatSending"
-                        class="w-8 h-8 bg-[#F56C3E]/100 hover:bg-[#F56C3E] disabled:bg-gray-200 text-white rounded-xl flex items-center justify-center transition-colors shrink-0">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.269 20.876L5.999 12zm0 0h7.5"/>
-                        </svg>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+    {{-- ===== CHAT PANEL (partial bersama, dibuka lewat bottom-nav "Chat") ===== --}}
+    @include('siswa.partials.chat-widget', ['mode' => 'panel'])
 
     <script>
-        function chatWidget() {
-            return {
-                chatOpen: false,
-                chatLoading: false,
-                chatSending: false,
-                chatMessages: [],
-                chatText: '',
-                chatUnread: 0,
-                chatLastId: 0,
-                _chatPollInterval: null,
-                _chatUnreadInterval: null,
-
-                // Alpine lifecycle — dipanggil otomatis saat component init
-                init() {
-                    // Polling unread badge setiap 10 detik (saat chat tertutup)
-                    this._chatUnreadInterval = setInterval(async () => {
-                        if (this.chatOpen) return;
-                        try {
-                            const r = await fetch('{{ route("siswa.chat.unread") }}');
-                            const d = await r.json();
-                            this.chatUnread = d.unread ?? 0;
-                        } catch (e) {}
-                    }, 10000);
-
-                    // Watch: saat chat dibuka, load pesan & mulai polling
-                    this.$watch('chatOpen', async (open) => {
-                        if (open) {
-                            await this.chatLoad();
-                            this.chatUnread = 0;
-                            this._chatPollInterval = setInterval(() => this.chatPoll(), 4000);
-                        } else {
-                            clearInterval(this._chatPollInterval);
-                        }
-                    });
-                },
-
-                async chatLoad() {
-                    this.chatLoading = true;
-                    try {
-                        const r = await fetch('{{ route("siswa.chat.messages") }}');
-                        const d = await r.json();
-                        this.chatMessages = d.messages ?? [];
-                        if (this.chatMessages.length > 0) {
-                            this.chatLastId = this.chatMessages[this.chatMessages.length - 1].id;
-                        }
-                        this.chatScrollBottom();
-                    } catch (e) {}
-                    this.chatLoading = false;
-                },
-
-                async chatPoll() {
-                    try {
-                        const r = await fetch('{{ route("siswa.chat.messages") }}');
-                        const d = await r.json();
-                        const msgs = d.messages ?? [];
-                        const existingIds = new Set(this.chatMessages.map(m => m.id));
-                        const fresh = msgs.filter(m => !existingIds.has(m.id));
-                        if (fresh.length > 0) {
-                            this.chatMessages.push(...fresh);
-                            this.chatLastId = fresh[fresh.length - 1].id;
-                            this.chatScrollBottom();
-                        }
-                    } catch (e) {}
-                },
-
-                async chatSend() {
-                    const text = this.chatText.trim();
-                    if (!text || this.chatSending) return;
-                    this.chatSending = true;
-                    this.chatText = '';
-                    try {
-                        const r = await fetch('{{ route("siswa.chat.send") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            },
-                            body: JSON.stringify({ message: text }),
-                        });
-                        const d = await r.json();
-                        if (d.success) {
-                            this.chatMessages.push(d.data);
-                            this.chatLastId = d.data.id;
-                            this.chatScrollBottom();
-                        }
-                    } catch (e) {
-                        alert('Gagal mengirim pesan.');
-                        this.chatText = text;
-                    } finally {
-                        this.chatSending = false;
-                    }
-                },
-
-                chatScrollBottom() {
-                    this.$nextTick(() => {
-                        const el = document.getElementById('chat-messages');
-                        if (el) el.scrollTop = el.scrollHeight;
-                    });
-                },
-            };
-        }
+        // Satu sumber kebenaran untuk buka/tutup chat (dipakai bottom-nav "Chat").
+        window.toggleStudentChat = function () {
+            const stack = document.body && document.body._x_dataStack;
+            if (stack && stack[0] && Object.prototype.hasOwnProperty.call(stack[0], 'chatOpen')) {
+                stack[0].chatOpen = !stack[0].chatOpen;
+            }
+        };
     </script>
 
+    {{-- ===== BOTTOM NAVIGATION (app shell) ===== --}}
+    @include('siswa.partials.bottom-nav', ['active' => 'pembayaran', 'chatBadge' => true])
 
 </body>
 </html>

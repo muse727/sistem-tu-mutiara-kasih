@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;      // Dashboard Utama
 use App\Http\Controllers\ProfileController;        // Profil User
 use App\Http\Controllers\StudentController;        // Manajemen Siswa
 use App\Http\Controllers\BillController;           // Sistem Tagihan & SPP
+use App\Http\Controllers\SppDailyCloseController;  // Daily Close SPP (settlement batch)
 use App\Http\Controllers\PosItemController;        // Master Barang POS
 use App\Http\Controllers\PosBundleController;      // Master Paket Bundling
 use App\Http\Controllers\PosTransactionController; // Kasir
@@ -71,6 +72,7 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
     // Protected — wajib login siswa
     Route::middleware('auth.siswa')->group(function () {
         Route::get('/dashboard',            [DashboardSiswaController::class, 'index'])->name('dashboard');
+        Route::get('/riwayat',              [DashboardSiswaController::class, 'history'])->name('history');
         Route::get('/tagihan/{bill}',        [DashboardSiswaController::class, 'detail'])->name('bill.detail');
         Route::post('/tagihan/{bill}/pay',   [PaymentSiswaController::class, 'createToken'])->name('payment.token');
         Route::post('/tagihan/{bill}/pay-flip', [FlipPaymentController::class, 'createBill'])->name('payment.flip');
@@ -82,6 +84,7 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/payment/success',       [PaymentSiswaController::class, 'success'])->name('payment.success');
 
         // Chat Siswa ↔ TU
+        Route::get('/chat',           [ChatSiswaController::class, 'page'])->name('chat');
         Route::get('/chat/messages',  [ChatSiswaController::class, 'index'])->name('chat.messages');
         Route::post('/chat/send',     [ChatSiswaController::class, 'send'])->name('chat.send');
         Route::get('/chat/unread',    [ChatSiswaController::class, 'unread'])->name('chat.unread');
@@ -189,6 +192,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
+    // 3b. DAILY CLOSE SPP — settlement batch (aplikasi utama, bukan Filament)
+    // Tipis di atas SppSettlementBatchService::close() — service tersertifikasi.
+    // Lihat halaman: admin,tu,staf,kepala_sekolah. Aksi close: admin,tu only.
+    Route::prefix('spp-daily-close')->name('spp-daily-close.')->group(function () {
+        Route::middleware('role:admin,tu,staf,kepala_sekolah')->group(function () {
+            Route::get('/', [SppDailyCloseController::class, 'index'])->name('index');
+        });
+        Route::middleware('role:admin,tu')->group(function () {
+            Route::post('/', [SppDailyCloseController::class, 'close'])->name('close');
+        });
+    });
+
     // 4. POS (KANTIN & KOPERASI)
     // Transaksi kasir: admin,tu,staf. Master data & bundling: admin,tu. History/laporan: admin,tu,kepala_sekolah.
     Route::prefix('pos')->name('pos.')->group(function () {
@@ -270,6 +285,3 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:admin,tu,kepala_sekolah')
         ->name('reports.monthly');
 });
-
-
-

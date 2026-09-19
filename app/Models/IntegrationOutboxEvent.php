@@ -24,6 +24,8 @@ class IntegrationOutboxEvent extends Model
     // was removed: the product has no KANTIN Finance integration module.
     public const EVENT_SPP_PAYMENT       = 'spp.payment';
     public const EVENT_POS_CASH_SALE     = 'pos.cash_sale';
+    // TU-FINANCE-BATCH-02 — consolidated SPP settlement batch.
+    public const EVENT_SPP_SETTLEMENT_BATCH = 'spp.settlement_batch';
 
     protected $fillable = [
         'event_id', 'event_type', 'event_version', 'contract_version',

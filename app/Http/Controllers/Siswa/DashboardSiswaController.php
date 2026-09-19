@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\StudentBill;
 use App\Services\FinancialAuditLogger;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -38,6 +39,57 @@ class DashboardSiswaController extends Controller
         return view('siswa.dashboard', compact(
             'student', 'bills', 'unpaidBills', 'paidBills',
             'totalUnpaid', 'totalPaid', 'schoolName', 'thisMonthBills'
+        ));
+    }
+
+    /**
+     * Riwayat pembayaran (tagihan berstatus PAID) dengan filter periode
+     * (tahun/bulan tagihan) dan paginasi server-side.
+     *
+     * HANYA menyaring riwayat lunas — perilaku tagihan belum bayar dan
+     * dashboard utama tidak berubah. Memakai field periode yang sudah
+     * tersimpan (bill_year / bill_month) dari sumber data StudentBill yang sama.
+     */
+    public function history(Request $request)
+    {
+        $student = Auth::guard('siswa')->user();
+
+        $tahun = $request->query('tahun');
+        $bulan = $request->query('bulan');
+
+        $base = StudentBill::where('student_id', $student->id)
+                    ->where('status', 'PAID');
+
+        // Tahun yang tersedia dari riwayat lunas siswa (untuk dropdown).
+        $availableYears = (clone $base)
+                    ->select('bill_year')
+                    ->distinct()
+                    ->orderByDesc('bill_year')
+                    ->pluck('bill_year');
+
+        $query = (clone $base)->with('items');
+
+        if ($tahun !== null && $tahun !== '' && ctype_digit((string) $tahun)) {
+            $query->where('bill_year', (int) $tahun);
+        }
+        if ($bulan !== null && $bulan !== '' && ctype_digit((string) $bulan)
+            && (int) $bulan >= 1 && (int) $bulan <= 12) {
+            $query->where('bill_month', (int) $bulan);
+        }
+
+        $paidBills = $query->orderByDesc('bill_year')
+                    ->orderByDesc('bill_month')
+                    ->orderByDesc('paid_at')
+                    ->paginate(10)
+                    ->appends(array_filter(['tahun' => $tahun, 'bulan' => $bulan]));
+
+        $schoolName = DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah';
+
+        $hasAnyPaid = (clone $base)->exists();
+
+        return view('siswa.history', compact(
+            'student', 'paidBills', 'availableYears', 'schoolName',
+            'tahun', 'bulan', 'hasAnyPaid'
         ));
     }
 

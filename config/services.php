@@ -40,6 +40,25 @@ return [
     | Midtrans Configuration
     |--------------------------------------------------------------------------
     */
+    /*
+    |--------------------------------------------------------------------------
+    | Student Online Payment — Provider Selector
+    |--------------------------------------------------------------------------
+    | Pilih provider pembayaran online untuk Portal Siswa. Nilai diambil dari
+    | STUDENT_PAYMENT_PROVIDER (env). Selector ini bersifat reversible:
+    | cukup ganti env lalu `config:clear`, tanpa mengubah kode.
+    |
+    |   midtrans : Midtrans Snap (dipakai untuk local development).
+    |   flip     : Flip Accept Payment V2 (tetap tersedia, belum dipakai).
+    |
+    | CATATAN: Selector ini HANYA deklarasi konfigurasi. Belum ada controller/
+    | UI yang membacanya — perilaku pembayaran saat ini TIDAK berubah.
+    */
+    'student_payment' => [
+        'provider'  => env('STUDENT_PAYMENT_PROVIDER', 'midtrans'),
+        'supported' => ['midtrans', 'flip'],
+    ],
+
     'midtrans' => [
         'server_key'     => env('MIDTRANS_SERVER_KEY'),
         'client_key'     => env('MIDTRANS_CLIENT_KEY'),

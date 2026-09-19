@@ -303,10 +303,10 @@
 
             {{-- Tagihan Sekolah --}}
             @if(in_array(Auth::user()->role, ['admin','tu','staf','kepala_sekolah']))
-            <div x-data="{ open: {{ request()->routeIs('bills.*') ? 'true' : 'false' }} }">
+            <div x-data="{ open: {{ request()->routeIs('bills.*') || request()->routeIs('spp-daily-close.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                         class="w-full flex justify-between items-center px-3 py-2.5 rounded-xl text-sm font-medium transition
-                               {{ request()->routeIs('bills.*') ? 'bg-white/15 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                               {{ request()->routeIs('bills.*') || request()->routeIs('spp-daily-close.*') ? 'bg-white/15 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -335,6 +335,11 @@
                         <span>Buat Tagihan Massal</span>
                     </a>
                     @endif
+                    <a href="{{ route('spp-daily-close.index') }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition
+                              {{ request()->routeIs('spp-daily-close.*') ? 'sidebar-active font-bold shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                        <span>Daily Close SPP</span>
+                    </a>
                 </div>
             </div>
             @endif

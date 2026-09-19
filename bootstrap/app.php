@@ -29,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.siswa' => \App\Http\Middleware\AuthSiswa::class,
             'role'       => \App\Http\Middleware\EnsureRole::class,
+            // TU-STUDENT-READ-CONTRACT — inbound HMAC for Finance read-only endpoints.
+            'finance.hmac' => \App\Http\Middleware\FinanceHmacAuthentication::class,
         ]);
 
         // Phase E.2-CLOSE (LOCAL DEV ONLY, non-production): observe inbound Flip

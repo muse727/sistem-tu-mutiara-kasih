@@ -217,6 +217,12 @@ class BillingPaymentService
             return; // KANTIN debt settlement is a TU-domain concern, not a Finance integration event (09D.6-FIX)
         }
         app(IntegrationOutboxService::class)->recordSppPayment($bill);
+
+        // TU-FINANCE-BATCH-02 — when batch mode is enabled, also register the
+        // bill as a settlement-batch member (no-op when the flag is disabled or
+        // the bill is not an eligible SPP PAID). The per-bill outbox event above
+        // is still recorded for trace; batch mode only changes Finance posting.
+        app(\App\Services\Integration\SppSettlementBatchService::class)->recordEligibleSettlement($bill);
     }
 
     public function validatePaymentState(StudentBill $bill): void

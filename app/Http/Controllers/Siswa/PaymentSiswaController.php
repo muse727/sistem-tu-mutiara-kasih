@@ -41,7 +41,9 @@ class PaymentSiswaController extends Controller
             return response()->json(['error' => 'Tagihan ini sudah dibayar.'], 400);
         }
 
-        // C-04: enforce ONE active pending attempt per bill.
+        // C-04: enforce ONE active pending attempt per bill (per provider).
+        // Provider-aware (F-1): only reuse an active MIDTRANS attempt here —
+        // a stale FLIP pending attempt must NOT be returned by the Midtrans path.
         // Lock + check + orderId reservation happen in ONE atomic transaction
         // so no concurrent request can slip through the gap between check and create.
         $existingAttempt = null;
@@ -51,6 +53,7 @@ class PaymentSiswaController extends Controller
             StudentBill::lockForUpdate()->find($bill->id);
 
             $existingAttempt = PaymentAttempt::where('student_bill_id', $bill->id)
+                                             ->where('provider', PaymentAttempt::PROVIDER_MIDTRANS)
                                              ->where('status', PaymentAttempt::STATUS_PENDING)
                                              ->latest('initiated_at')
                                              ->first();
@@ -160,8 +163,10 @@ class PaymentSiswaController extends Controller
                 'bill_id' => $bill->id,
                 'error'   => $e->getMessage(),
             ]);
+            // F-5: return a generic, user-safe message — never expose the raw
+            // exception/provider/SQL detail to the browser. Detail stays in logs.
             return response()->json([
-                'error' => 'Gagal membuat token pembayaran: ' . $e->getMessage(),
+                'error' => 'Gagal membuat pembayaran online. Silakan coba lagi.',
             ], 500);
         }
     }
@@ -251,7 +256,7 @@ class PaymentSiswaController extends Controller
                         'payment_token'     => $snapToken,
                     ]);
 
-                    // Buat attempt untuk bill ini
+                    // Buat attempt untuk bill ini.
                     PaymentAttempt::create([
                         'student_bill_id' => $bill->id,
                         'order_id'        => $orderId,
@@ -278,8 +283,9 @@ class PaymentSiswaController extends Controller
                 'bill_ids' => $billIds,
                 'error'    => $e->getMessage(),
             ]);
+            // F-5: generic, user-safe message — never expose raw exception detail.
             return response()->json([
-                'error' => 'Gagal membuat token pembayaran: ' . $e->getMessage(),
+                'error' => 'Gagal membuat pembayaran online. Silakan coba lagi.',
             ], 500);
         }
     }
@@ -510,6 +516,21 @@ class PaymentSiswaController extends Controller
                     null,
                     $request
                 );
+
+                // Phase F-3 — emit the canonical spp.payment Finance outbox event
+                // INSIDE the same settlement transaction (atomic with the PAID
+                // mutation), consistent with BillingPaymentService::recordIntegrationEvent
+                // and the Flip path. KANTIN debt settlement is a TU-domain concern and
+                // emits NO Finance integration event (09D.6-FIX). recordSppPayment() is
+                // idempotent (UNIQUE on source_system+event_type+source_record_id) and
+                // self-gates on integration.enabled / activation boundary.
+                if ($bill->type !== 'KANTIN') {
+                    app(\App\Services\Integration\IntegrationOutboxService::class)
+                        ->recordSppPayment($bill);
+                    // TU-FINANCE-BATCH-02 — batch membership (no-op when flag disabled).
+                    app(\App\Services\Integration\SppSettlementBatchService::class)
+                        ->recordEligibleSettlement($bill);
+                }
             });
 
             Log::info('Midtrans callback: payment settled', [
@@ -709,6 +730,25 @@ class PaymentSiswaController extends Controller
                         'payment_token'     => null,
                         'verify_token'      => $bill->verify_token ?? \Illuminate\Support\Str::random(32),
                     ]);
+
+                    // MULTI-02 — emit the canonical spp.payment Finance outbox event
+                    // per settled bill, INSIDE the same MULTI settlement transaction
+                    // (atomic with the PAID mutation), mirroring the single-bill path
+                    // (Phase F-3) and BillingPaymentService::recordIntegrationEvent.
+                    // Each event carries THAT bill's own authoritative amount — never
+                    // the shared MULTI total. KANTIN debt settlement is a TU-domain
+                    // concern and emits NO Finance integration event (09D.6-FIX).
+                    // recordSppPayment() is idempotent (UNIQUE on
+                    // source_system+event_type+source_record_id → TU:spp.payment:{bill_id})
+                    // and self-gates on integration.enabled / activation boundary, so a
+                    // duplicate/replayed MULTI callback cannot create a second event.
+                    if ($bill->type !== 'KANTIN') {
+                        app(\App\Services\Integration\IntegrationOutboxService::class)
+                            ->recordSppPayment($bill);
+                        // TU-FINANCE-BATCH-02 — batch membership (no-op when flag disabled).
+                        app(\App\Services\Integration\SppSettlementBatchService::class)
+                            ->recordEligibleSettlement($bill);
+                    }
 
                     Log::info('Midtrans callback: MULTI bill settled', [
                         'order_id' => $orderId,

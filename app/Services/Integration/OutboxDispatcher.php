@@ -3,6 +3,7 @@
 namespace App\Services\Integration;
 
 use App\Models\IntegrationOutboxEvent;
+use App\Models\SppSettlementBatch;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -77,7 +78,8 @@ class OutboxDispatcher
                 ->where('attempt_count', '<', self::MAX_ATTEMPTS)
                 ->orderBy('created_at')
                 ->lockForUpdate() // MariaDB: FOR UPDATE; use skipLocked when supported
-                ->first();
+                ->get()
+                ->first(fn (IntegrationOutboxEvent $e) => $this->isAccountingEvent($e));
 
             if (! $event) {
                 return null;
@@ -112,5 +114,65 @@ class OutboxDispatcher
                 'last_error'      => $outcome->error,
             ]),
         };
+
+        $this->syncBatchStatus($event, $outcome);
+    }
+
+    /**
+     * TU-FINANCE-BATCH-02 — reflect the outbox delivery outcome onto the linked
+     * settlement batch lifecycle (SENT on dispatch, ACKNOWLEDGED on delivered,
+     * FAILED_* on failure). Operational timestamps only; never mutates the
+     * batch's frozen accounting snapshot. No-op for non-batch events.
+     */
+    protected function syncBatchStatus(IntegrationOutboxEvent $event, TransportResult $outcome): void
+    {
+        if ($event->event_type !== IntegrationOutboxEvent::EVENT_SPP_SETTLEMENT_BATCH) {
+            return;
+        }
+        $batch = SppSettlementBatch::where('batch_id', $event->source_record_id)->first();
+        if (! $batch) {
+            return;
+        }
+        $updates = ['attempt_count' => $event->attempt_count, 'last_error' => $outcome->error];
+        if ($outcome->outcome === TransportResult::DELIVERED) {
+            $updates['status'] = SppSettlementBatch::STATUS_ACKNOWLEDGED;
+            $updates['sent_at'] = $batch->sent_at ?? now();
+            $updates['acknowledged_at'] = now();
+        } elseif ($outcome->outcome === TransportResult::PERMANENT) {
+            $updates['status'] = SppSettlementBatch::STATUS_FAILED_PERMANENT;
+            $updates['sent_at'] = $batch->sent_at ?? now();
+        } else {
+            $updates['status'] = SppSettlementBatch::STATUS_FAILED_RETRYABLE;
+            $updates['sent_at'] = $batch->sent_at ?? now();
+        }
+        $batch->forceFill($updates)->save();
+    }
+
+    /**
+     * TU-FINANCE-BATCH-02 / F-2 (BATCH-03-FIX) — decide whether an outbox event
+     * should be dispatched for Finance accounting.
+     *
+     * A per-bill spp.payment event is dispatched for accounting ONLY when its
+     * source StudentBill is NOT a settlement-batch member. When the bill IS a
+     * batch member, the batch (spp.settlement_batch) is the sole accounting
+     * posting and the per-bill event is trace-only. All other event types
+     * (pos.cash_sale, spp.settlement_batch) are always accounting events.
+     *
+     * Basing the decision on ACTUAL batch membership (not the live feature-flag
+     * value) closes the F-2 flag-flip gap in both directions:
+     *   - ON→OFF: a bill batched while ON stays trace-only (its batch still
+     *     posts) — it is never re-dispatched per-bill, so no double-post.
+     *   - OFF→ON: a bill settled while OFF (never batched) keeps its per-bill
+     *     event dispatchable, so it is still accounted — no gap.
+     * Either way every settled bill has exactly ONE accounting path.
+     */
+    protected function isAccountingEvent(IntegrationOutboxEvent $event): bool
+    {
+        if ($event->event_type !== IntegrationOutboxEvent::EVENT_SPP_PAYMENT) {
+            return true;
+        }
+
+        return ! \App\Models\SppSettlementBatchItem::where('student_bill_id', $event->source_record_id)->exists();
     }
 }
+

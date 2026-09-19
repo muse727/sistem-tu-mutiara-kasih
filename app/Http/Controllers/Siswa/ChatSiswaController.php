@@ -6,9 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ChatSiswaController extends Controller
 {
+    /**
+     * Halaman chat penuh (destination "Chat" pada bottom-nav).
+     * Hanya merender view — logika pesan tetap di index/send/unread.
+     */
+    public function page()
+    {
+        $student = Auth::guard('siswa')->user();
+        $schoolName = DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah';
+
+        return view('siswa.chat', compact('student', 'schoolName'));
+    }
+
     /**
      * Ambil semua pesan chat untuk siswa yang sedang login.
      * Sekaligus tandai pesan dari TU sebagai sudah dibaca.
