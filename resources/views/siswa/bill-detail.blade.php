@@ -8,7 +8,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Detail Tagihan — {{ $bill->name ?? 'Tagihan' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    {{-- Phase E.3 — pembayaran kini via Flip hosted page (redirect), Snap.js tidak dipakai. --}
+    <script>
+        window.STUDENT_PAYMENT = {
+            provider:  @json(config('services.student_payment.provider', 'midtrans')),
+            clientKey: @json(config('services.midtrans.client_key')),
+        };
+    </script>
+    @if (config('services.student_payment.provider', 'midtrans') === 'midtrans')
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+    @endif
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -232,7 +240,7 @@
                             class="block w-full text-center bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold py-3.5 rounded-2xl text-sm transition-all shadow-lg shadow-sky-200">
                         Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ',', '.') }}
                     </button>
-                    <p class="text-center text-xs text-gray-400 mt-2">Pembayaran aman via Flip</p>
+                    <p class="text-center text-xs text-gray-400 mt-2">Pembayaran aman via {{ config('services.student_payment.provider', 'midtrans') === 'flip' ? 'Flip' : 'Midtrans' }}</p>
                 @endif
 
             </div>
@@ -250,8 +258,63 @@
     <script>
         const billId   = {{ $bill->id }};
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+        const PAY_PROVIDER = (window.STUDENT_PAYMENT && window.STUDENT_PAYMENT.provider) || 'midtrans';
 
         async function bayarTagihan() {
+            if (PAY_PROVIDER === 'flip') return bayarTagihanFlip();
+            return bayarTagihanMidtrans();
+        }
+
+        async function bayarTagihanMidtrans() {
+            const btn = document.getElementById('btn-bayar');
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+
+            try {
+                const res = await fetch(`/siswa/tagihan/${billId}/pay`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept':        'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+
+                if (res.status === 401 || res.redirected) {
+                    window.location.href = '{{ route("siswa.login") }}';
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (!res.ok || !data.snap_token) {
+                    alert('Gagal: ' + (data.error || 'Token pembayaran tidak tersedia, coba lagi.'));
+                    btn.disabled = false;
+                    btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}';
+                    return;
+                }
+
+                if (typeof window.snap === 'undefined') {
+                    alert('Gagal: modul pembayaran belum termuat. Muat ulang halaman.');
+                    btn.disabled = false;
+                    btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}';
+                    return;
+                }
+
+                window.snap.pay(data.snap_token, {
+                    onSuccess: function () { window.location.href = '{{ route("siswa.payment.success") }}'; },
+                    onPending: function () { window.location.href = '{{ route("siswa.dashboard") }}'; },
+                    onError:   function () { alert('Pembayaran gagal. Coba lagi.'); btn.disabled = false; btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}'; },
+                    onClose:   function () { btn.disabled = false; btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}'; },
+                });
+            } catch (e) {
+                alert('Gagal menghubungi server. Coba lagi.');
+                btn.disabled = false;
+                btn.textContent = 'Bayar Sekarang · Rp {{ number_format($bill->amount, 0, ",", ".") }}';
+            }
+        }
+
+        async function bayarTagihanFlip() {
             const btn = document.getElementById('btn-bayar');
             btn.disabled = true;
             btn.textContent = 'Memproses...';
@@ -264,7 +327,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':        'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': csrfToken,
                     },
                 });
 

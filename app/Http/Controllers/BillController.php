@@ -328,10 +328,14 @@ class BillController extends Controller
     {
         $bill   = StudentBill::with(['student.kelas', 'items'])->findOrFail($id);
         // H-02: Use Setting model (same source as PaymentSiswaController) for consistency
+        $settings = DB::table('school_settings')->pluck('value', 'key');
         $school = [
-            'school_name'    => DB::table('school_settings')->where('key', 'school_name')->value('value') ?? 'Sekolah',
-            'school_address' => DB::table('school_settings')->where('key', 'school_address')->value('value') ?? '',
-            'school_phone'   => DB::table('school_settings')->where('key', 'school_phone')->value('value') ?? '',
+            'school_name'      => $settings['school_name'] ?? 'Sekolah',
+            'school_address'   => $settings['school_address'] ?? '',
+            'school_phone'     => $settings['school_phone'] ?? '',
+            'school_logo'      => $settings['school_logo'] ?? '',
+            'school_signature' => $settings['school_signature'] ?? '',
+            'school_treasurer' => $settings['head_of_admin'] ?? 'Administrator TU',
         ];
 
         return view('bills.print', compact('bill', 'school'));

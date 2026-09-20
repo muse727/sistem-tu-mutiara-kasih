@@ -54,6 +54,19 @@ class BillingPaymentService
                 'confirmed_by'   => $confirmedBy ?? Auth::id(),
             ]);
 
+            // Sync ke PosOrder jika tagihan ini merupakan pelunasan hutang Kantin/POS
+            if ($bill->type === 'KANTIN' && $bill->pos_order_id) {
+                $posOrder = \App\Models\PosOrder::find($bill->pos_order_id);
+                if ($posOrder && $posOrder->payment_status !== 'PAID') {
+                    $posOrder->update([
+                        'payment_status'   => 'PAID',
+                        'redemption_status'=> 'COMPLETED',
+                        'payment_amount'   => $bill->amount,
+                        'change_amount'    => 0,
+                    ]);
+                }
+            }
+
             FinancialAuditLogger::paymentConfirmed(
                 $bill,
                 AuditLog::SOURCE_WEB,

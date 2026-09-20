@@ -509,6 +509,20 @@ class PaymentSiswaController extends Controller
                     'verify_token'      => $bill->verify_token ?? \Illuminate\Support\Str::random(32),
                 ]);
 
+                // Sync ke PosOrder jika tagihan ini merupakan pelunasan hutang Kantin/POS via Midtrans
+                if ($bill->type === 'KANTIN' && $bill->pos_order_id) {
+                    $posOrder = \App\Models\PosOrder::find($bill->pos_order_id);
+                    if ($posOrder && $posOrder->payment_status !== 'PAID') {
+                        $posOrder->update([
+                            'payment_status'    => 'PAID',
+                            'redemption_status' => 'COMPLETED',
+                            'payment_amount'    => $bill->amount,
+                            'change_amount'     => 0,
+                            'midtrans_order_id' => $orderId,
+                        ]);
+                    }
+                }
+
                 $bill->refresh();
                 FinancialAuditLogger::paymentConfirmed(
                     $bill,

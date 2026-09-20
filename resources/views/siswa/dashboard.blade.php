@@ -384,7 +384,7 @@
                 <p class="text-xl font-extrabold text-[#963316]" x-text="'Rp ' + selectedTotal.toLocaleString('id-ID')"></p>
             </div>
 
-            <p class="mb-5 text-xs text-center text-gray-400">Pembayaran diproses melalui Flip. Mendukung transfer bank, QRIS, dan e-wallet.</p>
+            <p class="mb-5 text-xs text-center text-gray-400">Pembayaran diproses melalui {{ config('services.student_payment.provider', 'midtrans') === 'flip' ? 'Flip' : 'Midtrans' }}. Mendukung transfer bank, QRIS, dan e-wallet.</p>
 
             <div class="space-y-3">
                 {{-- Phase E.3 — pembayaran multi-tagihan belum didukung Flip (satu tagihan per bill). Dinonaktifkan; bayar satu per satu. --}}
@@ -434,7 +434,7 @@
             </div>
 
             <p class="mb-5 text-xs text-center text-gray-400">
-                Pembayaran diproses melalui Flip. Mendukung transfer bank, QRIS, dan e-wallet.
+                Pembayaran diproses melalui {{ config('services.student_payment.provider', 'midtrans') === 'flip' ? 'Flip' : 'Midtrans' }}. Mendukung transfer bank, QRIS, dan e-wallet.
             </p>
 
             <div class="space-y-3">
