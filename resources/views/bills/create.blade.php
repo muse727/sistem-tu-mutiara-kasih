@@ -1,372 +1,414 @@
 <x-app-layout>
 
-    <div class="bg-slate-50 min-h-screen pb-12">
-        <div class="bg-white border-b border-gray-200 px-6 py-8 shadow-sm"></div>
+    <div class="bg-slate-50 min-h-screen pb-12 pt-6" x-data="billGenerator()">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-        <div class="bg-white shadow-xl sm:rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-50 rounded-full blur-2xl opacity-50"></div>
-            
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 relative z-10 gap-4">
-                <div>
-                    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">📝 Generator Tagihan</h2>
-                    <p class="text-sm text-gray-500 mt-1">Buat tagihan SPP Bulanan atau Tagihan Barang/Jasa dengan mudah.</p>
-                </div>
-                <a href="{{ route('bills.index') }}" class="group flex items-center gap-2 text-gray-500 hover:text-[#F56C3E] font-bold text-sm transition bg-gray-50 hover:bg-blue-50 px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-200">
-                    <svg class="w-4 h-4 group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Kembali
-                </a>
-            </div>
-
-                        <style>
-                /* Styling khusus radio button biar nyala tanpa nunggu build Tailwind */
-                .radio-card-input:checked + .radio-card {
-                    border-color: #F56C3E !important;
-                    background-color: #fff7ed !important;
-                    box-shadow: 0 0 0 2px rgba(245, 108, 62, 0.2) !important;
-                }
-                .radio-card-input:checked + .radio-card .indicator {
-                    border: 5px solid #F56C3E !important;
-                    background-color: white !important;
-                }
-            </style>
-            <form action="{{ route('bills.store') }}" method="POST" id="billForm">
-                @csrf
+            {{-- Card Utama --}}
+            <div class="bg-white shadow-xl rounded-2xl p-6 sm:p-8 border border-gray-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-orange-50 rounded-full blur-2xl opacity-50"></div>
                 
-                <div class="bg-blue-50/50 p-6 rounded-xl border border-gray-200 mb-8">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="p-1.5 bg-blue-100 rounded-lg text-[#F56C3E]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        </div>
-                        <h3 class="font-bold text-gray-800">Target Penerima Tagihan</h3>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <label class="cursor-pointer relative">
-                            <input type="radio" name="target_type" value="student" class="radio-card-input sr-only" checked onclick="toggleTarget('student')">
-                            <div class="radio-card p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition">
-                                <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
-                                    Per Siswa
-                                </span>
-                                <p class="text-xs text-gray-400 mt-1 pl-6">Kasus khusus (Denda/Susulan)</p>
+                {{-- Header --}}
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-orange-50 text-[#F56C3E] rounded-xl border border-orange-100">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
                             </div>
-                        </label>
-
-                        <label class="cursor-pointer relative">
-                            <input type="radio" name="target_type" value="class" class="radio-card-input sr-only" onclick="toggleTarget('class')">
-                            <div class="radio-card p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition">
-                                <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
-                                    Satu Kelas
-                                </span>
-                                <p class="text-xs text-gray-400 mt-1 pl-6">Tagihan rutin (SPP/Gedung)</p>
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Generator Tagihan</h2>
+                                <p class="text-sm text-gray-500 mt-0.5">Buat tagihan SPP Bulanan atau Tagihan Lainnya secara fleksibel.</p>
                             </div>
-                        </label>
-
-                        <label class="cursor-pointer relative">
-                            <input type="radio" name="target_type" value="all" class="radio-card-input sr-only" onclick="toggleTarget('all')">
-                            <div class="radio-card p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition">
-                                <span class="font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="indicator w-4 h-4 rounded-full border-2 border-gray-300 block flex items-center justify-center transition-all duration-200"></span>
-                                    Semua Siswa
-                                </span>
-                                <p class="text-xs text-gray-400 mt-1 pl-6">Massal satu sekolah</p>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-                        <div id="input-student" class="w-full">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pilih Nama Siswa</label>
-                            <select name="student_id" class="w-full rounded-lg border-gray-300 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
-                                <option value="">-- Cari Nama Siswa --</option>
-                                @foreach($students as $student)
-                                    <option value="{{ $student->id }}">{{ $student->name }} - {{ optional($student->kelas)->nama_kelas ?? '-' }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div id="input-class" class="w-full hidden">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pilih Kelas</label>
-                            <select name="kelas_id" class="w-full rounded-lg border-gray-300 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
-                                <option value="">-- Pilih Kelas --</option>
-                                @foreach($kelasList as $kelas)
-                                    <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
+                    <a href="{{ route('bills.index') }}" class="group flex items-center gap-2 text-gray-600 hover:text-[#F56C3E] font-semibold text-sm transition bg-gray-50 hover:bg-orange-50 px-4 py-2.5 rounded-xl border border-gray-200 hover:border-orange-200 shadow-sm">
+                        <svg class="w-4 h-4 group-hover:-translate-x-1 transition duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Kembali
+                    </a>
                 </div>
 
-                <div class="mb-8">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Jenis Tagihan</label>
-                    <select name="type" id="typeSelector" class="w-full rounded-lg border-gray-300 font-bold text-gray-800 shadow-sm focus:ring-[#F56C3E] focus:border-[#F56C3E] text-lg py-3" onchange="toggleFormType()">
-                        <option value="SPP">📅 SPP Bulanan (Rutin)</option>
-                        <option value="GEDUNG">🏢 Uang Gedung</option>
-                        <option value="DAFTAR_ULANG">📚 Daftar Ulang</option>
-                        <option value="KOMITE">🏫 Uang Komite / BP3</option>
-                        <option value="KEGIATAN">🎯 Uang Kegiatan (OSIS/Ekskul)</option>
-                        <option value="SERAGAM">👔 Uang Seragam</option>
-                        <option value="BUKU">📖 Uang Buku / LKS</option>
-                        <option value="UJIAN">✏️ Uang Ujian (UTS/UAS/UN)</option>
-                        <option value="WISATA">🚌 Uang Wisata / Study Tour</option>
-                        <option value="PERPISAHAN">🎓 Uang Perpisahan</option>
-                        <option value="LAINNYA">⚡ Lainnya (isi deskripsi di judul tagihan)</option>
-                    </select>
-                    <p class="text-xs text-gray-500 mt-2 ml-1">*Pilih "SPP Bulanan" untuk mengaktifkan pengaturan tanggal & bulan.</p>
-                </div>
-
-                <div id="form-spp" class="bg-blue-50 p-8 rounded-xl border border-blue-200 mb-8 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-blue-200 rounded-full opacity-20"></div>
+                <form action="{{ route('bills.store') }}" method="POST" id="billForm">
+                    @csrf
                     
-                    <div class="flex items-center gap-3 mb-6 relative z-10">
-                        <div class="p-2 bg-[#F56C3E] text-white rounded-lg shadow-lg shadow-blue-200">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    {{-- 1. TARGET PENERIMA TAGIHAN --}}
+                    <div class="bg-gradient-to-br from-orange-50/40 via-white to-gray-50 p-6 rounded-2xl border border-orange-100/80 mb-8 shadow-sm">
+                        <div class="flex items-center gap-2.5 mb-5">
+                            <div class="p-1.5 bg-orange-100/80 rounded-lg text-[#F56C3E]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-base">Target Penerima Tagihan</h3>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-blue-900 text-lg">Pengaturan Periode SPP</h3>
-                            <p class="text-xs text-blue-600">Tentukan bulan tagihan dan nominal harga.</p>
+
+                        {{-- Radio Cards Target --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            {{-- Per Siswa --}}
+                            <label class="cursor-pointer relative block" @click="targetType = 'student'">
+                                <input type="radio" name="target_type" value="student" x-model="targetType" class="sr-only">
+                                <div class="p-4 rounded-xl border-2 transition duration-200 bg-white shadow-sm flex flex-col justify-between h-full"
+                                     :class="targetType === 'student' ? 'border-[#F56C3E] bg-orange-50/40 ring-2 ring-[#F56C3E]/20' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                                             :class="targetType === 'student' ? 'border-[#F56C3E]' : 'border-gray-300'">
+                                            <div class="w-2.5 h-2.5 rounded-full bg-[#F56C3E] transition-all" x-show="targetType === 'student'"></div>
+                                        </div>
+                                        <span class="font-bold text-gray-800 text-sm">Per Siswa</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2 pl-8">Kasus khusus (Denda/Susulan/Individu)</p>
+                                </div>
+                            </label>
+
+                            {{-- Satu Kelas --}}
+                            <label class="cursor-pointer relative block" @click="targetType = 'class'">
+                                <input type="radio" name="target_type" value="class" x-model="targetType" class="sr-only">
+                                <div class="p-4 rounded-xl border-2 transition duration-200 bg-white shadow-sm flex flex-col justify-between h-full"
+                                     :class="targetType === 'class' ? 'border-[#F56C3E] bg-orange-50/40 ring-2 ring-[#F56C3E]/20' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                                             :class="targetType === 'class' ? 'border-[#F56C3E]' : 'border-gray-300'">
+                                            <div class="w-2.5 h-2.5 rounded-full bg-[#F56C3E] transition-all" x-show="targetType === 'class'"></div>
+                                        </div>
+                                        <span class="font-bold text-gray-800 text-sm">Satu Kelas</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2 pl-8">Tagihan per rombel/tingkat kelas</p>
+                                </div>
+                            </label>
+
+                            {{-- Semua Siswa --}}
+                            <label class="cursor-pointer relative block" @click="targetType = 'all'">
+                                <input type="radio" name="target_type" value="all" x-model="targetType" class="sr-only">
+                                <div class="p-4 rounded-xl border-2 transition duration-200 bg-white shadow-sm flex flex-col justify-between h-full"
+                                     :class="targetType === 'all' ? 'border-[#F56C3E] bg-orange-50/40 ring-2 ring-[#F56C3E]/20' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                                             :class="targetType === 'all' ? 'border-[#F56C3E]' : 'border-gray-300'">
+                                            <div class="w-2.5 h-2.5 rounded-full bg-[#F56C3E] transition-all" x-show="targetType === 'all'"></div>
+                                        </div>
+                                        <span class="font-bold text-gray-800 text-sm">Semua Siswa</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2 pl-8">Massal seluruh siswa aktif</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        {{-- Input Target Sesuai Pilihan --}}
+                        <div class="pt-2">
+                            {{-- Autocomplete Pencarian Siswa --}}
+                            <div x-show="targetType === 'student'" x-transition class="w-full">
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Pilih Nama Siswa <span class="text-red-500">*</span></label>
+                                
+                                <input type="hidden" name="student_id" :value="selectedStudent ? selectedStudent.id : ''">
+
+                                <div class="relative" @click.away="showStudentDropdown = false">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <input type="text" 
+                                               x-model="studentSearch" 
+                                               @focus="showStudentDropdown = true" 
+                                               placeholder="Ketik nama atau NIS siswa (contoh: Aditya, 1021)..."
+                                               class="w-full pl-11 pr-10 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#F56C3E] focus:border-[#F56C3E] text-sm shadow-sm transition">
+                                        <button type="button" 
+                                                x-show="studentSearch.length > 0" 
+                                                @click="clearStudent()" 
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    {{-- Dropdown Suggestion --}}
+                                    <div x-show="showStudentDropdown && filteredStudents.length > 0" 
+                                         x-transition
+                                         class="absolute z-50 left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-100">
+                                        <template x-for="student in filteredStudents" :key="student.id">
+                                            <div @click="selectStudent(student)" 
+                                                 class="px-4 py-3 hover:bg-orange-50 cursor-pointer flex items-center justify-between transition">
+                                                <div>
+                                                    <p class="font-bold text-gray-800 text-sm" x-text="student.name"></p>
+                                                    <p class="text-xs text-gray-500">NIS: <span x-text="student.nis || '-'"></span> • Kelas: <span class="font-medium text-[#F56C3E]" x-text="student.class_name"></span></p>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">Pilih</span>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <div x-show="showStudentDropdown && filteredStudents.length === 0 && studentSearch.length > 0" 
+                                         class="absolute z-50 left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-xl shadow-xl p-4 text-center text-xs text-gray-500">
+                                        Tidak ada nama siswa yang cocok dengan "<span x-text="studentSearch" class="font-semibold"></span>"
+                                    </div>
+                                </div>
+
+                                {{-- Selected Tag Badge --}}
+                                <template x-if="selectedStudent">
+                                    <div class="mt-3 inline-flex items-center gap-2 bg-orange-100 text-orange-900 px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-orange-200">
+                                        <svg class="w-4 h-4 text-[#F56C3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span>Terpilih: <strong x-text="selectedStudent.name"></strong> (<span x-text="selectedStudent.class_name"></span>)</span>
+                                        <button type="button" @click="clearStudent()" class="ml-1 text-orange-700 hover:text-red-600">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+
+                            {{-- Pilih Kelas --}}
+                            <div x-show="targetType === 'class'" x-transition class="w-full">
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Pilih Kelas <span class="text-red-500">*</span></label>
+                                <select name="kelas_id" class="w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm py-3 text-sm">
+                                    <option value="">-- Pilih Kelas --</option>
+                                    @foreach($kelasList as $kelas)
+                                        <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 relative z-10">
-                        <div>
-                            <label class="block text-xs font-bold text-blue-700 uppercase mb-2">Bulan Tagihan</label>
-                            <select name="spp_month" class="w-full rounded-lg border-blue-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] bg-white shadow-sm">
-                                @foreach(range(1,12) as $m)
-                                    <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
-                                        {{ date('F', mktime(0, 0, 0, $m, 1)) }}
-                                    </option>
-                                @endforeach
+
+                    {{-- 2. JENIS TAGIHAN --}}
+                    <div class="mb-8">
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Jenis Tagihan</label>
+                        <div class="relative">
+                            <select name="type" x-model="billType" class="w-full rounded-xl border-gray-300 font-bold text-gray-800 shadow-sm focus:ring-2 focus:ring-[#F56C3E] focus:border-[#F56C3E] text-base py-3.5 pl-4 pr-10">
+                                <option value="SPP">SPP Bulanan (Rutin)</option>
+                                <option value="GEDUNG">Uang Gedung / Pembangunan</option>
+                                <option value="DAFTAR_ULANG">Daftar Ulang</option>
+                                <option value="KOMITE">Uang Komite / BP3</option>
+                                <option value="KEGIATAN">Uang Kegiatan (OSIS/Ekskul)</option>
+                                <option value="SERAGAM">Uang Seragam</option>
+                                <option value="BUKU">Uang Buku / LKS</option>
+                                <option value="UJIAN">Uang Ujian (UTS/UAS/ANBK)</option>
+                                <option value="WISATA">Uang Wisata / Study Tour</option>
+                                <option value="PERPISAHAN">Uang Perpisahan</option>
+                                <option value="LAINNYA">Lainnya (Bebas / Kustom)</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-blue-700 uppercase mb-2">Tahun Tagihan</label>
-                            <select name="spp_year" class="w-full rounded-lg border-blue-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] bg-white shadow-sm">
-                                <option value="{{ date('Y') }}">{{ date('Y') }}</option>
-                                <option value="{{ date('Y')+1 }}">{{ date('Y')+1 }}</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-blue-700 uppercase mb-2">Nominal SPP (Rp)</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 font-bold sm:text-sm">Rp</span>
-                                </div>
-                                <input type="number" name="spp_amount" placeholder="0" class="w-full rounded-lg border-blue-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] pl-10 font-bold text-gray-800 shadow-sm text-lg">
+                    </div>
+
+                    {{-- 3. PENGATURAN SPP BULANAN --}}
+                    <div x-show="billType === 'SPP'" x-transition class="bg-gradient-to-br from-blue-50/60 via-white to-blue-50/30 p-6 sm:p-8 rounded-2xl border border-blue-100 mb-8 relative overflow-hidden shadow-sm">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2.5 bg-[#F56C3E] text-white rounded-xl shadow-md shadow-orange-500/20">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
                             </div>
-                            <p class="text-[10px] text-[#171717] mt-1">*Anda bisa input harga berbeda untuk setiap kelas.</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start gap-3 bg-white/50 p-4 rounded-lg border border-gray-200">
-                        <svg class="w-5 h-5 text-[#F56C3E] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <p class="text-sm text-blue-800">
-                            <b>Sistem Otomatis:</b> Judul tagihan akan digenerate menjadi (contoh) <b>"SPP Agustus 2026"</b>. Tanggal jatuh tempo otomatis diset ke <b>tanggal 10</b> bulan tersebut sebagai informasi batas bayar.
-                        </p>
-                    </div>
-                </div>
-
-                <div id="form-regular" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Judul Tagihan <span class="text-[#F56C3E]">*</span></label>
-                            <input type="text" name="name" placeholder="Contoh: Uang Gedung 2026/2027" class="w-full rounded-lg border-gray-300 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm">
-                            <p class="text-[10px] text-gray-400 mt-1">Judul ini akan muncul di kwitansi siswa.</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nominal (Rp) <span class="text-[#F56C3E]">*</span></label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 font-bold sm:text-sm">Rp</span>
-                                </div>
-                                <input type="number" name="regular_amount" placeholder="0" min="1" class="w-full rounded-lg border-gray-300 focus:border-[#F56C3E] focus:ring-[#F56C3E] pl-10 font-bold text-gray-800 shadow-sm text-lg">
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-lg">Pengaturan Periode & Jatuh Tempo SPP</h3>
+                                <p class="text-xs text-gray-500">Tentukan periode bulan, nominal tagihan, dan batas waktu pembayaran.</p>
                             </div>
-                            <p class="text-[10px] text-gray-400 mt-1">*Nominal sama untuk semua siswa yang dipilih.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+                            {{-- Bulan --}}
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Bulan Tagihan</label>
+                                <select name="spp_month" x-model="sppMonth" :disabled="billType !== 'SPP'" class="w-full rounded-xl border-gray-300 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E] bg-white shadow-sm py-2.5 text-sm">
+                                    @foreach(range(1,12) as $m)
+                                        <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
+                                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Tahun --}}
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Tahun Tagihan</label>
+                                <select name="spp_year" x-model="sppYear" :disabled="billType !== 'SPP'" class="w-full rounded-xl border-gray-300 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E] bg-white shadow-sm py-2.5 text-sm">
+                                    <option value="{{ date('Y') }}">{{ date('Y') }}</option>
+                                    <option value="{{ date('Y')+1 }}">{{ date('Y')+1 }}</option>
+                                </select>
+                            </div>
+
+                            {{-- Tanggal Jatuh Tempo --}}
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">
+                                    Tanggal Jatuh Tempo
+                                </label>
+                                <div class="relative">
+                                    <input type="date" 
+                                           name="due_date" 
+                                           x-model="sppDueDate"
+                                           :disabled="billType !== 'SPP'"
+                                           class="w-full rounded-xl border-gray-300 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E] bg-white shadow-sm py-2.5 text-sm">
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-1">Default: Tgl 10 bulan berjalan</p>
+                            </div>
+
+                            {{-- Nominal SPP --}}
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Nominal SPP (Rp)</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 font-bold text-xs">Rp</span>
+                                    </div>
+                                    <input type="number" 
+                                           name="spp_amount" 
+                                           placeholder="0" 
+                                           min="1"
+                                           :disabled="billType !== 'SPP'"
+                                           class="w-full rounded-xl border-gray-300 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E] pl-10 font-bold text-gray-800 shadow-sm py-2.5 text-base">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 bg-white p-4 rounded-xl border border-blue-100 shadow-xs">
+                            <svg class="w-5 h-5 text-[#F56C3E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-xs text-gray-600 leading-relaxed">
+                                <strong>Sistem Otomatis:</strong> Judul tagihan akan digenerate otomatis menjadi <span class="font-semibold text-gray-800" x-text="'SPP ' + getMonthName(sppMonth) + ' ' + sppYear"></span>. Jatuh tempo dapat diatur bebas sesuai kebijakan sekolah.
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                <div class="flex justify-end pt-6 border-t border-gray-100">
-                    <button type="submit" class="bg-gradient-to-r from-[#F56C3E] to-[#e45322] hover:from-[#e45322] hover:to-[#F56C3E] text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-200 transition transform hover:-translate-y-1 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Proses Tagihan
-                    </button>
-                </div>
-            </form>
+                    {{-- 4. PENGATURAN TAGIHAN NON-SPP --}}
+                    <div x-show="billType !== 'SPP'" x-transition class="bg-gradient-to-br from-gray-50 via-white to-gray-50 p-6 sm:p-8 rounded-2xl border border-gray-200 mb-8 shadow-sm">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2.5 bg-gray-800 text-white rounded-xl shadow-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-lg">Detail Tagihan Non-SPP</h3>
+                                <p class="text-xs text-gray-500">Isi nama tagihan, nominal, dan batas waktu pembayaran.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Judul Tagihan <span class="text-red-500">*</span></label>
+                                <input type="text" 
+                                       name="name" 
+                                       placeholder="Contoh: Uang Gedung 2026/2027" 
+                                       :disabled="billType === 'SPP'"
+                                       class="w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm py-2.5 text-sm">
+                                <p class="text-[10px] text-gray-400 mt-1">Nama ini akan tercantum di kwitansi siswa.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Tanggal Jatuh Tempo (Opsional)</label>
+                                <input type="date" 
+                                       name="due_date" 
+                                       :disabled="billType === 'SPP'"
+                                       class="w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-[#F56C3E] focus:border-[#F56C3E] shadow-sm py-2.5 text-sm">
+                                <p class="text-[10px] text-gray-400 mt-1">Kosongkan jika tidak ada batas waktu.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Nominal (Rp) <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 font-bold text-xs">Rp</span>
+                                    </div>
+                                    <input type="number" 
+                                           name="regular_amount" 
+                                           placeholder="0" 
+                                           min="1" 
+                                           :disabled="billType === 'SPP'"
+                                           class="w-full rounded-xl border-gray-300 focus:border-[#F56C3E] focus:ring-2 focus:ring-[#F56C3E] pl-10 font-bold text-gray-800 shadow-sm py-2.5 text-base">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Submit Button --}}
+                    <div class="flex justify-end pt-6 border-t border-gray-100">
+                        <button type="submit" class="bg-gradient-to-r from-[#F56C3E] to-[#e45322] hover:from-[#e45322] hover:to-[#F56C3E] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-orange-500/20 transition transform hover:-translate-y-0.5 flex items-center gap-2.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            <span>Proses & Terbitkan Tagihan</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        // 1. Logic Toggle Target (Siswa vs Kelas vs Semua)
-        function toggleTarget(type) {
-            const inputStudent = document.getElementById('input-student');
-            const inputClass = document.getElementById('input-class');
+        function billGenerator() {
+            const rawStudents = @json($students->map(fn($s) => [
+                'id'         => $s->id,
+                'name'       => $s->name,
+                'nis'        => $s->nis,
+                'class_name' => optional($s->kelas)->nama_kelas ?? '-',
+            ]));
 
-            if (type === 'student') {
-                inputStudent.classList.remove('hidden');
-                inputClass.classList.add('hidden');
-            } else if (type === 'class') {
-                inputStudent.classList.add('hidden');
-                inputClass.classList.remove('hidden');
-            } else { // All
-                inputStudent.classList.add('hidden');
-                inputClass.classList.add('hidden');
-            }
-        }
+            const monthNames = [
+                '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
 
-        // 2. Logic Toggle Tipe (SPP vs Regular)
-        function toggleFormType() {
-            const type = document.getElementById('typeSelector').value;
-            const formSpp = document.getElementById('form-spp');
-            const formRegular = document.getElementById('form-regular');
-            
-            // Ambil semua input di dalam form masing-masing
-            const sppInputs = formSpp.querySelectorAll('input, select');
-            const regularInputs = formRegular.querySelectorAll('input, select');
+            const currentYear = {{ date('Y') }};
+            const currentMonth = {{ date('n') }};
+            const pad = (n) => String(n).padStart(2, '0');
 
-            if(type === 'SPP') {
-                // Tampilkan Form SPP
-                formSpp.classList.remove('hidden');
-                formRegular.classList.add('hidden');
-                
-                // Aktifkan input SPP, Matikan input Regular
-                // (Penting agar validasi controller tidak error)
-                sppInputs.forEach(el => el.disabled = false);
-                regularInputs.forEach(el => el.disabled = true);
-            } else {
-                // Tampilkan Form Regular
-                formSpp.classList.add('hidden');
-                formRegular.classList.remove('hidden');
-                
-                // Aktifkan input Regular, Matikan input SPP
-                sppInputs.forEach(el => el.disabled = true);
-                regularInputs.forEach(el => el.disabled = false);
-            }
-        }
+            return {
+                targetType: 'student',
+                billType: 'SPP',
+                sppMonth: currentMonth,
+                sppYear: currentYear,
+                sppDueDate: `${currentYear}-${pad(currentMonth)}-10`,
 
-        // 3. Logic Table Item (Manual vs Bundle)
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // Jalankan toggle type saat load halaman
-            toggleFormType();
+                // Autocomplete Student State
+                students: rawStudents,
+                studentSearch: '',
+                selectedStudent: null,
+                showStudentDropdown: false,
 
-            function updateRowLogic(row) {
-                const typeSelector = row.querySelector('.type-selector');
-                const inputName = row.querySelector('.input-name');
-                const selectBundle = row.querySelector('.select-bundle');
-                const inputPrice = row.querySelector('.input-price');
-                const inputBundleId = row.querySelector('.input-bundle-id');
+                get filteredStudents() {
+                    if (!this.studentSearch) return this.students.slice(0, 15);
+                    const q = this.studentSearch.toLowerCase();
+                    return this.students.filter(s => {
+                        const nameMatch = s.name && s.name.toLowerCase().includes(q);
+                        const nisMatch  = s.nis && s.nis.toLowerCase().includes(q);
+                        const classMatch= s.class_name && s.class_name.toLowerCase().includes(q);
+                        return nameMatch || nisMatch || classMatch;
+                    }).slice(0, 20);
+                },
 
-                // A. Handle Perubahan Tipe (Manual vs Paket)
-                typeSelector.addEventListener('change', function() {
-                    if (this.value === 'bundle') {
-                        inputName.classList.add('hidden');
-                        selectBundle.classList.remove('hidden');
-                        inputPrice.setAttribute('readonly', true);
-                        inputPrice.classList.add('bg-gray-100', 'cursor-not-allowed');
-                    } else {
-                        inputName.classList.remove('hidden');
-                        selectBundle.classList.add('hidden');
-                        inputPrice.removeAttribute('readonly');
-                        inputPrice.classList.remove('bg-gray-100', 'cursor-not-allowed');
-                        inputPrice.value = '';
-                        inputName.value = '';
-                        inputBundleId.value = '';
-                    }
-                    calculateTotal();
-                });
+                selectStudent(student) {
+                    this.selectedStudent = student;
+                    this.studentSearch = `${student.name} - ${student.class_name}`;
+                    this.showStudentDropdown = false;
+                },
 
-                // B. Handle Pilihan Paket
-                selectBundle.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const price = selectedOption.getAttribute('data-price');
-                    const name = selectedOption.getAttribute('data-name');
-                    
-                    if (price) {
-                        inputPrice.value = price;
-                        inputName.value = name; 
-                        inputBundleId.value = this.value; 
-                        calculateTotal();
-                    }
-                });
+                clearStudent() {
+                    this.selectedStudent = null;
+                    this.studentSearch = '';
+                },
 
-                // C. Handle Perubahan Harga Manual
-                inputPrice.addEventListener('input', calculateTotal);
-                row.querySelector('input[name="item_qtys[]"]').addEventListener('input', calculateTotal);
-                
-                // D. Handle Hapus Baris dengan SWEETALERT2
-                row.querySelector('.remove-row').addEventListener('click', function() {
-                    const rowCount = document.querySelectorAll('.item-row').length;
-                    
-                    if (rowCount <= 1) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Tidak Bisa Dihapus',
-                            text: 'Minimal harus ada satu item dalam tagihan!',
-                            confirmButtonColor: '#F56C3E'
-                        });
-                        return;
-                    }
+                getMonthName(m) {
+                    return monthNames[parseInt(m)] || '';
+                },
 
-                    Swal.fire({
-                        title: 'Hapus Item?',
-                        text: "Item ini akan dihapus dari daftar tagihan.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#777777',
-                        confirmButtonText: 'Ya, Hapus!',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            row.remove(); 
-                            calculateTotal(); 
-                            
-                            const Toast = Swal.mixin({
-                                toast: true, position: 'top-end',
-                                showConfirmButton: false, timer: 1500, timerProgressBar: true
-                            });
-                            Toast.fire({ icon: 'success', title: 'Item dihapus' });
-                        }
+                init() {
+                    this.$watch('sppMonth', (val) => {
+                        this.updateDefaultDueDate();
                     });
-                });
+                    this.$watch('sppYear', (val) => {
+                        this.updateDefaultDueDate();
+                    });
+                },
+
+                updateDefaultDueDate() {
+                    this.sppDueDate = `${this.sppYear}-${pad(this.sppMonth)}-10`;
+                }
             }
-
-            // Hitung Total Semua Baris
-            function calculateTotal() {
-                let total = 0;
-                document.querySelectorAll('.item-row').forEach(row => {
-                    const price = parseFloat(row.querySelector('input[name="item_prices[]"]').value) || 0;
-                    const qty = parseFloat(row.querySelector('input[name="item_qtys[]"]').value) || 1;
-                    total += (price * qty);
-                });
-                document.getElementById('grand-total').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
-            }
-
-            // Init Logic untuk baris pertama
-            updateRowLogic(document.querySelector('.item-row'));
-
-            // Tambah Baris Baru
-            document.getElementById('add-row').addEventListener('click', function() {
-                const firstRow = document.querySelector('.item-row');
-                const newRow = firstRow.cloneNode(true);
-                
-                // Reset Value di baris baru
-                newRow.querySelector('.input-name').value = '';
-                newRow.querySelector('.input-price').value = '';
-                newRow.querySelector('input[name="item_qtys[]"]').value = '1';
-                newRow.querySelector('select.type-selector').value = 'manual';
-                
-                // Reset tampilan input manual vs bundle
-                newRow.querySelector('.select-bundle').classList.add('hidden');
-                newRow.querySelector('.input-name').classList.remove('hidden');
-                newRow.querySelector('.input-price').removeAttribute('readonly');
-                newRow.querySelector('.input-price').classList.remove('bg-gray-100', 'cursor-not-allowed');
-
-                document.getElementById('items-container').appendChild(newRow);
-                updateRowLogic(newRow); // Pasang event listener ke baris baru
-            });
-        });
+        }
     </script>
 </x-app-layout>

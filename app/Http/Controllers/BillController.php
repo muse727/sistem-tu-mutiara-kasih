@@ -111,6 +111,7 @@ class BillController extends Controller
         $request->validate([
             'target_type' => 'required|in:student,class,all',
             'type'        => 'required|in:SPP,GEDUNG,DAFTAR_ULANG,KOMITE,KEGIATAN,SERAGAM,BUKU,UJIAN,WISATA,PERPISAHAN,LAINNYA',
+            'due_date'    => 'nullable|date',
         ]);
 
         $targetType = $request->target_type;
@@ -181,7 +182,9 @@ class BillController extends Controller
                     }
 
                     $monthName = Carbon::createFromDate($year, $month, 1)->translatedFormat('F');
-                    $dueDate   = Carbon::createFromDate($year, $month, 10)->toDateString();
+                    $dueDate   = $request->filled('due_date')
+                        ? Carbon::parse($request->due_date)->toDateString()
+                        : Carbon::createFromDate($year, $month, 10)->toDateString();
 
                     $finalAmount    = max(0, $amount - $discountAmount);
 
@@ -206,6 +209,9 @@ class BillController extends Controller
                     // ── Regular bill flow ─────────────────────────────────────
                     $total       = (float) $request->regular_amount;
                     $finalAmount = max(0, $total - $discountAmount);
+                    $dueDate     = $request->filled('due_date')
+                        ? Carbon::parse($request->due_date)->toDateString()
+                        : null;
 
                     $bill = StudentBill::create([
                         'student_id'      => $student->id,
@@ -215,6 +221,7 @@ class BillController extends Controller
                         'original_amount' => $total,
                         'discount_amount' => $discountAmount,
                         'discount_note'   => $discountNote,
+                        'due_date'        => $dueDate,
                         'status'          => 'UNPAID',
                         'created_by'      => Auth::id(),
                     ]);
