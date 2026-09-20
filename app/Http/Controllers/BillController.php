@@ -95,12 +95,21 @@ class BillController extends Controller
             ->orderBy('name')
             ->get();
 
+        $studentsJson = $students->map(function ($s) {
+            return [
+                'id'         => $s->id,
+                'name'       => $s->name,
+                'nis'        => $s->nis,
+                'class_name' => optional($s->kelas)->nama_kelas ?? '-',
+            ];
+        });
+
         // Kelas for class-target picker — sourced from master
         $kelasList = Kelas::aktif()->orderBy('tingkat')->orderBy('nama_kelas')->get();
 
         $bundles = PosBundle::where('is_active', true)->orderBy('name')->get();
 
-        return view('bills.create', compact('students', 'kelasList', 'bundles'));
+        return view('bills.create', compact('students', 'studentsJson', 'kelasList', 'bundles'));
     }
 
     // =========================================================================

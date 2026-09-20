@@ -341,12 +341,7 @@
 
     <script>
         function billGenerator() {
-            const rawStudents = @json($students->map(fn($s) => [
-                'id'         => $s->id,
-                'name'       => $s->name,
-                'nis'        => $s->nis,
-                'class_name' => optional($s->kelas)->nama_kelas ?? '-',
-            ]));
+            const rawStudents = {!! json_encode($studentsJson) !!};
 
             const monthNames = [
                 '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
