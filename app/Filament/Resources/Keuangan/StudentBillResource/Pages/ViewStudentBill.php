@@ -34,7 +34,7 @@ class ViewStudentBill extends ViewRecord
                         ->label('NIS')
                         ->fontFamily('mono'),
 
-                    Infolists\Components\TextEntry::make('student.kelas.name')
+                    Infolists\Components\TextEntry::make('student.kelas.nama_kelas')
                         ->label('Kelas')
                         ->badge()
                         ->color('info'),

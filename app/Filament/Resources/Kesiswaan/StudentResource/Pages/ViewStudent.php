@@ -73,7 +73,7 @@ class ViewStudent extends ViewRecord
                     Infolists\Components\TextEntry::make('religion')
                         ->label('Agama'),
 
-                    Infolists\Components\TextEntry::make('kelas.name')
+                    Infolists\Components\TextEntry::make('kelas.nama_kelas')
                         ->label('Kelas')
                         ->badge()
                         ->color('info'),

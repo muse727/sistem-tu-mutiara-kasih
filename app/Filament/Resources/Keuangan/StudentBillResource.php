@@ -179,7 +179,7 @@ class StudentBillResource extends Resource
                     ->sortable()
                     ->weight('semibold'),
 
-                Tables\Columns\TextColumn::make('student.kelas.name')
+                Tables\Columns\TextColumn::make('student.kelas.nama_kelas')
                     ->label('Kelas')
                     ->badge()
                     ->color('info'),

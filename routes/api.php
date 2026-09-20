@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ParentApiController; // <--- Pastikan ini ada!
 use App\Http\Controllers\Integration\FinanceStudentController;
+use App\Http\Controllers\Integration\FinanceKelasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,5 +34,6 @@ Route::middleware(['finance.hmac', 'throttle:60,1'])
     ->name('integration.finance.students.')
     ->group(function () {
         Route::get('/', [FinanceStudentController::class, 'index'])->name('index');
+        Route::get('/kelas', [FinanceKelasController::class, 'index'])->name('kelas');
         Route::get('/{student_uuid}', [FinanceStudentController::class, 'show'])->name('show');
     });

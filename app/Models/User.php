@@ -4,10 +4,12 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
 
@@ -46,6 +48,15 @@ class User extends Authenticatable
     public function hasRole($role): bool
     {
         return $this->role === $role;
+    }
+
+    /**
+     * Filament: izinkan akses panel untuk seluruh role staf (bukan siswa).
+     * Wajib di production — tanpa ini Filament menolak semua user (403).
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return in_array($this->role, ['admin', 'tu', 'staf', 'kepala_sekolah'], true);
     }
 
     public function isAdmin(): bool

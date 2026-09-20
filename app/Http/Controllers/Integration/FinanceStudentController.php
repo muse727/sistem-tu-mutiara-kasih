@@ -48,6 +48,7 @@ class FinanceStudentController extends Controller
             'student_uuid' => ['nullable', 'uuid'],
             'nis' => ['nullable', 'string', 'max:30'],
             'nisn' => ['nullable', 'string', 'max:20'],
+            'kelas_id' => ['nullable', 'integer', 'min:1'],
             'name' => ['nullable', 'string', 'min:2', 'max:100'],
             'status' => ['nullable', 'string', 'in:'.implode(',', array_keys(Student::STATUSES))],
             'page' => ['nullable', 'integer', 'min:1'],
@@ -57,6 +58,7 @@ class FinanceStudentController extends Controller
         $hasFilter = filled($validated['student_uuid'] ?? null)
             || filled($validated['nis'] ?? null)
             || filled($validated['nisn'] ?? null)
+            || filled($validated['kelas_id'] ?? null)
             || filled($validated['name'] ?? null)
             || filled($validated['status'] ?? null);
 
@@ -77,6 +79,9 @@ class FinanceStudentController extends Controller
         }
         if (filled($validated['nisn'] ?? null)) {
             $query->where('nisn', $validated['nisn']);
+        }
+        if (filled($validated['kelas_id'] ?? null)) {
+            $query->where('kelas_id', (int) $validated['kelas_id']);
         }
         if (filled($validated['name'] ?? null)) {
             $query->where('name', 'like', '%'.$validated['name'].'%');
@@ -148,6 +153,7 @@ class FinanceStudentController extends Controller
             'nis' => $s->nis,
             'nisn' => $s->nisn,
             'name' => $s->name,
+            'kelas_id' => $s->kelas_id,
             'kelas' => $s->kelas?->nama_kelas,
             'rombel' => $s->rombelAktif?->rombel?->nama_rombel,
             'status' => $s->status,

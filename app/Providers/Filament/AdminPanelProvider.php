@@ -52,16 +52,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make('Kesiswaan')
-                    ->icon('heroicon-o-academic-cap')
                     ->collapsed(false),
                 NavigationGroup::make('Keuangan')
-                    ->icon('heroicon-o-banknotes')
                     ->collapsed(false),
                 NavigationGroup::make('Point of Sale')
-                    ->icon('heroicon-o-shopping-cart')
                     ->collapsed(true),
                 NavigationGroup::make('Pengaturan')
-                    ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(true),
             ])
             ->middleware([

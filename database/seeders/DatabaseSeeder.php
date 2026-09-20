@@ -52,5 +52,8 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        // 5. Data siswa contoh (tahun ajaran, kelas, rombel, siswa)
+        $this->call(SiswaSeeder::class);
     }
 }

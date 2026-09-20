@@ -74,7 +74,7 @@ class StudentResource extends Resource
 
                     Forms\Components\Select::make('kelas_id')
                         ->label('Kelas')
-                        ->relationship('kelas', 'name')
+                        ->relationship('kelas', 'nama_kelas')
                         ->searchable()
                         ->preload()
                         ->nullable(),
@@ -151,7 +151,7 @@ class StudentResource extends Resource
                     ->sortable()
                     ->weight('semibold'),
 
-                Tables\Columns\TextColumn::make('kelas.name')
+                Tables\Columns\TextColumn::make('kelas.nama_kelas')
                     ->label('Kelas')
                     ->badge()
                     ->color('info')
@@ -197,7 +197,7 @@ class StudentResource extends Resource
 
                 Tables\Filters\SelectFilter::make('kelas_id')
                     ->label('Kelas')
-                    ->relationship('kelas', 'name')
+                    ->relationship('kelas', 'nama_kelas')
                     ->searchable()
                     ->preload(),
 
